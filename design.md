@@ -97,3 +97,27 @@ Examples: "Cast in 18k gold, finished by hand." "Made to be passed down." "Visit
 3. Check spelling of Jewelers and Patiala.
 4. Make the brand the hero, then the content.
 5. Output as clean HTML or SVG with real text so it can be pasted into Figma.
+## Website UI rules (added October 2026, supersede anything above that conflicts for the website)
+
+Reference: Cartier, Van Cleef & Arpels, Tiffany and Chopard (checked October 2026). Calm, white-and-black, fine hairlines, brand colour used sparingly.
+
+Surfaces (60 / 30 / 10)
+- About 70% light, 30% Soft Black, measured by section height. Gold is an accent only: the logo, the saved-heart marker and the WhatsApp icon. Never a fill, never a border.
+- Soft White `#FAF8F3` is the ONLY light colour. No beige or cream backgrounds anywhere (Cream `#F3EFE6` is only text on dark surfaces). Photos load on a neutral Soft Black tint at 5%, and the map is light neutral grey.
+- Sections are told apart by a fine grey line, generous space and the dark bands (the "Our story" section and the footer), not by tinted backgrounds.
+- Content that must stand apart (boutiques, contact details, forms, value cards) sits in a card with a fine grey border and no fill.
+- Inner pages open with a title block that ends in a fine line.
+
+Borders
+- Dividers and card edges: fine grey hairline, Soft Black at 10 to 16% opacity.
+- Form fields and outline buttons: a clear 1px Soft Black border (fields at 50%), like Cartier's.
+- No gold borders. No borders on the floating WhatsApp button.
+
+Text
+- Body: Montserrat Light 300, 16px, Soft Black.
+- Secondary text: Soft Black at 78% (replaces Warm Grey `#6A6458`, which was too faint at Light weight).
+- Small uppercase labels, nav links, buttons and form labels: Montserrat Regular 400 at 11.5 px or larger. Light is too thin at those sizes. Still never bold.
+
+Header and motion
+- The header height, logo size and wordmark follow the scroll position directly (no timed animation), so they never lag a fast scroll.
+- Smooth scrolling uses Lenis and is off for people who ask for reduced motion.

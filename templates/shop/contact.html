@@ -63,10 +63,10 @@
   </div>
 </dialog>
 
-<section class="section section--flush">
+<section class="section surface-alt">
   <div class="container contact-grid">
-    <div>
-      <span class="label">Direct contact</span>
+    <div class="panel">
+      <h2 class="panel-title">Speak with us</h2>
       <ul class="contact-list">
         {% if store.phone %}<li><span class="label">Phone</span><a href="tel:{{ store.phone }}">{{ store.phone }}</a></li>{% endif %}
         {% if store.whatsapp %}<li><span class="label">WhatsApp</span><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Message us</a></li>{% endif %}
@@ -74,8 +74,8 @@
         {% if store.instagram_url %}<li><span class="label">Instagram</span><a href="{{ store.instagram_url }}" target="_blank" rel="noopener">Follow us</a></li>{% endif %}
       </ul>
     </div>
-    <div id="appointment">
-      <span class="label">Send a message</span>
+    <div class="panel" id="appointment">
+      <h2 class="panel-title">Send a message</h2>
       {% include "shop/_enquiry_form.html" %}
     </div>
   </div>
