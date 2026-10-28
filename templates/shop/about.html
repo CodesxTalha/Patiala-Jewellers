@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Our Story · {{ store.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <span class="label">About</span>
+    <h1>{{ store.about_heading }}</h1>
+  </div>
+</section>
+
+<section class="section section--flush">
+  <div class="container split">
+    <div class="split-img" data-reveal><img src="{{ story_image }}" alt=""></div>
+    <div class="split-text prose" data-reveal>
+      {% if store.about_text %}{{ store.about_text|linebreaks }}{% endif %}
+      <a href="{% url 'shop:contact' %}" class="link-underline">Visit a boutique</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--flush">
+  <div class="container">
+    <div class="values">
+      <div class="value" data-reveal><h3>Hallmarked gold</h3><p>Every piece is tested and stamped for purity.</p></div>
+      <div class="value" data-reveal><h3>Certified diamonds</h3><p>Each stone is graded before it is set.</p></div>
+      <div class="value" data-reveal><h3>Finished by hand</h3><p>Polished and checked twice by our craftsmen.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section surface-dark center">
+  <div class="container" data-reveal>
+    <hr class="rule">
+    <p class="quote">Made to be passed down.</p>
+    <a href="{% url 'shop:collections' %}" class="btn">Discover the collections</a>
+  </div>
+</section>
+{% endblock %}

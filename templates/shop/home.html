@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+{# 1. Hero: full-screen video (a portrait cut on phones), title, one line and one button at the bottom #}
+<section class="hero" aria-label="{{ store.name }}">
+  <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" data-hero-video
+         poster="{% static 'img/hero/hero-poster.jpg' %}"
+         data-poster-mobile="{% static 'img/hero/hero-poster-mobile.jpg' %}"
+         data-webm="{% static 'img/hero/hero.webm' %}" data-mp4="{% static 'img/hero/hero.mp4' %}"
+         data-webm-mobile="{% static 'img/hero/hero-mobile.webm' %}" data-mp4-mobile="{% static 'img/hero/hero-mobile.mp4' %}"></video>
+  <div class="hero-text">
+    <span class="label hero-label">{{ store.name }} · {{ store.descriptor }}</span>
+    <h1>{{ store.tagline }}</h1>
+    <p>Hallmarked gold and certified diamonds, finished by hand in Islamabad.</p>
+    <a href="{% url 'shop:collections' %}" class="btn hero-btn">Discover the collections</a>
+  </div>
+</section>
+
+{# 2. Collections #}
+{% if categories %}
+<section class="section">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="label">The collections</span>
+      <h2>Find your piece</h2>
+    </div>
+    <div class="tiles" data-reveal>
+      {% for c in categories %}
+      <a href="{{ c.get_absolute_url }}" class="tile">
+        <div class="tile-img">{% if c.photo_url %}<img src="{{ c.photo_url }}" alt="" loading="lazy">{% endif %}</div>
+        <h3>{{ c.name }}</h3>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# 3. Selected pieces #}
+{% if featured %}
+<section class="section section--flush">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="label">Selected pieces</span>
+      <h2>Made to be worn</h2>
+    </div>
+    <div class="product-grid" data-reveal>
+      {% for p in featured %}{% include "shop/_product_card.html" %}{% endfor %}
+    </div>
+    <div class="section-foot"><a href="{% url 'shop:collections' %}" class="btn">View all pieces</a></div>
+  </div>
+</section>
+{% endif %}
+
+{# 4. Our story: background photo with the text on top #}
+<section class="story surface-dark" data-inview>
+  <div class="story-bg" aria-hidden="true">
+    <picture>
+      <source media="(max-width: 767px)" srcset="{{ story_image_mobile }}">
+      <img src="{{ story_image }}" alt="" loading="lazy">
+    </picture>
+  </div>
+  <div class="story-shade" aria-hidden="true"></div>
+  <div class="container story-content">
+    <div class="story-text" data-reveal>
+      <span class="label">Our story</span>
+      <h2>Cast in gold, finished by hand.</h2>
+      <hr class="rule">
+      <p class="lead">We keep our collections small, so every design gets the time it deserves. Each piece is checked twice before it leaves the workshop.</p>
+      <a href="{% url 'shop:about' %}" class="link-underline">Read our story</a>
+    </div>
+  </div>
+</section>
+
+{# 5. Boutiques #}
+{% if branches %}
+<section class="section">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="label">Boutiques</span>
+      <h2>Visit us in Islamabad</h2>
+    </div>
+    <div class="boutiques" data-reveal>
+      {% for b in branches %}
+      <div class="boutique">
+        <h3>{{ b.name }}</h3>
+        {% if b.address %}<p>{{ b.address }}</p>{% endif %}
+        {% if b.opening_hours %}<p>{{ b.opening_hours }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="section-foot"><a href="{% url 'shop:contact' %}#boutiques" class="link-underline">View on the map</a></div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

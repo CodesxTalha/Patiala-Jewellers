@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} · {{ store.name }}{% endblock %}
+{% block meta_description %}{{ product.description|truncatechars:155 }}{% endblock %}
+
+{% block content %}
+<section class="section--tight">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="{% url 'shop:collections' %}">Collections</a><span>/</span>
+      <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a><span>/</span>
+      <span>{{ product.name }}</span>
+    </nav>
+
+    <div class="pdp">
+      <div class="pdp-gallery">
+        <div class="pdp-main">
+          {% if photos %}<img id="pdp-main-img" src="{{ photos.0 }}" alt="{{ product.name }}">{% endif %}
+        </div>
+        {% if photos|length > 1 %}
+        <div class="thumbs" role="group" aria-label="Photos">
+          {% for url in photos %}
+          <button type="button" class="thumb{% if forloop.first %} is-active{% endif %}" data-src="{{ url }}" aria-label="Show photo {{ forloop.counter }}">
+            <img src="{{ url }}" alt="" loading="lazy">
+          </button>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="pdp-info">
+        <span class="label">{{ product.category.name }}</span>
+        <h1>{{ product.name }}</h1>
+        <p class="pdp-price">{{ product.price_label }}</p>
+        <hr class="rule">
+        {% if product.description %}<p class="pdp-desc">{{ product.description }}</p>{% endif %}
+
+        <dl class="specs">
+          <dt>Metal</dt><dd>{{ product.get_metal_display }}</dd>
+          {% if product.purity %}<dt>Purity</dt><dd>{{ product.purity }}</dd>{% endif %}
+          {% if product.weight_label %}<dt>Weight</dt><dd>{{ product.weight_label }} g</dd>{% endif %}
+          {% if product.gemstone %}<dt>Stone</dt><dd>{{ product.gemstone }}</dd>{% endif %}
+        </dl>
+
+        <div class="pdp-actions">
+          {% if store.whatsapp %}
+          <a class="btn btn-solid btn-block" href="https://wa.me/{{ store.whatsapp }}?text={{ wa_message|urlencode }}" target="_blank" rel="noopener">Enquire on WhatsApp</a>
+          {% else %}
+          <a class="btn btn-solid btn-block" href="#enquire">Send an enquiry</a>
+          {% endif %}
+          <button type="button" class="btn btn-block fav-toggle" data-fav="{{ product.slug }}" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5S3.5 15 3.5 8.9A4.4 4.4 0 0 1 12 7.2a4.4 4.4 0 0 1 8.5 1.7C20.5 15 12 20.5 12 20.5Z"/></svg>
+            <span data-fav-text>Save to favorites</span>
+          </button>
+        </div>
+        <p class="pdp-note">Visit any boutique to see this piece in person.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--flush" id="enquire">
+  <div class="container">
+    <div class="enquiry">
+      <div class="section-head">
+        <span class="label">Prefer a call back</span>
+        <h2>Send an enquiry</h2>
+      </div>
+      {% include "shop/_enquiry_form.html" %}
+    </div>
+  </div>
+</section>
+
+{% if related %}
+<section class="section">
+  <div class="container">
+    <div class="section-head"><span class="label">More from {{ product.category.name }}</span><h2>You may also like</h2></div>
+    <div class="product-grid">
+      {% for p in related %}{% include "shop/_product_card.html" %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

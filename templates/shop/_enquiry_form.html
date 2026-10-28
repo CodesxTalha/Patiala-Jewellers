@@ -1,0 +1,14 @@
+<form method="post" class="form" novalidate>
+  {% csrf_token %}
+  {{ form.website }}
+  {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  {% for field in form.visible_fields %}
+  <div class="field">
+    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+    {{ field }}
+    {% if field.errors %}<p class="form-error">{{ field.errors|join:" " }}</p>{% endif %}
+  </div>
+  {% endfor %}
+  {% if form.website.errors %}<p class="form-error">Something went wrong, please try again.</p>{% endif %}
+  <button type="submit" class="btn btn-solid btn-block">Send enquiry</button>
+</form>

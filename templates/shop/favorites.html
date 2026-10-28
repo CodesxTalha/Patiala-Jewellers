@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Favorites · {{ store.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <span class="label">Favorites</span>
+    <h1>Your favorites</h1>
+    <p class="lead">Pieces you save with the heart are kept in this browser.</p>
+  </div>
+</section>
+
+<section class="section section--flush">
+  <div class="container">
+    <div class="fav-bar" data-fav-bar hidden>
+      <p data-fav-count></p>
+      {% if store.whatsapp %}<a class="btn btn-solid" href="#" data-fav-whatsapp data-wa-number="{{ store.whatsapp }}" target="_blank" rel="noopener">Send my list on WhatsApp</a>{% endif %}
+    </div>
+
+    <div class="product-grid" data-fav-grid></div>
+
+    <div class="empty" data-fav-empty hidden>
+      <p>You have not saved any pieces yet.</p>
+      <a href="{% url 'shop:collections' %}" class="btn">Browse the collections</a>
+    </div>
+  </div>
+</section>
+
+{{ pieces|json_script:"all-pieces" }}
+{% endblock %}

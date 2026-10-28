@@ -1,0 +1,12 @@
+{% comment %}
+  Primary brand lockup (design.md): monogram, PATIALA, JEWELERS between thin
+  gold lines, GOLD & DIAMONDS. Usage:
+    {% include "_lockup.html" %}                 full lockup
+    {% include "_lockup.html" with size="lg" %}  large (hero)
+{% endcomment %}
+<span class="lockup{% if size %} lockup--{{ size }}{% endif %}">
+  {% include "_monogram.html" with cls="lockup-monogram" %}
+  <span class="lockup-name">Patiala</span>
+  <span class="lockup-descriptor">Jewelers</span>
+  <span class="lockup-sub">{{ store.descriptor }}</span>
+</span>

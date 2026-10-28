@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact · {{ store.name }}{% endblock %}
+
+{% block head_extra %}<link rel="stylesheet" href="{% static 'vendor/maplibre/maplibre-gl.css' %}">{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/maplibre/maplibre-gl.js' %}" defer></script>
+<script src="{% static 'js/map.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <span class="label">Contact</span>
+    <h1>Visit us for a private appointment</h1>
+  </div>
+</section>
+
+<section class="section section--flush" id="boutiques" data-map-style="{% static 'map/style.json' %}">
+  <div class="container">
+    <div class="boutiques">
+      {% for b in branches %}
+      <div class="boutique">
+        <h3>{{ b.name }}</h3>
+        {% if b.address %}<p>{{ b.address }}</p>{% endif %}
+        {% if b.opening_hours %}<p>{{ b.opening_hours }}</p>{% endif %}
+        {% if b.phone %}<p><a href="tel:{{ b.phone }}">{{ b.phone }}</a></p>{% endif %}
+        {% if b.latitude and b.longitude %}
+        <div class="mini-map-wrap" data-open-map="{{ b.pk }}">
+          <div class="mini-map" data-mini-map="{{ b.pk }}" role="img" aria-label="Map showing the {{ b.name }} boutique"></div>
+          <button type="button" class="expand-btn" data-open-map="{{ b.pk }}" aria-label="Enlarge the map of {{ b.name }}" title="Enlarge map">
+            <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M8.5 1H13v4.5M5.5 13H1V8.5M13 1 8 6M1 13l5-5"/></svg>
+          </button>
+        </div>
+        <noscript><a class="link-underline" href="{{ b.maps_url }}">Open in Google Maps</a></noscript>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p class="empty">Boutique details are coming soon.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<dialog class="map-dialog" id="map-dialog" aria-label="Boutique map" data-lenis-prevent>
+  <div class="map-dialog-head">
+    <div>
+      <span class="label">Boutique</span>
+      <h2 data-md-name></h2>
+      <p class="muted" data-md-address></p>
+    </div>
+    <button type="button" class="map-close" data-md-close aria-label="Close map">
+      <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M1 1l12 12M13 1 1 13"/></svg>
+    </button>
+  </div>
+  <div class="map-dialog-map" id="big-map">
+    <div class="map-zoom">
+      <button type="button" data-zoom="in" aria-label="Zoom in"><svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M7 1v12M1 7h12"/></svg></button>
+      <button type="button" data-zoom="out" aria-label="Zoom out"><svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M1 7h12"/></svg></button>
+    </div>
+  </div>
+</dialog>
+
+<section class="section section--flush">
+  <div class="container contact-grid">
+    <div>
+      <span class="label">Direct contact</span>
+      <ul class="contact-list">
+        {% if store.phone %}<li><span class="label">Phone</span><a href="tel:{{ store.phone }}">{{ store.phone }}</a></li>{% endif %}
+        {% if store.whatsapp %}<li><span class="label">WhatsApp</span><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Message us</a></li>{% endif %}
+        {% if store.email %}<li><span class="label">Email</span><a href="mailto:{{ store.email }}">{{ store.email }}</a></li>{% endif %}
+        {% if store.instagram_url %}<li><span class="label">Instagram</span><a href="{{ store.instagram_url }}" target="_blank" rel="noopener">Follow us</a></li>{% endif %}
+      </ul>
+    </div>
+    <div id="appointment">
+      <span class="label">Send a message</span>
+      {% include "shop/_enquiry_form.html" %}
+    </div>
+  </div>
+</section>
+
+{{ points|json_script:"branch-points" }}
+{% endblock %}

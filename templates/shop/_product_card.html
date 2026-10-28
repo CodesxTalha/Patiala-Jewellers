@@ -1,0 +1,15 @@
+<article class="product-card">
+  <a href="{{ p.get_absolute_url }}" class="product-link">
+    <div class="product-img">
+      {% if p.photo_url %}<img src="{{ p.photo_url }}" alt="{{ p.name }}" loading="lazy">{% endif %}
+    </div>
+    <div class="product-info">
+      <span class="label">{{ p.category.name }}</span>
+      <h3>{{ p.name }}</h3>
+      <p class="price">{{ p.price_label }}</p>
+    </div>
+  </a>
+  <button type="button" class="fav-btn" data-fav="{{ p.slug }}" aria-pressed="false" aria-label="Save {{ p.name }} to favorites">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5S3.5 15 3.5 8.9A4.4 4.4 0 0 1 12 7.2a4.4 4.4 0 0 1 8.5 1.7C20.5 15 12 20.5 12 20.5Z"/></svg>
+  </button>
+</article>
