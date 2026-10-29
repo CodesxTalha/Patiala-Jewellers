@@ -121,3 +121,9 @@ Text
 Header and motion
 - The header height, logo size and wordmark follow the scroll position directly (no timed animation), so they never lag a fast scroll.
 - Smooth scrolling uses Lenis and is off for people who ask for reduced motion.
+
+### Contrast update (October 2026)
+- Body text is Montserrat Regular 400 (was Light 300). Secondary text is Soft Black at 88%. Labels use .22em tracking, not .32em.
+- On dark bands, secondary text is Cream at 85 to 90%.
+- Fine lines are Soft Black at 15 to 22%.
+- Breadcrumbs: phones show only a back link to the category, never the full path or product name.

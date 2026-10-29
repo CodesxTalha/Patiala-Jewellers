@@ -10,13 +10,33 @@
   <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'vendor/lenis/lenis.css' %}">
   {% block head_extra %}{% endblock %}
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
-  <script>document.documentElement.classList.add("js");</script>
+  <script>
+    (function (d) {
+      d.classList.add("js");
+      // The intro shows once per visit (or on demand with ?preloader). Skipped when the device asks for less motion.
+      try {
+        var forced = /[?&]preloader\b/.test(location.search);
+        var seen = sessionStorage.getItem("pj-intro");
+        var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if ((forced || !seen) && !calm) {
+          d.classList.add("is-loading");
+          setTimeout(function () { d.classList.remove("is-loading"); }, 6000);   // safety net: never trap the page
+        }
+      } catch (e) {}
+    })(document.documentElement);
+  </script>
 </head>
 <body>
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-inner">
+      {% include "_lockup.html" with size="lg" %}
+      <span class="preloader-line"><span></span></span>
+    </div>
+  </div>
   {% with name=request.resolver_match.url_name %}
   <header class="site-header" id="site-header">
     <div class="header-inner">

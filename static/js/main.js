@@ -4,6 +4,27 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
+  /* ---------- Preloader: holds the page still for a moment, then fades away ---------- */
+  const preRoot = document.documentElement;
+  const pre = $("#preloader");
+  const MIN_SHOW = 2600;                       // lets the lockup finish its entrance before it leaves
+  const preStart = performance.now();
+  const preActive = preRoot.classList.contains("is-loading") && pre;
+  function endPreloader() {
+    if (!preActive) return;
+    pre.classList.add("is-done");
+    setTimeout(() => {
+      preRoot.classList.remove("is-loading");
+      try { sessionStorage.setItem("pj-intro", "1"); } catch (e) {}
+      if (!location.hash) window.scrollTo(0, 0);
+      if (window.lenis) window.lenis.start();
+    }, 900);
+  }
+  if (preActive) {
+    const done = () => setTimeout(endPreloader, Math.max(0, MIN_SHOW - (performance.now() - preStart)));
+    if (document.readyState === "complete") done(); else addEventListener("load", done, { once: true });
+  }
+
   /* ---------- Smooth scrolling (Lenis). Skipped for people who ask for less motion. ---------- */
   let lenis = null;
   if (window.Lenis && !reduceMotion) {
@@ -13,6 +34,7 @@
       smoothWheel: true,
     });
     window.lenis = lenis;                                          // map.js pauses it while the map dialog is open
+    if (preActive) lenis.stop();                                   // no scrolling while the preloader is up
     const raf = (time) => { lenis.raf(time); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);
 
@@ -107,6 +129,76 @@
 
   /* ---------- Collections: apply the metal filter on change ---------- */
   $$("[data-autosubmit]").forEach((el) => el.addEventListener("change", () => el.form.submit()));
+
+  /* ---------- Dropdowns: a themed list in place of the browser's own. The real <select> stays in the form. ---------- */
+  $$("select.select, select.field-select").forEach((sel, n) => {
+    const wrap = document.createElement("div");
+    wrap.className = "cselect" + (sel.classList.contains("field-select") ? " cselect--field" : "");
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(sel);
+    sel.classList.add("cselect-native");
+    sel.tabIndex = -1;
+    sel.setAttribute("aria-hidden", "true");
+
+    const id = "cs" + n;
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "cselect-btn";
+    btn.setAttribute("aria-haspopup", "listbox"); btn.setAttribute("aria-expanded", "false");
+    if (sel.getAttribute("aria-label")) btn.setAttribute("aria-label", sel.getAttribute("aria-label"));
+    btn.innerHTML = '<span class="cselect-value"></span><svg viewBox="0 0 10 6" width="10" height="6" aria-hidden="true"><path d="m1 1 4 4 4-4"/></svg>';
+    const list = document.createElement("ul");
+    list.className = "cselect-list"; list.id = id; list.setAttribute("role", "listbox"); list.tabIndex = -1;
+    list.setAttribute("data-lenis-prevent", "");
+    btn.setAttribute("aria-controls", id);
+    const opts = [...sel.options].map((o) => {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option"); li.dataset.value = o.value; li.textContent = o.textContent;
+      list.appendChild(li); return li;
+    });
+    wrap.append(btn, list);
+
+    const label = btn.querySelector(".cselect-value");
+    let active = 0;
+    const paint = () => {
+      const i = Math.max(0, sel.selectedIndex);
+      label.textContent = sel.options[i].textContent;
+      opts.forEach((li, k) => li.setAttribute("aria-selected", k === i ? "true" : "false"));
+    };
+    const mark = (i) => {
+      active = Math.min(opts.length - 1, Math.max(0, i));
+      opts.forEach((li, k) => li.classList.toggle("is-active", k === active));
+      opts[active].scrollIntoView({ block: "nearest" });
+    };
+    const isOpen = () => wrap.classList.contains("is-open");
+    const open = () => { wrap.classList.add("is-open"); btn.setAttribute("aria-expanded", "true"); mark(Math.max(0, sel.selectedIndex)); };
+    const close = (focus) => { wrap.classList.remove("is-open"); btn.setAttribute("aria-expanded", "false"); if (focus) btn.focus(); };
+    const pick = (i) => {
+      const changed = sel.selectedIndex !== i;
+      sel.selectedIndex = i; paint(); close(true);
+      if (changed) sel.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
+    btn.addEventListener("click", () => (isOpen() ? close() : open()));
+    opts.forEach((li, k) => {
+      li.addEventListener("click", () => pick(k));
+      li.addEventListener("mousemove", () => { if (active !== k) mark(k); });
+    });
+    btn.addEventListener("keydown", (e) => {
+      const keys = ["ArrowDown", "ArrowUp", "Home", "End", "Enter", " ", "Escape", "Tab"];
+      if (!keys.includes(e.key)) return;
+      if (e.key === "Tab") { close(); return; }
+      if (e.key === "Escape") { if (isOpen()) { e.preventDefault(); close(); } return; }
+      e.preventDefault();
+      if (!isOpen()) { open(); return; }
+      if (e.key === "ArrowDown") mark(active + 1);
+      else if (e.key === "ArrowUp") mark(active - 1);
+      else if (e.key === "Home") mark(0);
+      else if (e.key === "End") mark(opts.length - 1);
+      else pick(active);
+    });
+    document.addEventListener("click", (e) => { if (isOpen() && !wrap.contains(e.target)) close(); });
+    paint();
+  });
 
   /* ---------- Product gallery ---------- */
   const mainImg = $("#pdp-main-img");
