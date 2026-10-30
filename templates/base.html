@@ -45,6 +45,7 @@
         <nav class="header-nav" aria-label="Main">
           <a href="{% url 'shop:home' %}" {% if name == 'home' %}class="active"{% endif %}>Home</a>
           <a href="{% url 'shop:collections' %}" {% if name == 'collections' or name == 'product_detail' %}class="active"{% endif %}>Collections</a>
+          <a href="{% url 'shop:services' %}" {% if name == 'services' %}class="active"{% endif %}>Services</a>
           <a href="{% url 'shop:about' %}" {% if name == 'about' %}class="active"{% endif %}>Our Story</a>
         </nav>
       </div>
@@ -83,6 +84,7 @@
     <nav aria-label="Mobile">
       <a href="{% url 'shop:home' %}"><span>Home</span><svg class="chev" viewBox="0 0 8 14" width="8" height="14" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg></a>
       <a href="{% url 'shop:collections' %}"><span>Collections</span><svg class="chev" viewBox="0 0 8 14" width="8" height="14" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg></a>
+      <a href="{% url 'shop:services' %}"><span>Services</span><svg class="chev" viewBox="0 0 8 14" width="8" height="14" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg></a>
       <a href="{% url 'shop:about' %}"><span>Our Story</span><svg class="chev" viewBox="0 0 8 14" width="8" height="14" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg></a>
       <a href="{% url 'shop:contact' %}"><span>Contact</span><svg class="chev" viewBox="0 0 8 14" width="8" height="14" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg></a>
       <a href="{% url 'shop:favorites' %}"><span>Favorites</span><svg class="chev" viewBox="0 0 8 14" width="8" height="14" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg></a>
@@ -107,6 +109,7 @@
       {% include "_lockup.html" %}
       <ul class="footer-links">
         <li><a href="{% url 'shop:collections' %}">Collections</a></li>
+        <li><a href="{% url 'shop:services' %}">Services</a></li>
         <li><a href="{% url 'shop:about' %}">Our Story</a></li>
         <li><a href="{% url 'shop:contact' %}">Contact</a></li>
         <li><a href="{% url 'shop:favorites' %}">Favorites</a></li>

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Branch, Category, Enquiry, HeroSlide, Product, ProductImage, StoreInfo
+from .models import Branch, Category, Enquiry, HeroSlide, Product, ProductImage, Service, StoreInfo
 
 admin.site.site_header = "Patiala Jewelers Admin"
 admin.site.site_title = "Patiala Jewelers Admin"
@@ -136,3 +136,10 @@ class StoreInfoAdmin(admin.ModelAdmin):
         from django.shortcuts import redirect
         obj = StoreInfo.load()
         return redirect("admin:shop_storeinfo_change", obj.pk)
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ("name", "summary", "turnaround", "price_note", "display_order", "is_active")
+    list_editable = ("display_order", "is_active")
+    search_fields = ("name", "summary")

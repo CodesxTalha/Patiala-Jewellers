@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import Category, Enquiry, Product, StoreInfo
+from .models import Category, Enquiry, Product, Service, StoreInfo
 
 # 1x1 transparent GIF
 GIF = (b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00"
@@ -112,3 +112,12 @@ class ShopTests(TestCase):
         self.assertIn("/store/m", srcset)
         self.assertNotEqual(srcset, img)
 
+    def test_services_page_and_home_section(self):
+        Service.objects.create(name="Polishing", summary="Restores the shine.", turnaround="Same day")
+        Service.objects.create(name="Hidden", summary="Not shown.", is_active=False)
+        StoreInfo(whatsapp="923001234567").save()
+        page = self.client.get(reverse("shop:services"))
+        self.assertContains(page, "Polishing")
+        self.assertNotContains(page, "Hidden")
+        self.assertContains(page, "wa.me/923001234567?text=Hello")
+        self.assertContains(self.client.get(reverse("shop:home")), "Restores the shine.")

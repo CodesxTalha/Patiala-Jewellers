@@ -11,7 +11,7 @@ from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 
-from shop.models import Branch, Category, Product, ProductImage, StoreInfo
+from shop.models import Branch, Category, Product, ProductImage, Service, StoreInfo
 
 PHOTO = "https://images.unsplash.com/photo-{}?w=1000&q=75&auto=format&fit=crop"
 
@@ -95,6 +95,28 @@ BRANCHES = [
 ]
 
 
+SERVICES = [
+    ("Polishing", "Restores the shine of gold and diamond pieces.",
+     "A careful hand polish removes fine scratches and brings back the original brilliance. Stones are checked and the piece is cleaned before it is returned.",
+     "Same day", "Complimentary"),
+    ("Repair", "Broken clasps, chains and settings made good again.",
+     "From a snapped chain to a loose stone, our craftsmen repair the piece by hand and test it before it leaves the workshop.",
+     "3 to 5 days", "From Rs 1,500"),
+    ("Resizing", "Rings and bangles fitted to your measure.",
+     "We resize rings and bangles in gold and platinum, keeping the design and any engraving intact.",
+     "2 to 3 days", "From Rs 2,000"),
+    ("Cleaning", "A deep clean for diamonds and gemstones.",
+     "Ultrasonic cleaning lifts away the oils and dust that dull a stone. Safe for diamonds and most gemstones.",
+     "While you wait", "Complimentary"),
+    ("Custom design", "A piece made to your own design.",
+     "Bring an idea or a sketch. We will draw it, agree the details with you and craft it in the metal and stones you choose.",
+     "3 to 4 weeks", "On request"),
+    ("Valuation", "A written valuation for insurance or resale.",
+     "A certified appraisal of your gold and stones, with a written report you can keep for insurance or resale.",
+     "1 to 2 days", "From Rs 3,000"),
+]
+
+
 class Command(BaseCommand):
     help = "Add demo categories, products and store details."
 
@@ -143,7 +165,7 @@ class Command(BaseCommand):
         info = StoreInfo.load()
         info.name = "Patiala Jewelers"
         info.descriptor = "Gold & Diamonds"
-        info.tagline = "Made to be passed down."
+        info.tagline = "Endless Luxury"
         info.phone = info.phone or "+92 51 000 0000"
         info.whatsapp = info.whatsapp or "923001234567"
         info.email = info.email or "hello@patialajewelersofficial.com"
@@ -166,6 +188,13 @@ class Command(BaseCommand):
                     "latitude": Decimal(lat), "longitude": Decimal(lng),
                     "display_order": i, "is_active": True,
                 },
+            )
+
+        for i, (name, summary, desc, turn, price) in enumerate(SERVICES):
+            Service.objects.update_or_create(
+                name=name,
+                defaults={"summary": summary, "description": desc, "turnaround": turn, "price_note": price,
+                          "display_order": i, "is_active": True},
             )
 
         self.stdout.write(self.style.SUCCESS(

@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EnquiryForm
-from .models import Branch, Category, Product
+from .models import Branch, Category, Product, Service
 
 
 def visible_products():
@@ -19,6 +19,7 @@ def home(request):
     return render(request, "shop/home.html", {
         "featured": visible_products().filter(is_featured=True)[:8],
         "categories": Category.objects.filter(is_active=True)[:6],
+        "services": Service.objects.filter(is_active=True)[:4],
     })
 
 
@@ -87,6 +88,10 @@ def favorites(request):
         for p in visible_products()
     ]
     return render(request, "shop/favorites.html", {"pieces": pieces})
+
+
+def services(request):
+    return render(request, "shop/services.html", {"services": Service.objects.filter(is_active=True)})
 
 
 def about(request):

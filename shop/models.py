@@ -149,7 +149,7 @@ class StoreInfo(models.Model):
 
     name = models.CharField(max_length=120, default="Patiala Jewelers")
     descriptor = models.CharField(max_length=120, default="Gold & Diamonds")
-    tagline = models.CharField(max_length=200, default="Made to be passed down.")
+    tagline = models.CharField(max_length=200, default="Where love meets gold.")
     phone = models.CharField(max_length=30, blank=True)
     whatsapp = models.CharField(
         max_length=20, blank=True, help_text="Number with country code, digits only, e.g. 923001234567"
@@ -249,3 +249,23 @@ class HeroSlide(models.Model):
     @property
     def url(self):
         return self.image.url
+
+
+class Service(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    summary = models.CharField(max_length=160, help_text="One short line, shown on the home page.")
+    description = models.TextField(blank=True, help_text="A few sentences, shown on the Services page.")
+    turnaround = models.CharField(max_length=60, blank=True, help_text='For example "Same day" or "3 to 5 days".')
+    price_note = models.CharField(max_length=60, blank=True, help_text='For example "From Rs 1,500" or "Complimentary".')
+    display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first.")
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["display_order", "name"]
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def wa_text(self):
+        return f"Hello, I would like to enquire about your {self.name.lower()} service."

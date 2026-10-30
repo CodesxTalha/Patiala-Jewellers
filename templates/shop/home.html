@@ -53,6 +53,28 @@
 </section>
 {% endif %}
 
+{# 3b. Services #}
+{% if services %}
+<section class="section">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="label">Services</span>
+      <h2>Care for every piece</h2>
+    </div>
+    <div class="services" data-reveal>
+      {% for sv in services %}
+      <a href="{% url 'shop:services' %}#service-{{ sv.pk }}" class="service">
+        <span class="service-no">{{ forloop.counter|stringformat:"02d" }}</span>
+        <h3>{{ sv.name }}</h3>
+        <p>{{ sv.summary }}</p>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="section-foot"><a href="{% url 'shop:services' %}" class="link-underline">All services</a></div>
+  </div>
+</section>
+{% endif %}
+
 {# 4. Our story: background photo with the text on top #}
 <section class="story surface-dark" data-inview>
   <div class="story-bg" aria-hidden="true">
