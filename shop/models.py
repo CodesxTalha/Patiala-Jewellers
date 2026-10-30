@@ -297,7 +297,6 @@ class Branch(models.Model):
     address = models.TextField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
     opening_hours = models.CharField(max_length=200, blank=True)
-    map_embed_url = models.URLField(blank=True, help_text="Not used any more. The map is built from the latitude and longitude below.")
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, help_text="In Google Maps, right-click the shop and click the first number. Example: 33.720000")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, help_text="The second number. Example: 73.056000")
     display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first.")
@@ -314,42 +313,6 @@ class Branch(models.Model):
     def maps_url(self):
         from urllib.parse import quote_plus
         return "https://www.google.com/maps/search/?api=1&query=" + quote_plus(f"Patiala Jewelers {self.name} {self.city}")
-
-
-class HeroSlide(models.Model):
-    """A photo in the home page hero slideshow. Product-only imagery (see design.md)."""
-
-    class Focus(models.TextChoices):
-        CENTER = "center", "Centre"
-        TOP = "top", "Top"
-        BOTTOM = "bottom", "Bottom"
-        LEFT = "left", "Left"
-        RIGHT = "right", "Right"
-
-    image = models.ImageField(upload_to="hero/", help_text="Wide or square photo, at least 1600px. One piece per frame.")
-    caption = models.CharField(max_length=80, blank=True, help_text="Heading shown on the slide, e.g. “Bridal Bangles”.")
-    subtitle = models.CharField(max_length=160, blank=True, help_text="One short line under the heading.")
-    tone = models.CharField(
-        max_length=5, choices=[("light", "Light photo (dark text)"), ("dark", "Dark photo (cream text)")],
-        default="light", help_text="Pick the text colour that reads best on this photo.",
-    )
-    link = models.CharField(max_length=200, blank=True, help_text="Optional page link, e.g. /collections/?category=bangles")
-    focus = models.CharField(
-        max_length=10, choices=Focus.choices, default=Focus.CENTER,
-        help_text="Which part of the photo to keep in view when it is cropped.",
-    )
-    display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first.")
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["display_order", "id"]
-
-    def __str__(self):
-        return self.caption or f"Slide {self.pk}"
-
-    @property
-    def url(self):
-        return self.image.url
 
 
 class Service(models.Model):

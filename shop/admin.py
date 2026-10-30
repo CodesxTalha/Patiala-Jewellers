@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AboutValue, Branch, ContentBlock, Category, Enquiry, HeroSlide, Product, ProductImage, Service, StoreInfo
+from .models import AboutValue, Branch, ContentBlock, Category, Enquiry, Product, ProductImage, Service, StoreInfo
 
 admin.site.site_header = "Patiala Jewelers Admin"
 admin.site.site_title = "Patiala Jewelers Admin"
@@ -92,26 +92,8 @@ class EnquiryAdmin(admin.ModelAdmin):
         return False  # enquiries come from the website only
 
 
-@admin.register(HeroSlide)
-class HeroSlideAdmin(admin.ModelAdmin):
-    list_display = ("preview", "caption", "tone", "display_order", "is_active")
-    list_display_links = ("preview", "caption")
-    list_editable = ("display_order", "is_active")
-    readonly_fields = ("large_preview",)
-    fields = ("image", "large_preview", "caption", "subtitle", "link", "tone", "focus", "display_order", "is_active")
-
-    @admin.display(description="Image")
-    def preview(self, obj):
-        return thumb(obj.image.url if obj.image else "", 60)
-
-    @admin.display(description="Preview")
-    def large_preview(self, obj):
-        return thumb(obj.image.url if obj.image else "", 240)
-
-
 @admin.register(Branch)
 class BranchAdmin(admin.ModelAdmin):
-    exclude = ("map_embed_url",)
     list_display = ("name", "city", "phone", "display_order", "is_active")
     list_editable = ("display_order", "is_active")
     search_fields = ("name", "address")

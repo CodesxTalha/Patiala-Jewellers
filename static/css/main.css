@@ -428,7 +428,6 @@ p { margin: 0 0 1em; font-family: var(--font-serif); font-size: 1.06rem; letter-
 .split-text h2 { margin-bottom: 0; }
 @media (min-width: 900px) {
   .split { grid-template-columns: 1fr 1fr; gap: clamp(3rem, 8vw, 7rem); }
-  .split--reverse .split-img { order: 2; }
 }
 
 /* ---------- Surfaces ---------- */
@@ -553,15 +552,14 @@ p { margin: 0 0 1em; font-family: var(--font-serif); font-size: 1.06rem; letter-
 .quote { font: 400 clamp(1.5rem, 3.2vw, 2.4rem)/1.35 var(--font-display); max-width: 36rem; margin: 0 auto 2.5rem; }
 
 /* ---------- Contact ---------- */
-.contact-grid { display: grid; gap: 4rem; }
-@media (min-width: 900px) { .contact-grid { grid-template-columns: 1fr 1.3fr; gap: 6rem; align-items: start; } }
+.contact-grid { display: grid; gap: 5rem; max-width: 38rem; margin: 0 auto; }
 .contact-list { list-style: none; margin: 0; padding: 0; }
 .contact-list li { padding: 1.1rem 0; border-bottom: var(--line-soft); }
 .contact-list li:last-child { border-bottom: 0; padding-bottom: 0; }
 .contact-list a { display: block; font-size: 1.05rem; }
 .contact-list .label { margin-bottom: .35rem; }
 .contact-list a:hover { color: var(--warm-grey); }
-.panel-title { font-size: clamp(1.6rem, 2.6vw, 2.1rem); margin: 0 0 2rem; }
+.panel-title { font-size: clamp(1.6rem, 2.6vw, 2.1rem); margin: 0 0 2rem; text-align: center; }
 .contact-list li:first-child { border-top: var(--line-soft); }
 
 /* ---------- Forms ---------- */
@@ -751,8 +749,6 @@ body.modal-open { overflow: hidden; }
 .pdp-info { text-align: center; }
 .pdp-info .rule { margin-left: auto; margin-right: auto; }
 .specs dt { justify-content: flex-start; }
-.contact-grid { max-width: 38rem; margin: 0 auto; grid-template-columns: 1fr !important; gap: 5rem; }
-.panel-title { text-align: center; }
 .contact-list { text-align: center; }
 .contact-list li:first-child { border-top: 0; }
 

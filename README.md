@@ -5,9 +5,11 @@ Website for Patiala Jewelers (Gold & Diamonds, Islamabad), built with Django and
 ## Pages
 | URL | Page |
 |---|---|
-| `/` | Home: hero, categories, featured pieces |
+| `/` | Home: hero film, categories, featured pieces, services, story, boutiques |
 | `/collections/` | All products, filterable by category, metal and search |
 | `/collections/<slug>/` | Product detail with photo gallery and enquiry form |
+| `/services/` | Services, each with its own page at `/services/<slug>/` |
+| `/favorites/` | Pieces saved with the heart (kept in the visitor's browser) |
 | `/about/` | Brand story (editable in admin) |
 | `/contact/` | Store details, map and contact form |
 | `/admin/` | Admin panel |
@@ -17,7 +19,10 @@ Website for Patiala Jewelers (Gold & Diamonds, Islamabad), built with Django and
 - **Products**: details, price (blank shows "Price on request"), main photo plus gallery, featured and visible toggles
 - **Enquiries**: messages from the contact and product forms, with status and internal notes
 - **Branches**: the store locations (PWD, DHA II, Ghauri Town, F-7) with address, phone, hours and map
-- **Store information**: name, descriptor, tagline, phone, WhatsApp, email, socials, About page text
+- **Services**: name, photo, summary, steps, time and price, order
+- **Page text**: every line of copy on the pages (edit only, rows are fixed)
+- **About values**: the short promises on the About page
+- **Store information**: name, tagline, contact, socials, colours, fonts, logo, hero film, About text
 
 ## Demo content
 The site ships with demo products so the front end looks complete. Photos are image links (Unsplash, product-only), not downloads.
