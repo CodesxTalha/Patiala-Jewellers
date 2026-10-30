@@ -13,8 +13,8 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">Contact</span>
-    <h1>Visit us for a private appointment</h1>
+    <span class="label">{{ txt.contact_label }}</span>
+    <h1>{{ txt.contact_title }}</h1>
   </div>
 </section>
 
@@ -66,16 +66,16 @@
 <section class="section surface-alt">
   <div class="container contact-grid">
     <div class="panel">
-      <h2 class="panel-title">Speak with us</h2>
+      <h2 class="panel-title">{{ txt.contact_direct_title }}</h2>
       <ul class="contact-list">
         {% if store.phone %}<li><span class="label">Phone</span><a href="tel:{{ store.phone }}">{{ store.phone }}</a></li>{% endif %}
         {% if store.whatsapp %}<li><span class="label">WhatsApp</span><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Message us</a></li>{% endif %}
         {% if store.email %}<li><span class="label">Email</span><a href="mailto:{{ store.email }}">{{ store.email }}</a></li>{% endif %}
-        {% if store.instagram_url %}<li><span class="label">Instagram</span><a href="{{ store.instagram_url }}" target="_blank" rel="noopener">Follow us</a></li>{% endif %}
+        {% for label, url in store.socials %}<li><span class="label">{{ label }}</span><a href="{{ url }}" target="_blank" rel="noopener">Follow us</a></li>{% endfor %}
       </ul>
     </div>
     <div class="panel" id="appointment">
-      <h2 class="panel-title">Send a message</h2>
+      <h2 class="panel-title">{{ txt.contact_form_title }}</h2>
       {% include "shop/_enquiry_form.html" %}
     </div>
   </div>

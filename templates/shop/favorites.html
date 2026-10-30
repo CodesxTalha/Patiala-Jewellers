@@ -5,9 +5,9 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">Favorites</span>
-    <h1>Your favorites</h1>
-    <p class="lead">Pieces you save with the heart are kept in this browser.</p>
+    <span class="label">{{ txt.favorites_label }}</span>
+    <h1>{{ txt.favorites_title }}</h1>
+    <p class="lead">{{ txt.favorites_lead }}</p>
   </div>
 </section>
 
@@ -21,7 +21,7 @@
     <div class="product-grid" data-fav-grid></div>
 
     <div class="empty" data-fav-empty hidden>
-      <p>You have not saved any pieces yet.</p>
+      <p>{{ txt.favorites_empty }}</p>
       <a href="{% url 'shop:collections' %}" class="btn">Browse the collections</a>
     </div>
   </div>

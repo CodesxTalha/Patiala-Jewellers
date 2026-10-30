@@ -14,8 +14,13 @@
   /* Helper colours */
   --gold-light: #C9A96A;    /* gold on dark only */
   --gold-deep: #8A6D35;     /* small gold text on light */
-  --warm-grey: rgba(22, 21, 19, .88);   /* secondary text: Soft Black at 78%. Darker than the old #6A6458 so it reads clearly. */
+  --warm-grey: rgba(var(--ink-rgb), .88);   /* secondary text: Soft Black at 78%. Darker than the old #6A6458 so it reads clearly. */
   --cream: #F3EFE6;         /* text on dark */
+  --paper-rgb: 250, 248, 243;   /* the same colours as r, g, b, so lines and tints follow them */
+  --ink-rgb: 22, 21, 19;
+  --cream-rgb: 243, 239, 230;
+  --heading-weight: 500;
+  --font-brand: "Playfair Display", Georgia, serif;
 
   /* Fonts: two only */
   --font-display: "Montserrat", system-ui, sans-serif;   /* primary: headings, names, labels, buttons (500 for headings) */
@@ -29,12 +34,12 @@
   --track-body: .015em;
 
   /* Borders are fine grey hairlines, not gold. Gold is kept for the logo and a few key accents. */
-  --line: 1px solid rgba(22, 21, 19, .22);
-  --line-soft: 1px solid rgba(22, 21, 19, .15);
-  --line-dark: 1px solid rgba(243, 239, 230, .22);
-  --field: 1px solid rgba(22, 21, 19, .5);          /* form fields: a clear border, like Cartier's */
+  --line: 1px solid rgba(var(--ink-rgb), .22);
+  --line-soft: 1px solid rgba(var(--ink-rgb), .15);
+  --line-dark: 1px solid rgba(var(--cream-rgb), .22);
+  --field: 1px solid rgba(var(--ink-rgb), .5);          /* form fields: a clear border, like Cartier's */
   --card-bg: transparent;                            /* cards are fine-lined boxes on Soft White: no tinted fill */
-  --placeholder: rgba(22, 21, 19, .05);              /* neutral tint behind photos while they load */
+  --placeholder: rgba(var(--ink-rgb), .05);              /* neutral tint behind photos while they load */
 
   --container: 1320px;
   --gutter: 20px;
@@ -75,7 +80,7 @@ b, strong { font-weight: 500; }
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: var(--heading-weight);
   letter-spacing: -.01em;
   line-height: 1.2;
   margin: 0 0 .5em;
@@ -121,7 +126,7 @@ p { margin: 0 0 1em; font-family: var(--font-serif); font-size: 1.06rem; letter-
 .lockup { display: inline-flex; flex-direction: column; align-items: center; text-align: center; }
 .lockup-monogram { height: 64px; width: auto; margin-bottom: 1.4rem; }
 .lockup-name {
-  font: 400 1.5rem/1 var(--font-serif);
+  font: 400 1.5rem/1 var(--font-brand);
   letter-spacing: var(--track-brand);
   margin-right: calc(-1 * var(--track-brand)); /* balance trailing tracking */
   text-transform: uppercase;
@@ -326,7 +331,7 @@ p { margin: 0 0 1em; font-family: var(--font-serif); font-size: 1.06rem; letter-
 .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
 .hero::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60%; pointer-events: none;
-  background: linear-gradient(to top, rgba(22, 21, 19, .66) 0%, rgba(22, 21, 19, .34) 45%, rgba(22, 21, 19, 0) 100%);
+  background: linear-gradient(to top, rgba(var(--ink-rgb), .66) 0%, rgba(var(--ink-rgb), .34) 45%, rgba(var(--ink-rgb), 0) 100%);
 }
 .hero-text {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
@@ -428,12 +433,12 @@ p { margin: 0 0 1em; font-family: var(--font-serif); font-size: 1.06rem; letter-
 
 /* ---------- Surfaces ---------- */
 .surface-dark { background: var(--soft-black); color: var(--cream); }
-.surface-dark .label { color: rgba(243, 239, 230, .88); }
+.surface-dark .label { color: rgba(var(--cream-rgb), .88); }
 .surface-dark .muted, .surface-dark .lead { color: var(--cream); opacity: .9; }
 .surface-dark .rule { border-top: var(--line-dark); }
 .surface-dark .link-underline { border-bottom: 1px solid var(--cream); }
 .surface-dark .link-underline:hover { border-bottom-color: var(--cream); }
-.surface-dark .split-img { background: #23211e; }
+.surface-dark .split-img { background: rgba(var(--cream-rgb), .06); }
 
 /* ---------- Our story: full-width background photo with the text on top ---------- */
 .story { position: relative; display: flex; align-items: center; min-height: clamp(520px, 80vh, 780px); overflow: hidden; }
@@ -441,14 +446,14 @@ p { margin: 0 0 1em; font-family: var(--font-serif); font-size: 1.06rem; letter-
 .story-bg picture, .story-bg img { display: block; width: 100%; height: 100%; }
 .story-bg img { object-fit: cover; transform: scale(1.06); transition: transform 2.8s var(--ease); }
 .story.is-visible .story-bg img { transform: none; }
-.story-shade { position: absolute; inset: 0; background: rgba(22, 21, 19, .6); }   /* flat tint keeps the text readable on any photo */
+.story-shade { position: absolute; inset: 0; background: rgba(var(--ink-rgb), .6); }   /* flat tint keeps the text readable on any photo */
 .story-content { position: relative; z-index: 1; padding-top: var(--space); padding-bottom: var(--space); }
 .story-text { max-width: 34rem; }
 .story-text h2 { font-size: clamp(2rem, 4.2vw, 3.4rem); line-height: 1.12; margin-bottom: 0; text-wrap: balance; }
 .story-text .lead { font-size: clamp(1rem, 1.2vw, 1.15rem); opacity: .95; }
 @media (max-width: 767px) {
   .story { align-items: flex-end; min-height: 78svh; }
-  .story-shade { background: rgba(22, 21, 19, .58); }
+  .story-shade { background: rgba(var(--ink-rgb), .58); }
   .story-content { padding-top: 4rem; padding-bottom: 3.5rem; }
 }
 
@@ -591,7 +596,7 @@ input:focus, textarea:focus { outline: 0; border-bottom-color: var(--soft-black)
 }
 .footer-links { margin-top: 3rem; }
 .footer-links a:hover { opacity: .65; }
-.footer-branches { margin-top: 1.75rem; color: rgba(243, 239, 230, .85); }
+.footer-branches { margin-top: 1.75rem; color: rgba(var(--cream-rgb), .85); }
 @media (max-width: 599px) { .footer-links, .footer-branches { gap: .6rem 1.4rem; } }
 .footer-meta { margin: 2rem 0 0; font-size: .85rem; }
 .footer-meta a:hover { opacity: .65; }
@@ -651,7 +656,7 @@ body.modal-open { overflow: hidden; }
   background: var(--soft-white); color: var(--soft-black); border: var(--line);
 }
 .map-dialog[open] { display: flex; flex-direction: column; }
-.map-dialog::backdrop { background: rgba(22, 21, 19, .62); }
+.map-dialog::backdrop { background: rgba(var(--ink-rgb), .62); }
 .map-dialog-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: var(--line-soft); }
 .map-dialog-head .label { margin-bottom: .4rem; }
 .map-dialog-head h2 { margin: 0; font-size: 1.7rem; }
@@ -685,7 +690,7 @@ body.modal-open { overflow: hidden; }
 .map-zoom button:hover { background: var(--soft-black); color: var(--cream); }
 .map-zoom svg { display: block; fill: none; stroke: currentColor; stroke-width: 1; }
 
-.maplibregl-ctrl-attrib { background: rgba(250, 248, 243, .97); font: 400 .6rem/1.5 var(--font-body); letter-spacing: .04em; color: var(--warm-grey); }
+.maplibregl-ctrl-attrib { background: rgba(var(--paper-rgb), .97); font: 400 .6rem/1.5 var(--font-body); letter-spacing: .04em; color: var(--warm-grey); }
 .maplibregl-ctrl-attrib a { color: var(--warm-grey); }
 .maplibregl-ctrl-bottom-left .maplibregl-ctrl { margin: 0; }
 
@@ -693,7 +698,7 @@ body.modal-open { overflow: hidden; }
    No position is set on .map-pin itself: MapLibre positions the marker, and overriding that makes pins drift when zooming. */
 .map-pin { width: 44px; height: 44px; }
 .mini-map .map-pin { width: 38px; height: 38px; }
-.pin-halo { position: absolute; inset: 0; border-radius: 50%; background: rgba(22, 21, 19, .12); }
+.pin-halo { position: absolute; inset: 0; border-radius: 50%; background: rgba(var(--ink-rgb), .12); }
 .pin-dot {
   position: absolute; left: 50%; top: 50%; box-sizing: content-box;
   width: 10px; height: 10px; margin: -8px 0 0 -8px;      /* 10px centre + 3px ring on each side = 16px, centred */
@@ -724,7 +729,7 @@ body.modal-open { overflow: hidden; }
 .preloader .lockup-name { animation-delay: .4s; }
 .preloader .lockup-descriptor { animation-delay: .6s; }
 .preloader .lockup-sub { animation-delay: .8s; }
-.preloader-line { position: relative; width: clamp(96px, 14vw, 140px); height: 1px; background: var(--line-soft-color, rgba(22,21,19,.12)); overflow: hidden; opacity: 0; animation: pre-rise .8s var(--ease) 1s forwards; }
+.preloader-line { position: relative; width: clamp(96px, 14vw, 140px); height: 1px; background: var(--line-soft-color, rgba(var(--ink-rgb),.12)); overflow: hidden; opacity: 0; animation: pre-rise .8s var(--ease) 1s forwards; }
 .preloader-line span { position: absolute; inset: 0; background: var(--soft-black); transform: scaleX(0); transform-origin: left; animation: pre-fill 1.5s cubic-bezier(.4, 0, .2, 1) 1s forwards; }
 .preloader.is-done .preloader-line span { transform: scaleX(1); animation: none; }
 .preloader.is-done .preloader-inner { transform: translateY(-8px) scale(.985); transition: transform .9s var(--ease); }
@@ -734,8 +739,8 @@ body.modal-open { overflow: hidden; }
 
 /* ---------- Typeface roles: Montserrat leads, Playfair supports paragraphs. Small capitals stay Montserrat. ---------- */
 .fav-bar p, .flash, .form-error, .hero-label, .pdp-note, .price, .pdp-price, .footer-meta, .footer-branches, .boutique p:not(:first-of-type) { font-family: var(--font-body); }
-.prose p:first-child, .quote { font-family: var(--font-display); font-weight: 500; letter-spacing: -.01em; }
-.lockup-name, .header-wordmark .lockup-name { font-family: var(--font-serif); }
+.prose p:first-child, .quote { font-family: var(--font-display); font-weight: var(--heading-weight); letter-spacing: -.01em; }
+.lockup-name, .header-wordmark .lockup-name { font-family: var(--font-brand); }
 
 /* ---------- Centred layouts ---------- */
 .split-text { margin-left: auto; margin-right: auto; text-align: center; }
@@ -765,7 +770,7 @@ body.modal-open { overflow: hidden; }
 .cselect-list {
   position: absolute; top: calc(100% + .75rem); right: 0; z-index: 30;
   min-width: 14rem; max-height: 18rem; overflow-y: auto; margin: 0; padding: .5rem 0; list-style: none;
-  background: var(--soft-white); border: var(--line); box-shadow: 0 18px 40px -18px rgba(22, 21, 19, .28);
+  background: var(--soft-white); border: var(--line); box-shadow: 0 18px 40px -18px rgba(var(--ink-rgb), .28);
   opacity: 0; visibility: hidden; transform: translateY(-6px);
   transition: opacity .25s var(--ease), transform .25s var(--ease), visibility 0s linear .25s;
 }
@@ -803,7 +808,7 @@ body.modal-open { overflow: hidden; }
 .svc-hero { position: relative; height: calc(82svh - var(--header-h)); min-height: 460px; max-height: 760px; overflow: hidden; background: var(--placeholder); color: var(--cream); }
 .svc-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .svc-hero::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(to top, rgba(22, 21, 19, .7) 0%, rgba(22, 21, 19, .34) 45%, rgba(22, 21, 19, .08) 100%); }
+  background: linear-gradient(to top, rgba(var(--ink-rgb), .7) 0%, rgba(var(--ink-rgb), .34) 45%, rgba(var(--ink-rgb), .08) 100%); }
 .svc-hero-text { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center;
   padding: 0 var(--gutter) clamp(2.5rem, 7vh, 4.5rem); }
 .svc-hero-text .label { color: var(--cream); opacity: .9; margin-bottom: 1rem; }
@@ -820,7 +825,7 @@ body.modal-open { overflow: hidden; }
 .svc-facts { display: grid; gap: 2rem; max-width: 52rem; margin: 0 auto; text-align: center; padding: 2.5rem 0; border-top: var(--line-soft); border-bottom: var(--line-soft); }
 @media (min-width: 640px) { .svc-facts { grid-template-columns: repeat(3, 1fr); } }
 .svc-facts dt { font: 400 .72rem/1.4 var(--font-body); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--warm-grey); margin-bottom: .5rem; }
-.svc-facts dd { margin: 0; font: 500 1.1rem/1.3 var(--font-display); }
+.svc-facts dd { margin: 0; font: var(--heading-weight) 1.1rem/1.3 var(--font-display); }
 .svc-alt { margin: 1.75rem 0 0; }
 .svc-hero .hero-btn { color: var(--cream); border-color: var(--cream); background: transparent; }
 .svc-hero .hero-btn:hover { background: var(--cream); color: var(--soft-black); }

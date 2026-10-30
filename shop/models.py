@@ -1,5 +1,7 @@
+from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 
@@ -144,6 +146,22 @@ class Enquiry(models.Model):
         return f"{self.name} ({self.created_at:%d %b %Y})"
 
 
+HEX = RegexValidator(r"^#[0-9A-Fa-f]{6}$", "Use a colour like #B8975A.")
+
+SANS_FONTS = ["Montserrat", "Inter", "Jost", "Poppins", "DM Sans", "Raleway", "Lato", "Work Sans", "Manrope", "Nunito Sans"]
+SERIF_FONTS = ["Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "EB Garamond", "Marcellus",
+               "DM Serif Display", "Bodoni Moda", "Cinzel"]
+
+
+def _choices(names):
+    return [(n, n) for n in names]
+
+
+def _rgb(hex_color):
+    h = hex_color.lstrip("#")
+    return ", ".join(str(int(h[i:i + 2], 16)) for i in (0, 2, 4))
+
+
 class StoreInfo(models.Model):
     """Single editable record with the brand's general details and About text."""
 
@@ -157,6 +175,41 @@ class StoreInfo(models.Model):
     email = models.EmailField(blank=True)
     instagram_url = models.URLField(blank=True)
     facebook_url = models.URLField(blank=True)
+    tiktok_url = models.URLField(blank=True)
+    youtube_url = models.URLField(blank=True)
+    pinterest_url = models.URLField(blank=True)
+    x_url = models.URLField("X (Twitter) URL", blank=True)
+
+    # ----- Brand colours. The 60 / 30 / 10 rule: light 60%, dark 30%, gold 10%. -----
+    color_light = models.CharField("Light (page background)", max_length=7, default="#FAF8F3", validators=[HEX])
+    color_dark = models.CharField("Dark (text and dark bands)", max_length=7, default="#161513", validators=[HEX])
+    color_gold = models.CharField("Gold (logo and accents)", max_length=7, default="#B8975A", validators=[HEX])
+    color_gold_light = models.CharField("Gold on dark", max_length=7, default="#C9A96A", validators=[HEX])
+    color_gold_deep = models.CharField("Gold for small text", max_length=7, default="#8A6D35", validators=[HEX])
+    color_cream = models.CharField("Text on dark", max_length=7, default="#F3EFE6", validators=[HEX])
+
+    # ----- Fonts: a primary sans, a secondary serif, and the face used for the logo wordmark. -----
+    font_primary = models.CharField("Primary font", max_length=40, choices=_choices(SANS_FONTS), default="Montserrat",
+                                    help_text="Headings, names, buttons and small labels.")
+    heading_weight = models.PositiveSmallIntegerField(
+        "Heading weight", choices=[(400, "Regular"), (500, "Medium"), (600, "Semibold")], default=500)
+    font_secondary = models.CharField("Secondary font", max_length=40, choices=_choices(SERIF_FONTS), default="Playfair Display",
+                                      help_text="Paragraphs and descriptions.")
+    font_wordmark = models.CharField("Logo wordmark font", max_length=40, choices=_choices(SERIF_FONTS), default="Playfair Display",
+                                     help_text="The PATIALA lettering next to the monogram.")
+
+    # ----- Logo -----
+    logo = models.ImageField(
+        upload_to="brand/", blank=True,
+        help_text="Optional monogram (SVG or PNG, transparent background). Leave empty to use the built-in gold monogram.",
+    )
+    favicon = models.ImageField(upload_to="brand/", blank=True, help_text="Optional browser-tab icon. Square PNG, at least 64 px.")
+
+    # ----- Home page hero. Leave empty to use the built-in film. -----
+    hero_video = models.FileField(upload_to="hero/", blank=True, help_text="Landscape film for desktop (MP4, under 8 MB is best).")
+    hero_video_mobile = models.FileField(upload_to="hero/", blank=True, help_text="Optional portrait film for phones. Falls back to the desktop film.")
+    hero_poster = models.ImageField(upload_to="hero/", blank=True, help_text="Still image shown while the film loads.")
+    hero_poster_mobile = models.ImageField(upload_to="hero/", blank=True, help_text="Optional portrait still for phones.")
     about_heading = models.CharField(max_length=200, default="Our Story")
     about_text = models.TextField(blank=True)
     about_image = models.ImageField(
@@ -186,6 +239,54 @@ class StoreInfo(models.Model):
     def load(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+    @property
+    def socials(self):
+        pairs = [("Instagram", self.instagram_url), ("Facebook", self.facebook_url), ("TikTok", self.tiktok_url),
+                 ("YouTube", self.youtube_url), ("Pinterest", self.pinterest_url), ("X", self.x_url)]
+        return [(label, url) for label, url in pairs if url]
+
+    @staticmethod
+    def _hex(value, default):
+        return value if HEX.regex.match(value or "") else default
+
+    @staticmethod
+    def _font(value, allowed, default):
+        return value if value in allowed else default
+
+    @property
+    def theme_css(self):
+        """CSS custom properties for the colours, fonts and heading weight chosen in the admin.
+        Every value is checked against the allowed hex pattern or font list, so the result is safe to print inside <style>."""
+        light = self._hex(self.color_light, "#FAF8F3")
+        dark = self._hex(self.color_dark, "#161513")
+        cream = self._hex(self.color_cream, "#F3EFE6")
+        sans = self._font(self.font_primary, SANS_FONTS, "Montserrat")
+        serif = self._font(self.font_secondary, SERIF_FONTS, "Playfair Display")
+        brand = self._font(self.font_wordmark, SERIF_FONTS, "Playfair Display")
+        weight = self.heading_weight if self.heading_weight in (400, 500, 600) else 500
+        return mark_safe(
+            f"--soft-white:{light};--soft-black:{dark};--gold:{self._hex(self.color_gold, '#B8975A')};"
+            f"--gold-light:{self._hex(self.color_gold_light, '#C9A96A')};--gold-deep:{self._hex(self.color_gold_deep, '#8A6D35')};--cream:{cream};"
+            f"--paper-rgb:{_rgb(light)};--ink-rgb:{_rgb(dark)};--cream-rgb:{_rgb(cream)};"
+            f"--font-display:'{sans}',system-ui,sans-serif;--font-body:'{sans}',system-ui,sans-serif;"
+            f"--font-serif:'{serif}',Georgia,serif;--font-brand:'{brand}',Georgia,serif;--heading-weight:{weight};"
+        )
+
+    @property
+    def fonts_url(self):
+        """One Google Fonts request for every face the site uses."""
+        fams = {
+            self._font(self.font_secondary, SERIF_FONTS, "Playfair Display"): "wght@400",
+            self._font(self.font_wordmark, SERIF_FONTS, "Playfair Display"): "wght@400",
+        }
+        fams[self._font(self.font_primary, SANS_FONTS, "Montserrat")] = "wght@400;500;600"
+        parts = [f"family={name.replace(' ', '+')}:{weights}" for name, weights in fams.items()]
+        return "https://fonts.googleapis.com/css2?" + "&".join(parts) + "&display=swap"
+
+    @property
+    def favicon_url(self):
+        return self.favicon.url if self.favicon else ""
 
 
 class Branch(models.Model):
@@ -300,3 +401,35 @@ class Service(models.Model):
     @property
     def wa_text(self):
         return f"Hello, I would like to enquire about your {self.name.lower()} service."
+
+
+class ContentBlock(models.Model):
+    """One editable line of text on the site. The rows are created from shop/content.py."""
+
+    key = models.SlugField(max_length=80, unique=True)
+    group = models.CharField(max_length=40)
+    label = models.CharField(max_length=120)
+    text = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["group", "id"]
+        verbose_name = "page text"
+        verbose_name_plural = "page text"
+
+    def __str__(self):
+        return self.label
+
+
+class AboutValue(models.Model):
+    """One of the short promises shown on the About page."""
+
+    title = models.CharField(max_length=80)
+    text = models.CharField(max_length=200)
+    display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first.")
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["display_order", "id"]
+
+    def __str__(self):
+        return self.title

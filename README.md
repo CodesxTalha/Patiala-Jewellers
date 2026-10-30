@@ -59,3 +59,11 @@ Run the tests with `python manage.py test shop`.
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | `https://patialajewelersofficial.com` |
 
 Run `python manage.py collectstatic` on deploy. Uploaded images go in `media/`, which your web server (or a storage service) needs to serve when `DEBUG` is off.
+
+## Brand settings (Admin → Store information)
+Colours, fonts, logo and social links live in the database, in the single Store information record, and the whole site reads them:
+- **Colours:** light, dark, gold, gold on dark, gold for small text, text on dark. Lines and tints follow the light and dark colours.
+- **Fonts:** a primary sans (headings, names, labels), a secondary serif (paragraphs) and the logo wordmark face, all from a short list of Google Fonts, plus the heading weight.
+- **Logo:** an optional monogram and favicon upload. Without one, the built-in gold monogram is used.
+- **Social media:** Instagram, Facebook, TikTok, YouTube, Pinterest and X. Filled-in links appear in the footer and on the Contact page.
+The map colours (`static/map/style.json`) are separate and are not driven by these settings.

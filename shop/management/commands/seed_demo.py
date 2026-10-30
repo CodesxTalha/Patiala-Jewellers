@@ -11,7 +11,8 @@ from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 
-from shop.models import Branch, Category, Product, ProductImage, Service, StoreInfo
+from shop.content import ABOUT_VALUES, DEFAULTS
+from shop.models import AboutValue, Branch, ContentBlock, Category, Product, ProductImage, Service, StoreInfo
 
 PHOTO = "https://images.unsplash.com/photo-{}?w=1000&q=75&auto=format&fit=crop"
 
@@ -210,6 +211,12 @@ class Command(BaseCommand):
                           "image_url": PHOTO.format(photo).replace("w=1000", "w=1800"),
                           "turnaround": turn, "price_note": price, "display_order": i, "is_active": True},
             )
+
+        for key, (group, label, text) in DEFAULTS.items():
+            ContentBlock.objects.get_or_create(key=key, defaults={"group": group, "label": label, "text": text})
+        if not AboutValue.objects.exists():
+            for i, (title, text) in enumerate(ABOUT_VALUES):
+                AboutValue.objects.create(title=title, text=text, display_order=i)
 
         self.stdout.write(self.style.SUCCESS(
             f"Demo content ready: {Category.objects.count()} categories, {Product.objects.count()} products, "

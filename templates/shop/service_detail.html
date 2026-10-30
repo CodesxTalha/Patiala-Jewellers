@@ -8,7 +8,7 @@
 <section class="svc-hero" aria-label="{{ service.name }}">
   {% if service.photo_url %}<img class="svc-hero-img" src="{{ service.photo_url }}" alt="">{% endif %}
   <div class="svc-hero-text">
-    <span class="label">Services</span>
+    <span class="label">{{ txt.services_label }}</span>
     <h1>{{ service.name }}</h1>
     {% if service.intro %}<p>{{ service.intro }}</p>{% endif %}
     {% if store.whatsapp %}
@@ -22,7 +22,7 @@
 {# 2. What it is #}
 <section class="section">
   <div class="container container--narrow center" data-reveal>
-    <span class="label">The service</span>
+    <span class="label">{{ txt.service_text_label }}</span>
     <h2>{{ service.summary }}</h2>
     {% if service.description %}<p class="lead">{{ service.description }}</p>{% endif %}
   </div>
@@ -32,7 +32,7 @@
 {% if service.include_list %}
 <section class="section section--flush">
   <div class="container container--narrow center" data-reveal>
-    <span class="label">What is included</span>
+    <span class="label">{{ txt.service_included_label }}</span>
     <ul class="svc-list">
       {% for item in service.include_list %}<li>{{ item }}</li>{% endfor %}
     </ul>
@@ -45,8 +45,8 @@
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
-      <span class="label">How it works</span>
-      <h2>Three simple steps</h2>
+      <span class="label">{{ txt.service_steps_label }}</span>
+      <h2>{{ txt.service_steps_title }}</h2>
     </div>
     <div class="steps" data-reveal>
       {% for st in service.step_list %}
@@ -68,7 +68,7 @@
     <dl class="svc-facts" data-reveal>
       {% if service.turnaround %}<div><dt>Time</dt><dd>{{ service.turnaround }}</dd></div>{% endif %}
       {% if service.price_note %}<div><dt>Price</dt><dd>{{ service.price_note }}</dd></div>{% endif %}
-      <div><dt>Where</dt><dd>Any boutique</dd></div>
+      <div><dt>Where</dt><dd>{{ txt.service_facts_where }}</dd></div>
     </dl>
   </div>
 </section>
@@ -78,11 +78,11 @@
 <section class="section center">
   <div class="container" data-reveal>
     <hr class="rule">
-    <p class="quote">Ready when you are.</p>
+    <p class="quote">{{ txt.service_cta_title }}</p>
     {% if store.whatsapp %}
     <a class="btn btn-solid" href="https://wa.me/{{ store.whatsapp }}?text={{ service.wa_text|urlencode }}" target="_blank" rel="noopener">Enquire on WhatsApp</a>
     {% endif %}
-    <p class="svc-alt"><a class="link-underline" href="{% url 'shop:contact' %}#appointment">Or send a message</a></p>
+    <p class="svc-alt"><a class="link-underline" href="{% url 'shop:contact' %}#appointment">{{ txt.service_cta_link }}</a></p>
   </div>
 </section>
 
@@ -91,13 +91,13 @@
 <section class="section section--flush">
   <div class="container">
     <div class="section-head" data-reveal>
-      <span class="label">More services</span>
-      <h2>Also at our boutiques</h2>
+      <span class="label">{{ txt.service_more_label }}</span>
+      <h2>{{ txt.service_more_title }}</h2>
     </div>
     <div class="services" data-reveal>
       {% for sv in others %}{% include "shop/_service_card.html" %}{% endfor %}
     </div>
-    <div class="section-foot"><a href="{% url 'shop:services' %}" class="link-underline">All services</a></div>
+    <div class="section-foot"><a href="{% url 'shop:services' %}" class="link-underline">{{ txt.home_services_button }}</a></div>
   </div>
 </section>
 {% endif %}

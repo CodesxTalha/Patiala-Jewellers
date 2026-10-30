@@ -6,8 +6,8 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">Collections</span>
-    <h1>{% if current_category %}{{ current_category.name }}{% else %}All pieces{% endif %}</h1>
+    <span class="label">{{ txt.collections_label }}</span>
+    <h1>{% if current_category %}{{ current_category.name }}{% else %}{{ txt.collections_title }}{% endif %}</h1>
     {% if current_category.description %}<p class="lead">{{ current_category.description }}</p>{% endif %}
   </div>
 </section>
@@ -49,7 +49,7 @@
     {% endif %}
     {% else %}
     <div class="empty">
-      <p>No pieces match your selection.</p>
+      <p>{{ txt.collections_empty }}</p>
       <a href="{% url 'shop:collections' %}" class="btn">View all pieces</a>
     </div>
     {% endif %}

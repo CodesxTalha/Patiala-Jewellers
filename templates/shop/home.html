@@ -5,15 +5,22 @@
 {# 1. Hero: full-screen video (a portrait cut on phones), title, one line and one button at the bottom #}
 <section class="hero" aria-label="{{ store.name }}">
   <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" data-hero-video
+         {% if store.hero_video %}
+         poster="{% if store.hero_poster %}{{ store.hero_poster.url }}{% endif %}"
+         data-poster-mobile="{% if store.hero_poster_mobile %}{{ store.hero_poster_mobile.url }}{% elif store.hero_poster %}{{ store.hero_poster.url }}{% endif %}"
+         data-webm="" data-mp4="{{ store.hero_video.url }}"
+         data-webm-mobile="" data-mp4-mobile="{% if store.hero_video_mobile %}{{ store.hero_video_mobile.url }}{% else %}{{ store.hero_video.url }}{% endif %}"
+         {% else %}
          poster="{% static 'img/hero/hero-poster.jpg' %}"
          data-poster-mobile="{% static 'img/hero/hero-poster-mobile.jpg' %}"
          data-webm="{% static 'img/hero/hero.webm' %}" data-mp4="{% static 'img/hero/hero.mp4' %}"
-         data-webm-mobile="{% static 'img/hero/hero-mobile.webm' %}" data-mp4-mobile="{% static 'img/hero/hero-mobile.mp4' %}"></video>
+         data-webm-mobile="{% static 'img/hero/hero-mobile.webm' %}" data-mp4-mobile="{% static 'img/hero/hero-mobile.mp4' %}"
+         {% endif %}></video>
   <div class="hero-text">
     <span class="label hero-label">{{ store.name }} · {{ store.descriptor }}</span>
     <h1>{{ store.tagline }}</h1>
-    <p>Hallmarked gold and certified diamonds, finished by hand in Islamabad.</p>
-    <a href="{% url 'shop:collections' %}" class="btn hero-btn">Discover the collections</a>
+    <p>{{ txt.home_hero_text }}</p>
+    <a href="{% url 'shop:collections' %}" class="btn hero-btn">{{ txt.home_hero_button }}</a>
   </div>
 </section>
 
@@ -22,8 +29,8 @@
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
-      <span class="label">The collections</span>
-      <h2>Find your piece</h2>
+      <span class="label">{{ txt.home_collections_label }}</span>
+      <h2>{{ txt.home_collections_title }}</h2>
     </div>
     <div class="tiles" data-reveal>
       {% for c in categories %}
@@ -42,13 +49,13 @@
 <section class="section surface-alt">
   <div class="container">
     <div class="section-head" data-reveal>
-      <span class="label">Selected pieces</span>
-      <h2>Made to be worn</h2>
+      <span class="label">{{ txt.home_featured_label }}</span>
+      <h2>{{ txt.home_featured_title }}</h2>
     </div>
     <div class="product-grid" data-reveal>
       {% for p in featured %}{% include "shop/_product_card.html" %}{% endfor %}
     </div>
-    <div class="section-foot"><a href="{% url 'shop:collections' %}" class="btn">View all pieces</a></div>
+    <div class="section-foot"><a href="{% url 'shop:collections' %}" class="btn">{{ txt.home_featured_button }}</a></div>
   </div>
 </section>
 {% endif %}
@@ -58,15 +65,15 @@
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
-      <span class="label">Services</span>
-      <h2>Care for every piece</h2>
+      <span class="label">{{ txt.home_services_label }}</span>
+      <h2>{{ txt.home_services_title }}</h2>
     </div>
     <div class="services" data-reveal>
       {% for sv in services %}
       {% include "shop/_service_card.html" %}
       {% endfor %}
     </div>
-    <div class="section-foot"><a href="{% url 'shop:services' %}" class="link-underline">All services</a></div>
+    <div class="section-foot"><a href="{% url 'shop:services' %}" class="link-underline">{{ txt.home_services_button }}</a></div>
   </div>
 </section>
 {% endif %}
@@ -82,11 +89,11 @@
   <div class="story-shade" aria-hidden="true"></div>
   <div class="container story-content">
     <div class="story-text" data-reveal>
-      <span class="label">Our story</span>
-      <h2>Cast in gold, finished by hand.</h2>
+      <span class="label">{{ txt.home_story_label }}</span>
+      <h2>{{ txt.home_story_title }}</h2>
       <hr class="rule">
-      <p class="lead">We keep our collections small, so every design gets the time it deserves. Each piece is checked twice before it leaves the workshop.</p>
-      <a href="{% url 'shop:about' %}" class="link-underline">Read our story</a>
+      <p class="lead">{{ txt.home_story_text }}</p>
+      <a href="{% url 'shop:about' %}" class="link-underline">{{ txt.home_story_button }}</a>
     </div>
   </div>
 </section>
@@ -96,8 +103,8 @@
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
-      <span class="label">Boutiques</span>
-      <h2>Visit us in Islamabad</h2>
+      <span class="label">{{ txt.home_boutiques_label }}</span>
+      <h2>{{ txt.home_boutiques_title }}</h2>
     </div>
     <div class="boutiques" data-reveal>
       {% for b in branches %}
@@ -108,7 +115,7 @@
       </div>
       {% endfor %}
     </div>
-    <div class="section-foot"><a href="{% url 'shop:contact' %}#boutiques" class="link-underline">View on the map</a></div>
+    <div class="section-foot"><a href="{% url 'shop:contact' %}#boutiques" class="link-underline">{{ txt.home_boutiques_button }}</a></div>
   </div>
 </section>
 {% endif %}

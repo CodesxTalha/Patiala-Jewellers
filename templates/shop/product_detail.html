@@ -53,7 +53,7 @@
             <span data-fav-text>Save to favorites</span>
           </button>
         </div>
-        <p class="pdp-note">Visit any boutique to see this piece in person.</p>
+        <p class="pdp-note">{{ txt.product_note }}</p>
       </div>
     </div>
   </div>
@@ -63,8 +63,8 @@
   <div class="container">
     <div class="enquiry panel">
       <div class="section-head">
-        <span class="label">Prefer a call back</span>
-        <h2>Send an enquiry</h2>
+        <span class="label">{{ txt.product_enquiry_label }}</span>
+        <h2>{{ txt.product_enquiry_title }}</h2>
       </div>
       {% include "shop/_enquiry_form.html" %}
     </div>
@@ -74,7 +74,7 @@
 {% if related %}
 <section class="section">
   <div class="container">
-    <div class="section-head"><span class="label">More from {{ product.category.name }}</span><h2>You may also like</h2></div>
+    <div class="section-head"><span class="label">More from {{ product.category.name }}</span><h2>{{ txt.product_related_title }}</h2></div>
     <div class="product-grid">
       {% for p in related %}{% include "shop/_product_card.html" %}{% endfor %}
     </div>

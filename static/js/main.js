@@ -105,6 +105,7 @@
       if (reduceMotion) return;                         // people who ask for less motion get the still poster only
       heroVideo.innerHTML = "";
       [[mobile ? d.webmMobile : d.webm, "video/webm"], [mobile ? d.mp4Mobile : d.mp4, "video/mp4"]].forEach(([src, type]) => {
+        if (!src) return;
         const s = document.createElement("source");
         s.src = src; s.type = type;
         heroVideo.appendChild(s);

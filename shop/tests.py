@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import Category, Enquiry, Product, Service, StoreInfo
+from .models import AboutValue, Category, ContentBlock, Enquiry, Product, Service, StoreInfo
 
 # 1x1 transparent GIF
 GIF = (b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00"
@@ -130,3 +130,46 @@ class ShopTests(TestCase):
         self.assertContains(page, "Collect it")
         self.assertContains(page, "wa.me/923001234567?text=Hello")
         self.assertEqual(self.client.get(reverse("shop:service_detail", args=["hidden"])).status_code, 404)
+
+    def test_brand_settings_drive_the_theme(self):
+        info = StoreInfo.load()
+        info.color_gold = "#112233"
+        info.font_primary = "Jost"
+        info.heading_weight = 600
+        info.tiktok_url = "https://tiktok.com/@patiala"
+        info.save()
+        home = self.client.get(reverse("shop:home"))
+        self.assertContains(home, "--gold:#112233")
+        self.assertContains(home, "--heading-weight:600")
+        self.assertContains(home, "family=Jost:wght@400;500;600")
+        self.assertContains(home, "https://tiktok.com/@patiala")
+        self.assertContains(home, 'class="monogram')       # built-in monogram when no logo is uploaded
+        info.logo = SimpleUploadedFile("logo.gif", GIF, content_type="image/gif")
+        info.save()
+        self.assertContains(self.client.get(reverse("shop:home")), "<img class=\"monogram")
+
+    def test_page_text_comes_from_the_database(self):
+        self.assertContains(self.client.get(reverse("shop:home")), "Find your piece")
+        ContentBlock.objects.filter(key="home_collections_title").update(text="Choose your treasure")
+        home = self.client.get(reverse("shop:home"))
+        self.assertContains(home, "Choose your treasure")
+        self.assertNotContains(home, "Find your piece")
+        # a missing row never breaks the page: the starting text is used
+        ContentBlock.objects.filter(key="home_collections_title").delete()
+        self.assertContains(self.client.get(reverse("shop:home")), "Find your piece")
+
+    def test_about_values_come_from_the_database(self):
+        AboutValue.objects.all().delete()
+        AboutValue.objects.create(title="Made in Islamabad", text="Every piece.")
+        AboutValue.objects.create(title="Hidden", text="No.", is_active=False)
+        page = self.client.get(reverse("shop:about"))
+        self.assertContains(page, "Made in Islamabad")
+        self.assertNotContains(page, "Hidden")
+
+    def test_hero_film_can_be_uploaded(self):
+        info = StoreInfo.load()
+        info.hero_video = SimpleUploadedFile("film.mp4", b"x", content_type="video/mp4")
+        info.save()
+        home = self.client.get(reverse("shop:home"))
+        self.assertContains(home, "hero/film")
+        self.assertNotContains(home, "img/hero/hero.mp4")

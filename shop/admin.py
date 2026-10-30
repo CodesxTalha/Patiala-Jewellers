@@ -1,7 +1,8 @@
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Branch, Category, Enquiry, HeroSlide, Product, ProductImage, Service, StoreInfo
+from .models import AboutValue, Branch, ContentBlock, Category, Enquiry, HeroSlide, Product, ProductImage, Service, StoreInfo
 
 admin.site.site_header = "Patiala Jewelers Admin"
 admin.site.site_title = "Patiala Jewelers Admin"
@@ -116,12 +117,29 @@ class BranchAdmin(admin.ModelAdmin):
     search_fields = ("name", "address")
 
 
+COLOR_FIELDS = ("color_light", "color_dark", "color_gold", "color_gold_light", "color_gold_deep", "color_cream")
+
+
+class StoreInfoForm(forms.ModelForm):
+    class Meta:
+        model = StoreInfo
+        fields = "__all__"
+        widgets = {name: forms.TextInput(attrs={"type": "color", "style": "width:5rem;height:2.2rem;padding:2px;"})
+                   for name in COLOR_FIELDS}
+
+
 @admin.register(StoreInfo)
 class StoreInfoAdmin(admin.ModelAdmin):
+    form = StoreInfoForm
     fieldsets = (
         ("Brand", {"fields": ("name", "descriptor", "tagline")}),
         ("Contact", {"fields": ("phone", "whatsapp", "email")}),
-        ("Social", {"fields": ("instagram_url", "facebook_url")}),
+        ("Social media", {"fields": ("instagram_url", "facebook_url", "tiktok_url", "youtube_url", "pinterest_url", "x_url")}),
+        ("Colours", {"fields": COLOR_FIELDS,
+                     "description": "Light is about 60% of the site, dark about 30% and gold about 10%."}),
+        ("Fonts", {"fields": ("font_primary", "heading_weight", "font_secondary", "font_wordmark")}),
+        ("Logo", {"fields": ("logo", "favicon")}),
+        ("Home page hero", {"fields": ("hero_video", "hero_video_mobile", "hero_poster", "hero_poster_mobile")}),
         ("About page and Our Story section", {"fields": ("about_heading", "about_text", "about_image", "about_image_mobile")}),
     )
 
@@ -155,3 +173,29 @@ class ServiceAdmin(admin.ModelAdmin):
     @admin.display(description="Image")
     def preview(self, obj):
         return thumb(obj.photo_url, 40)
+
+
+@admin.register(ContentBlock)
+class ContentBlockAdmin(admin.ModelAdmin):
+    list_display = ("label", "group", "short_text")
+    list_filter = ("group",)
+    search_fields = ("label", "text")
+    ordering = ("group", "id")
+    fields = ("group", "label", "key", "text")
+    readonly_fields = ("group", "label", "key")
+
+    @admin.display(description="Text")
+    def short_text(self, obj):
+        return obj.text if len(obj.text) < 90 else obj.text[:87] + "..."
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(AboutValue)
+class AboutValueAdmin(admin.ModelAdmin):
+    list_display = ("title", "text", "display_order", "is_active")
+    list_editable = ("display_order", "is_active")

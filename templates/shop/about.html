@@ -5,7 +5,7 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">About</span>
+    <span class="label">{{ txt.about_label }}</span>
     <h1>{{ store.about_heading }}</h1>
   </div>
 </section>
@@ -15,7 +15,7 @@
     <div class="split-img" data-reveal><img src="{{ story_image }}" alt=""></div>
     <div class="split-text prose" data-reveal>
       {% if store.about_text %}{{ store.about_text|linebreaks }}{% endif %}
-      <a href="{% url 'shop:contact' %}" class="link-underline">Visit a boutique</a>
+      <a href="{% url 'shop:contact' %}" class="link-underline">{{ txt.about_button }}</a>
     </div>
   </div>
 </section>
@@ -23,9 +23,7 @@
 <section class="section surface-alt">
   <div class="container">
     <div class="values">
-      <div class="value" data-reveal><h3>Hallmarked gold</h3><p>Every piece is tested and stamped for purity.</p></div>
-      <div class="value" data-reveal><h3>Certified diamonds</h3><p>Each stone is graded before it is set.</p></div>
-      <div class="value" data-reveal><h3>Finished by hand</h3><p>Polished and checked twice by our craftsmen.</p></div>
+      {% for v in values %}<div class="value" data-reveal><h3>{{ v.title }}</h3><p>{{ v.text }}</p></div>{% endfor %}
     </div>
   </div>
 </section>
@@ -33,8 +31,8 @@
 <section class="section center">
   <div class="container" data-reveal>
     <hr class="rule">
-    <p class="quote">Made to be passed down.</p>
-    <a href="{% url 'shop:collections' %}" class="btn">Discover the collections</a>
+    <p class="quote">{{ txt.about_quote }}</p>
+    <a href="{% url 'shop:collections' %}" class="btn">{{ txt.about_quote_button }}</a>
   </div>
 </section>
 {% endblock %}

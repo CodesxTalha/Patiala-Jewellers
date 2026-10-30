@@ -4,7 +4,13 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EnquiryForm
-from .models import Branch, Category, Product, Service
+from .content import DEFAULTS
+from .models import AboutValue, Branch, Category, ContentBlock, Product, Service
+
+
+def content_text(key):
+    block = ContentBlock.objects.filter(key=key).first()
+    return block.text if block else DEFAULTS[key][2]
 
 
 def visible_products():
@@ -64,7 +70,7 @@ def product_detail(request, slug):
         enquiry = form.save(commit=False)
         enquiry.product = product
         enquiry.save()
-        messages.success(request, "Thank you. We will be in touch shortly.")
+        messages.success(request, content_text("contact_thanks"))
         return redirect(product.get_absolute_url())
 
     related = visible_products().filter(category=product.category).exclude(pk=product.pk)[:4]
@@ -101,14 +107,14 @@ def service_detail(request, slug):
 
 
 def about(request):
-    return render(request, "shop/about.html")
+    return render(request, "shop/about.html", {"values": AboutValue.objects.filter(is_active=True)})
 
 
 def contact(request):
     form = EnquiryForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Thank you. We will be in touch shortly.")
+        messages.success(request, content_text("contact_thanks"))
         return redirect("shop:contact")
 
     # Boutique positions for the map (only those with coordinates).
