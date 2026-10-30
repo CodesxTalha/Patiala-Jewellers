@@ -94,6 +94,12 @@ def services(request):
     return render(request, "shop/services.html", {"services": Service.objects.filter(is_active=True)})
 
 
+def service_detail(request, slug):
+    service = get_object_or_404(Service, slug=slug, is_active=True)
+    others = Service.objects.filter(is_active=True).exclude(pk=service.pk)[:3]
+    return render(request, "shop/service_detail.html", {"service": service, "others": others})
+
+
 def about(request):
     return render(request, "shop/about.html")
 

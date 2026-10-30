@@ -95,25 +95,38 @@ BRANCHES = [
 ]
 
 
+# name, summary, intro, description, includes, process, turnaround, price, photo
 SERVICES = [
-    ("Polishing", "Restores the shine of gold and diamond pieces.",
-     "A careful hand polish removes fine scratches and brings back the original brilliance. Stones are checked and the piece is cleaned before it is returned.",
-     "Same day", "Complimentary"),
-    ("Repair", "Broken clasps, chains and settings made good again.",
-     "From a snapped chain to a loose stone, our craftsmen repair the piece by hand and test it before it leaves the workshop.",
-     "3 to 5 days", "From Rs 1,500"),
-    ("Resizing", "Rings and bangles fitted to your measure.",
+    ("Polishing", "Restores the shine of gold and diamond pieces.", "Bring back the shine.",
+     "A careful hand polish removes fine scratches and brings back the original brilliance of your piece.",
+     "Hand polish to remove fine scratches\nSetting and prong check\nUltrasonic clean\nFinal inspection under light",
+     "Bring it in|Visit any boutique and we look at your piece with you.\nPolished by hand|Our craftsmen polish and clean it in the workshop.\nCollect it|We call you when it is ready, often the same day.",
+     "Same day", "Complimentary", "1758995116383-f51775896add"),
+    ("Repair", "Broken clasps, chains and settings made good again.", "Made good again.",
+     "From a snapped chain to a loose stone, we repair the piece by hand and test it before it leaves the workshop.",
+     "Chain and clasp repair\nStone re-setting\nProng re-tipping\nSoldering and finishing",
+     "Show us the damage|We assess the piece and agree the repair with you.\nRepaired by hand|The work is done in our own workshop.\nTested and returned|We check it twice before you collect it.",
+     "3 to 5 days", "From Rs 1,500", "1611107683227-e9060eccd846"),
+    ("Resizing", "Rings and bangles fitted to your measure.", "Fitted to your measure.",
      "We resize rings and bangles in gold and platinum, keeping the design and any engraving intact.",
-     "2 to 3 days", "From Rs 2,000"),
-    ("Cleaning", "A deep clean for diamonds and gemstones.",
+     "Accurate sizing\nRing and bangle resizing\nEngraving kept intact\nFinal polish",
+     "Get measured|We measure your finger or wrist in the boutique.\nResized by hand|The piece is adjusted and refinished.\nTry it on|You check the fit when you collect it.",
+     "2 to 3 days", "From Rs 2,000", "1768423685978-42fe24ec39a0"),
+    ("Cleaning", "A deep clean for diamonds and gemstones.", "Clear, bright stones.",
      "Ultrasonic cleaning lifts away the oils and dust that dull a stone. Safe for diamonds and most gemstones.",
-     "While you wait", "Complimentary"),
-    ("Custom design", "A piece made to your own design.",
-     "Bring an idea or a sketch. We will draw it, agree the details with you and craft it in the metal and stones you choose.",
-     "3 to 4 weeks", "On request"),
-    ("Valuation", "A written valuation for insurance or resale.",
+     "Ultrasonic cleaning\nSteam clean\nStone and setting check\nSoft-cloth finish",
+     "Hand it over|Leave your piece with us or wait in the boutique.\nDeep cleaned|We clean it and check every stone.\nReturned bright|It is handed back ready to wear.",
+     "While you wait", "Complimentary", "1589128777073-263566ae5e4d"),
+    ("Custom design", "A piece made to your own design.", "Made for you alone.",
+     "Bring an idea or a sketch. We draw it, agree the details with you and craft it in the metal and stones you choose.",
+     "Design consultation\nSketch and approval\nMetal and stone selection\nHand finishing",
+     "Share your idea|Tell us what you have in mind.\nWe draw it|You approve the design before we begin.\nCrafted by hand|We make it and call you when it is ready.",
+     "3 to 4 weeks", "On request", "1603561591411-07134e71a2a9"),
+    ("Valuation", "A written valuation for insurance or resale.", "Know what it is worth.",
      "A certified appraisal of your gold and stones, with a written report you can keep for insurance or resale.",
-     "1 to 2 days", "From Rs 3,000"),
+     "Gold purity testing\nStone grading\nWritten valuation report\nInsurance-ready copy",
+     "Bring your piece|Visit any boutique with your jewelry.\nAppraised|Our team tests and grades it.\nReceive your report|You collect a signed written valuation.",
+     "1 to 2 days", "From Rs 3,000", "1605100804567-1ffe942b5cd6"),
 ]
 
 
@@ -190,11 +203,12 @@ class Command(BaseCommand):
                 },
             )
 
-        for i, (name, summary, desc, turn, price) in enumerate(SERVICES):
+        for i, (name, summary, intro, desc, inc, proc, turn, price, photo) in enumerate(SERVICES):
             Service.objects.update_or_create(
                 name=name,
-                defaults={"summary": summary, "description": desc, "turnaround": turn, "price_note": price,
-                          "display_order": i, "is_active": True},
+                defaults={"summary": summary, "intro": intro, "description": desc, "includes": inc, "process": proc,
+                          "image_url": PHOTO.format(photo).replace("w=1000", "w=1800"),
+                          "turnaround": turn, "price_note": price, "display_order": i, "is_active": True},
             )
 
         self.stdout.write(self.style.SUCCESS(

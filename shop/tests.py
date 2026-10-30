@@ -112,12 +112,21 @@ class ShopTests(TestCase):
         self.assertIn("/store/m", srcset)
         self.assertNotEqual(srcset, img)
 
-    def test_services_page_and_home_section(self):
-        Service.objects.create(name="Polishing", summary="Restores the shine.", turnaround="Same day")
+    def test_services_pages(self):
+        sv = Service.objects.create(
+            name="Polishing", summary="Restores the shine.", intro="Bring back the shine.", turnaround="Same day",
+            includes="Hand polish\nUltrasonic clean", process="Bring it in|Visit us.\nCollect it|Often same day.",
+        )
         Service.objects.create(name="Hidden", summary="Not shown.", is_active=False)
         StoreInfo(whatsapp="923001234567").save()
-        page = self.client.get(reverse("shop:services"))
-        self.assertContains(page, "Polishing")
-        self.assertNotContains(page, "Hidden")
-        self.assertContains(page, "wa.me/923001234567?text=Hello")
+        self.assertEqual(sv.slug, "polishing")
+        listing = self.client.get(reverse("shop:services"))
+        self.assertContains(listing, "Polishing")
+        self.assertNotContains(listing, "Hidden")
         self.assertContains(self.client.get(reverse("shop:home")), "Restores the shine.")
+        page = self.client.get(sv.get_absolute_url())
+        self.assertContains(page, "Bring back the shine.")
+        self.assertContains(page, "Ultrasonic clean")
+        self.assertContains(page, "Collect it")
+        self.assertContains(page, "wa.me/923001234567?text=Hello")
+        self.assertEqual(self.client.get(reverse("shop:service_detail", args=["hidden"])).status_code, 404)

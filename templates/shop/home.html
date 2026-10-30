@@ -63,11 +63,7 @@
     </div>
     <div class="services" data-reveal>
       {% for sv in services %}
-      <a href="{% url 'shop:services' %}#service-{{ sv.pk }}" class="service">
-        <span class="service-no">{{ forloop.counter|stringformat:"02d" }}</span>
-        <h3>{{ sv.name }}</h3>
-        <p>{{ sv.summary }}</p>
-      </a>
+      {% include "shop/_service_card.html" %}
       {% endfor %}
     </div>
     <div class="section-foot"><a href="{% url 'shop:services' %}" class="link-underline">All services</a></div>

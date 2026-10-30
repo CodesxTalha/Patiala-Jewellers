@@ -140,6 +140,18 @@ class StoreInfoAdmin(admin.ModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ("name", "summary", "turnaround", "price_note", "display_order", "is_active")
+    list_display = ("preview", "name", "summary", "turnaround", "price_note", "display_order", "is_active")
+    list_display_links = ("preview", "name")
     list_editable = ("display_order", "is_active")
+    prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name", "summary")
+    fieldsets = (
+        (None, {"fields": ("name", "slug", "summary", "intro", "description")}),
+        ("Image", {"fields": ("image", "image_url")}),
+        ("Details", {"fields": ("includes", "process", "turnaround", "price_note")}),
+        ("Display", {"fields": ("display_order", "is_active")}),
+    )
+
+    @admin.display(description="Image")
+    def preview(self, obj):
+        return thumb(obj.photo_url, 40)

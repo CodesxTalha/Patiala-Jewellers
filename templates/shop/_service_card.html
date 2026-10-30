@@ -1,0 +1,5 @@
+<a href="{{ sv.get_absolute_url }}" class="service">
+  <div class="service-img">{% if sv.photo_url %}<img src="{{ sv.photo_url }}" alt="" loading="lazy">{% endif %}</div>
+  <h3>{{ sv.name }}</h3>
+  <p>{{ sv.summary }}</p>
+</a>

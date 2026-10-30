@@ -13,32 +13,14 @@
 </section>
 
 <section class="section section--flush">
-  <div class="container container--narrow">
-    {% for sv in services %}
-    <article class="service-row" id="service-{{ sv.pk }}" data-reveal>
-      <span class="service-no">{{ forloop.counter|stringformat:"02d" }}</span>
-      <h2>{{ sv.name }}</h2>
-      <p>{% if sv.description %}{{ sv.description }}{% else %}{{ sv.summary }}{% endif %}</p>
-      {% if sv.turnaround or sv.price_note %}
-      <p class="service-meta">{% if sv.turnaround %}<span>{{ sv.turnaround }}</span>{% endif %}{% if sv.price_note %}<span>{{ sv.price_note }}</span>{% endif %}</p>
-      {% endif %}
-      {% if store.whatsapp %}
-      <a class="link-underline" href="https://wa.me/{{ store.whatsapp }}?text={{ sv.wa_text|urlencode }}" target="_blank" rel="noopener">Enquire on WhatsApp</a>
-      {% else %}
-      <a class="link-underline" href="{% url 'shop:contact' %}#appointment">Send an enquiry</a>
-      {% endif %}
-    </article>
-    {% empty %}
+  <div class="container">
+    {% if services %}
+    <div class="services services--page" data-reveal>
+      {% for sv in services %}{% include "shop/_service_card.html" %}{% endfor %}
+    </div>
+    {% else %}
     <p class="empty">Our services will be listed here soon.</p>
-    {% endfor %}
-  </div>
-</section>
-
-<section class="section center">
-  <div class="container" data-reveal>
-    <hr class="rule">
-    <p class="quote">Not sure what your piece needs?</p>
-    <a href="{% url 'shop:contact' %}#boutiques" class="btn">Visit a boutique</a>
+    {% endif %}
   </div>
 </section>
 {% endblock %}

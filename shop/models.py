@@ -253,8 +253,14 @@ class HeroSlide(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    summary = models.CharField(max_length=160, help_text="One short line, shown on the home page.")
-    description = models.TextField(blank=True, help_text="A few sentences, shown on the Services page.")
+    slug = models.SlugField(max_length=120, blank=True, db_index=True)
+    summary = models.CharField(max_length=160, help_text="One short line, shown on cards.")
+    intro = models.CharField(max_length=200, blank=True, help_text="One line under the title on the service page.")
+    description = models.TextField(blank=True, help_text="A few sentences, shown on the service page.")
+    includes = models.TextField(blank=True, help_text="What is included. One item per line.")
+    process = models.TextField(blank=True, help_text='How it works. One step per line, written as "Title | a short sentence".')
+    image = models.ImageField(upload_to="services/", blank=True)
+    image_url = models.URLField(max_length=500, blank=True, help_text="Optional: an image link, used when no file is uploaded.")
     turnaround = models.CharField(max_length=60, blank=True, help_text='For example "Same day" or "3 to 5 days".')
     price_note = models.CharField(max_length=60, blank=True, help_text='For example "From Rs 1,500" or "Complimentary".')
     display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first.")
@@ -265,6 +271,31 @@ class Service(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("shop:service_detail", args=[self.slug])
+
+    @property
+    def photo_url(self):
+        return self.image.url if self.image else self.image_url
+
+    @property
+    def include_list(self):
+        return [l.strip() for l in self.includes.splitlines() if l.strip()]
+
+    @property
+    def step_list(self):
+        steps = []
+        for line in self.process.splitlines():
+            if line.strip():
+                title, _, text = line.partition("|")
+                steps.append({"title": title.strip(), "text": text.strip()})
+        return steps
 
     @property
     def wa_text(self):
