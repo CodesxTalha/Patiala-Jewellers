@@ -150,10 +150,10 @@ def setup_checklist():
     """A short list of what is still missing before the site is ready to share."""
     s = StoreInfo.load()
     items = [
-        ("Add your WhatsApp number", bool(s.whatsapp), "admin:shop_storeinfo_changelist"),
-        ("Add your phone and email", bool(s.phone and s.email), "admin:shop_storeinfo_changelist"),
-        ("Upload your logo", bool(s.logo), "admin:shop_storeinfo_changelist"),
-        ("Add a social link", bool(s.socials), "admin:shop_storeinfo_changelist"),
+        ("Add your WhatsApp number", bool(s.whatsapp), "admin:settings"),
+        ("Add your phone and email", bool(s.phone and s.email), "admin:settings"),
+        ("Upload your logo", bool(s.logo), "admin:settings"),
+        ("Add a social link", bool(s.socials), "admin:settings"),
         ("Add a hero slide", HeroSlide.objects.filter(is_active=True).exists(), "admin:hero"),
         ("Pin every boutique on the map", not Branch.objects.filter(is_active=True, latitude__isnull=True).exists()
          and Branch.objects.exists(), "admin:locations"),

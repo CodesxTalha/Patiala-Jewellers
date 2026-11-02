@@ -138,3 +138,9 @@ html body.panel a.kind-card:not(#_) { text-decoration: none; color: var(--ink); 
 .kind-ic { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: .4rem; }
 .kind-tag { display: inline-block; padding: .1rem .55rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font: 500 11px var(--font-family-primary); }
 .lbtn.is-on { color: var(--ink); border-color: var(--ink); }
+.colour-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 .9rem; }
+.colour-row .fld input[type=color] { width: 100%; height: 44px; }
+details.more { margin-top: .6rem; } details.more > summary { cursor: pointer; font-weight: 500; font-size: 13px; color: var(--muted); padding: .4rem 0; }
+@media (max-width: 560px) { .colour-row { grid-template-columns: 1fr; } }
+.photo-frame.logo img { object-fit: contain; padding: 14px; background: #fff; }
+.sec .hint + .two, .sec .hint + .fld, .sec .hint + .colour-row { margin-top: .75rem; }

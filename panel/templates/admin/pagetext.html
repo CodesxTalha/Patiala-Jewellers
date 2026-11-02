@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Page text · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" class="product-form" data-editor novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">Page text</h1><p class="page-sub">The small labels, headings and messages on your pages. Home sections are edited in Home page, and the About page in About.</p></div>
+    <div class="head-actions"><button type="submit" class="btn-primary" id="save-btn">Save changes</button></div>
+  </header>
+  <div class="hsec-list">
+    {% for g in groups %}
+    <section class="card flush"><div class="sec">
+      <h3>{{ g.name }}</h3>
+      {% for b in g.rows %}<label class="fld"><span>{{ b.label }}</span><input type="text" name="t_{{ b.key }}" value="{{ b.text }}" maxlength="600"></label>{% endfor %}
+    </div></section>
+    {% endfor %}
+  </div>
+</form>
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}

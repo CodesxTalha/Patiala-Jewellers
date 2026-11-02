@@ -23,8 +23,8 @@ Open `/admin/` and sign in. Create your login first with `python manage.py creat
 - **Locations**: your boutiques, with a click-to-place map pin. One location shows one big map
 - **Enquiries**: messages from the contact and product forms, with status and internal notes
 - **About**: one page for everything on the About page (heading, story, photo, promises, closing line)
-- **Page text**: the rest of the copy on the pages
-- **Store settings**: name, tagline, contact, socials, colours, fonts, logo, About text
+- **Page text**: the labels, headings and messages on the Collections, Services, Contact and Favorites pages, plus the hero line, all on one page
+- **Settings**: brand, logo, contact, social links, colours, fonts, the intro screen and the WhatsApp button (words included), all on one page
 - **Visitors** and **Clicks**: the tracking logs
 
 ## Demo content
@@ -36,7 +36,7 @@ python manage.py seed_demo --clear   # wipe products and categories first
 ```
 Phone, WhatsApp and email in the demo are placeholders. The boutique map pins use approximate area-level coordinates: set each shop's exact latitude and longitude in Admin > Branches.
 
-The Contact page map is MapLibre with the site's own colour style (`static/map/style.json`) on free OpenFreeMap tiles. No account or API key is needed. Set the real ones in Admin > Store information.
+The Contact page map is MapLibre with the site's own colour style (`static/map/style.json`) on free OpenFreeMap tiles. No account or API key is needed. Set the real ones in Admin → Settings.
 To use a real photo, upload it on the product; an uploaded file always wins over the image link.
 
 The home page hero is the film in `static/img/hero/`: `hero.webm` and `hero.mp4` for desktop, and a portrait cut for phones (`hero-mobile.webm`, `hero-mobile.mp4`), with a poster for each. To replace the video, cut a wide and a tall version, like these.
@@ -68,8 +68,8 @@ Run the tests with `python manage.py test shop`.
 
 Run `python manage.py collectstatic` on deploy. Uploaded images go in `media/`, which your web server (or a storage service) needs to serve when `DEBUG` is off.
 
-## Brand settings (Admin → Store information)
-Colours, fonts, logo and social links live in the database, in the single Store information record, and the whole site reads them:
+## Brand settings (Admin → Settings)
+Colours, fonts, logo and social links live in the database, in the single store record, and the whole site reads them:
 - **Colours:** light, dark, gold, gold on dark, gold for small text, text on dark. Lines and tints follow the light and dark colours.
 - **Fonts:** a primary sans (headings, names, labels), a secondary serif (paragraphs) and the logo wordmark face, all from a short list of Google Fonts, plus the heading weight.
 - **Logo:** an optional monogram and favicon upload. Without one, the built-in gold monogram is used.

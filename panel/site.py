@@ -14,7 +14,7 @@ NAV = [
         ("view:categories", "Categories", "grid"),
         ("view:services", "Services", "wand"),
         ("view:about", "About", "star"),
-        ("ContentBlock", "Page text", "text"),
+        ("view:pagetext", "Page text", "text"),
     ]),
     ("Inbox", [
         ("Enquiry", "Enquiries", "mail"),
@@ -24,8 +24,8 @@ NAV = [
         ("ClickEvent", "Clicks", "pointer"),
     ]),
     ("Store", [
-        ("StoreInfo", "Store settings", "cog"),
         ("view:locations", "Locations", "pin"),
+        ("view:settings", "Settings", "cog"),
     ]),
     ("Team", [
         ("User", "Users", "user"),
@@ -76,7 +76,7 @@ class PanelAdminSite(AdminSite):
 
     def get_urls(self):
         from django.urls import path
-        from . import about, categories, hero, home, locations, products, services
+        from . import about, categories, hero, home, locations, pagetext, products, services, settings
         wrap = self.admin_view
         return [
             path("hero/", wrap(lambda r: hero.editor(r, self)), name="hero"),
@@ -85,6 +85,8 @@ class PanelAdminSite(AdminSite):
             path("hero/settings/", wrap(hero.save_settings), name="hero_settings"),
             path("hero/<int:pk>/save/", wrap(hero.save_slide), name="hero_save"),
             path("hero/<int:pk>/delete/", wrap(hero.delete_slide), name="hero_delete"),
+            path("settings/", wrap(lambda r: settings.editor(r, self)), name="settings"),
+            path("text/", wrap(lambda r: pagetext.editor(r, self)), name="pagetext"),
             path("about/", wrap(lambda r: about.editor(r, self)), name="about"),
             path("home/", wrap(lambda r: home.listing(r, self)), name="home_sections"),
             path("home/sections/new/", wrap(lambda r: home.section_editor(r, self)), name="home_section_new"),

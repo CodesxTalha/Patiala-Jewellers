@@ -49,11 +49,11 @@ class PanelTests(TestCase):
         self.assertContains(dash, "Latest visits")
         self.assertContains(dash, "1 on the site right now")
         self.assertContains(self.client.get("/admin/?days=7"), "Last 7 days")
-        for app, name in (("shop", "contentblock"),
-                          ("shop", "enquiry"), ("panel", "visit"),
+        for app, name in (("shop", "enquiry"), ("panel", "visit"),
                           ("panel", "clickevent")):
             self.assertEqual(self.client.get(f"/admin/{app}/{name}/").status_code, 200, name)
-        self.assertEqual(self.client.get("/admin/shop/storeinfo/", follow=True).status_code, 200)
+        for page, text in (("settings", "Colours"), ("text", "Page text")):
+            self.assertContains(self.client.get(f"/admin/{page}/"), text)
         self.assertContains(self.client.get("/admin/hero/"), "Add slide")
         self.client.logout()
         self.assertEqual(self.client.get("/admin/").status_code, 302)               # signed-out visitors are sent to the login page
@@ -415,6 +415,27 @@ class PanelTests(TestCase):
         self.client.post(f"/admin/home/sections/{sec.pk}/delete/")
         self.assertFalse(HomeSection.objects.filter(pk=sec.pk).exists())
 
+    def test_settings_and_page_text_are_single_pages(self):
+        self._owner()
+        page = self.client.get("/admin/settings/")
+        for text in ("Brand", "Contact", "Social media", "Colours", "Fonts", "On every page", "Save changes"):
+            self.assertContains(page, text)
+        data = {"name": "Patiala Jewelers", "descriptor": "Gold", "tagline": "Hello", "phone": "0300", "whatsapp": "+92 300 1234567",
+                "email": "a@b.co", "instagram_url": "https://instagram.com/x", "color_light": "#FFFFFF", "color_dark": "#111111",
+                "color_gold": "#B8975A", "color_gold_light": "#C9A96A", "color_gold_deep": "#8A6D35", "color_cream": "#F3EFE6",
+                "font_primary": "Montserrat", "heading_weight": "500", "font_secondary": "Playfair Display",
+                "font_wordmark": "Playfair Display", "whatsapp_message": "Hi there", "show_whatsapp_button": "on"}
+        self.assertRedirects(self.client.post("/admin/settings/", data), "/admin/settings/")
+        store = StoreInfo.load()
+        self.assertEqual((store.whatsapp, store.color_light, store.show_preloader, store.show_whatsapp_button), ("923001234567", "#FFFFFF", False, True))
+        self.assertContains(self.client.post("/admin/settings/", dict(data, color_light="red", name="")), "Please check")
+        self.assertEqual(StoreInfo.load().color_light, "#FFFFFF")
+        text = self.client.get("/admin/text/")
+        self.assertContains(text, "Services")
+        self.assertNotContains(text, "WhatsApp button text")
+        self.client.post("/admin/text/", {"t_collections_title": "Every piece"})
+        self.assertContains(self.client.get("/collections/"), "Every piece")
+
     def test_about_is_one_page_for_everything_on_the_about_page(self):
         from shop.models import AboutValue
         self._owner()
@@ -442,7 +463,7 @@ class PanelTests(TestCase):
             self.assertContains(about, text)
         self.assertNotContains(about, "New one")                 # hidden promise
         self.assertNotContains(about, "Discover the collections")  # cleared button text hides the button
-        self.assertNotContains(self.client.get("/admin/shop/contentblock/"), "Closing line")   # no longer in Page text
+        self.assertNotContains(self.client.get("/admin/text/"), "Closing line")   # edited in About, not in Page text
 
         self.client.post("/admin/about/", {"about_heading": "Our Story", "promises": json.dumps(promises[:1])})   # all three switches off
         about = self.client.get("/about/")

@@ -10,8 +10,7 @@ DEFAULTS = {
     # ---- Home
     "home_hero_text": ("Home", "Hero: line under the title", "Hallmarked gold and certified diamonds, finished by hand in Islamabad."),
     "home_hero_button": ("Home", "Hero: button", "Discover the collections"),
-    "home_services_button": ("Home", "Services: link", "All services"),
-    # ---- Collections
+        # ---- Collections
     "collections_label": ("Collections", "Page: small label", "Collections"),
     "collections_title": ("Collections", "Page: heading when all pieces show", "All pieces"),
     "collections_empty": ("Collections", "Message when no piece matches", "No pieces match your selection."),
@@ -30,6 +29,7 @@ DEFAULTS = {
     "service_facts_where": ("Services", "Service page: the Where value", "Any boutique"),
     "service_cta_title": ("Services", "Service page: closing line", "Ready when you are."),
     "service_cta_link": ("Services", "Service page: link under the button", "Or send a message"),
+    "home_services_button": ("Services", "Service page: link to all services", "All services"),
     "service_more_label": ("Services", "Service page: other services small label", "More services"),
     "service_more_title": ("Services", "Service page: other services heading", "Also at our boutiques"),
     # ---- About
