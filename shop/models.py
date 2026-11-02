@@ -235,6 +235,9 @@ class StoreInfo(models.Model):
         upload_to="store/", blank=True,
         help_text="Optional portrait photo for phones. If you leave it empty, the main photo is used on phones too.",
     )
+    show_about_story = models.BooleanField("About page: story", default=True)
+    show_about_promises = models.BooleanField("About page: promises", default=True)
+    show_about_closing = models.BooleanField("About page: closing line", default=True)
 
     class Meta:
         verbose_name = "store information"

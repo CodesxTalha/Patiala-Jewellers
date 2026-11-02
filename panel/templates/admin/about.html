@@ -25,6 +25,7 @@
 
     <section class="card flush"><div class="sec">
       <h3>Your story</h3>
+      <label class="sw-row"><span>Show on the About page</span><input type="checkbox" class="sw" name="show_about_story" {% if store.show_about_story %}checked{% endif %}></label>
       <label class="fld"><span>Story <small>press Enter twice to start a new paragraph</small></span><textarea name="about_text" rows="9" maxlength="5000">{{ store.about_text }}</textarea></label>
       <label class="fld"><span>Link words <small>the link under the story, to your Contact page</small></span><input type="text" name="about_button" value="{{ texts.about_button }}" maxlength="600"></label>
       <p class="sub-label">Photo <small>also used by the home page story when a section has no photo of its own</small></p>
@@ -52,7 +53,8 @@
 
     <section class="card flush"><div class="sec">
       <h3>Promises</h3>
-      <p class="hint" style="margin-top:0">Short points under the story, such as “Made in Islamabad”. Three or four read best. Leave none to hide the section.</p>
+      <label class="sw-row"><span>Show on the About page</span><input type="checkbox" class="sw" name="show_about_promises" {% if store.show_about_promises %}checked{% endif %}></label>
+      <p class="hint" style="margin-top:0">Short points under the story, such as “Made in Islamabad”. Three or four read best.</p>
       <div class="rows" id="promise-rows"></div>
       <button type="button" class="btn-soft" id="promise-add" data-max="{{ max_promises }}"><svg class="ic"><use href="#i-plus"/></svg>Add promise</button>
       <input type="hidden" name="promises" id="promises-field">
@@ -61,6 +63,7 @@
 
     <section class="card flush"><div class="sec">
       <h3>Closing line</h3>
+      <label class="sw-row"><span>Show on the About page</span><input type="checkbox" class="sw" name="show_about_closing" {% if store.show_about_closing %}checked{% endif %}></label>
       <label class="fld"><span>Line</span><input type="text" name="about_quote" value="{{ texts.about_quote }}" maxlength="600"></label>
       <label class="fld"><span>Button words <small>leads to your Collections</small></span><input type="text" name="about_quote_button" value="{{ texts.about_quote_button }}" maxlength="600"></label>
     </div></section>

@@ -15,6 +15,7 @@ from shop.models import AboutValue, ContentBlock, StoreInfo
 
 TEXTS = ("about_label", "about_button", "about_quote", "about_quote_button")
 PHOTOS = (("about_image", "clear_image"), ("about_image_mobile", "clear_image_mobile"))
+SHOW = ("show_about_story", "show_about_promises", "show_about_closing")
 MAX_PHOTO_MB = 12
 MAX_PROMISES = 12
 
@@ -76,6 +77,8 @@ def editor(request, site):
                 setattr(store, field, "")
         if not errors:
             store.about_heading = heading
+            for flag in SHOW:
+                setattr(store, flag, flag in post)
             store.about_text = post.get("about_text", "").strip()[:5000]
             store.save()
             for field, _ in PHOTOS:

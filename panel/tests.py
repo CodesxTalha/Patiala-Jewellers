@@ -429,7 +429,8 @@ class PanelTests(TestCase):
                     {"id": None, "title": "", "text": "", "on": True}]                       # an empty row is ignored
         r = self.client.post("/admin/about/", {"about_label": "Who we are", "about_heading": "Our <i>Story</i>", "about_text": "First.\n\nSecond.",
                                                "about_button": "Visit us", "about_quote": "Made to last.", "about_quote_button": "",
-                                               "promises": json.dumps(promises), "about_image": self._gif("about.gif")})
+                                               "promises": json.dumps(promises), "about_image": self._gif("about.gif"),
+                                               "show_about_story": "on", "show_about_promises": "on", "show_about_closing": "on"})
         self.assertRedirects(r, "/admin/about/")
         store = StoreInfo.load()
         self.assertEqual((store.about_heading, store.about_text), ("Our Story", "First.\n\nSecond."))
@@ -442,6 +443,15 @@ class PanelTests(TestCase):
         self.assertNotContains(about, "New one")                 # hidden promise
         self.assertNotContains(about, "Discover the collections")  # cleared button text hides the button
         self.assertNotContains(self.client.get("/admin/shop/contentblock/"), "Closing line")   # no longer in Page text
+
+        self.client.post("/admin/about/", {"about_heading": "Our Story", "promises": json.dumps(promises[:1])})   # all three switches off
+        about = self.client.get("/about/")
+        for text in ("Second.", "Made in Islamabad", "Made to last."):
+            self.assertNotContains(about, text)
+        self.assertContains(about, "Our Story")
+        self.assertContains(self.client.get("/admin/about/"), "show_about_closing")
+        self.client.post("/admin/about/", {"about_heading": "Our Story", "promises": json.dumps(promises[:1]), "show_about_closing": "on"})
+        self.assertContains(self.client.get("/about/"), "Made to last.")
 
         for data, text in (({"about_heading": ""}, "Give the page a heading."),
                            ({"about_heading": "X", "promises": json.dumps([{"title": "", "text": "no title"}])}, "short title"),

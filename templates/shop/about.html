@@ -10,6 +10,7 @@
   </div>
 </section>
 
+{% if store.show_about_story %}
 <section class="section section--flush">
   <div class="container split">
     <div class="split-img" data-reveal><img src="{{ story_image }}" alt=""></div>
@@ -19,8 +20,9 @@
     </div>
   </div>
 </section>
+{% endif %}
 
-{% if values %}
+{% if values and store.show_about_promises %}
 <section class="section surface-alt">
   <div class="container">
     <div class="values">
@@ -30,7 +32,7 @@
 </section>
 {% endif %}
 
-{% if txt.about_quote or txt.about_quote_button %}
+{% if store.show_about_closing and txt.about_quote or store.show_about_closing and txt.about_quote_button %}
 <section class="section center">
   <div class="container" data-reveal>
     <hr class="rule">
