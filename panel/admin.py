@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from shop.models import AboutValue, ContentBlock, Enquiry, StoreInfo
+from shop.models import ContentBlock, Enquiry, StoreInfo
 
 from .models import ClickEvent, Visit
 
@@ -43,7 +43,6 @@ class StoreInfoAdmin(admin.ModelAdmin):
         ("Fonts", {"fields": ("font_primary", "heading_weight", "font_secondary", "font_wordmark")}),
         ("Logo", {"fields": ("logo", "favicon")}),
         ("Show or hide", {"fields": ("show_preloader", "show_whatsapp_button")}),
-        ("About page", {"fields": ("about_heading", "about_text", "about_image", "about_image_mobile")}),
     )
 
     def has_add_permission(self, request):
@@ -72,17 +71,14 @@ class ContentBlockAdmin(admin.ModelAdmin):
     def short_text(self, obj):
         return obj.text if len(obj.text) < 90 else obj.text[:87] + "..."
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).exclude(group="About")        # edited in the About page
+
     def has_add_permission(self, request):
         return False
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-
-@admin.register(AboutValue)
-class AboutValueAdmin(admin.ModelAdmin):
-    list_display = ("title", "text", "display_order", "is_active")
-    list_editable = ("display_order", "is_active")
 
 
 class ReadOnlyLog(admin.ModelAdmin):

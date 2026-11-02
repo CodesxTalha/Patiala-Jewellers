@@ -5,7 +5,7 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">{{ txt.about_label }}</span>
+    {% if txt.about_label %}<span class="label">{{ txt.about_label }}</span>{% endif %}
     <h1>{{ store.about_heading }}</h1>
   </div>
 </section>
@@ -15,11 +15,12 @@
     <div class="split-img" data-reveal><img src="{{ story_image }}" alt=""></div>
     <div class="split-text prose" data-reveal>
       {% if store.about_text %}{{ store.about_text|linebreaks }}{% endif %}
-      <a href="{% url 'shop:contact' %}" class="link-underline">{{ txt.about_button }}</a>
+      {% if txt.about_button %}<a href="{% url 'shop:contact' %}" class="link-underline">{{ txt.about_button }}</a>{% endif %}
     </div>
   </div>
 </section>
 
+{% if values %}
 <section class="section surface-alt">
   <div class="container">
     <div class="values">
@@ -27,12 +28,15 @@
     </div>
   </div>
 </section>
+{% endif %}
 
+{% if txt.about_quote or txt.about_quote_button %}
 <section class="section center">
   <div class="container" data-reveal>
     <hr class="rule">
-    <p class="quote">{{ txt.about_quote }}</p>
-    <a href="{% url 'shop:collections' %}" class="btn">{{ txt.about_quote_button }}</a>
+    {% if txt.about_quote %}<p class="quote">{{ txt.about_quote }}</p>{% endif %}
+    {% if txt.about_quote_button %}<a href="{% url 'shop:collections' %}" class="btn">{{ txt.about_quote_button }}</a>{% endif %}
   </div>
 </section>
+{% endif %}
 {% endblock %}

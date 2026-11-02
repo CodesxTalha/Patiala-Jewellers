@@ -22,7 +22,8 @@ Open `/admin/` and sign in. Create your login first with `python manage.py creat
 - **Categories** and **Services**: lists you reorder by dragging, with show or hide switches and a small editor
 - **Locations**: your boutiques, with a click-to-place map pin. One location shows one big map
 - **Enquiries**: messages from the contact and product forms, with status and internal notes
-- **Page text** and **About promises**: the copy on the pages and the short promises on the About page
+- **About**: one page for everything on the About page (heading, story, photo, promises, closing line)
+- **Page text**: the rest of the copy on the pages
 - **Store settings**: name, tagline, contact, socials, colours, fonts, logo, About text
 - **Visitors** and **Clicks**: the tracking logs
 

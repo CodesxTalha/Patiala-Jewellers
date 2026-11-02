@@ -63,6 +63,17 @@
     });
     clear?.addEventListener("click", () => { input.value = ""; flag.value = "1"; show(""); clear.hidden = true; dirty = true; });
   }
+  /* photo pickers written as [data-photo] boxes: preview the chosen file, Remove goes back to the default */
+  form.querySelectorAll("[data-photo]").forEach((box) => {
+    const input = box.querySelector("input[type=file]"), img = box.querySelector(".photo-frame img");
+    const label = box.querySelector("[data-label]"), clear = box.querySelector("[data-clear]"), flag = box.querySelector("input[type=hidden]");
+    input.addEventListener("change", () => {
+      const f = input.files[0]; if (!f) return;
+      if (!f.type.startsWith("image/")) { alert("Please choose a picture (JPG or PNG)."); input.value = ""; return; }
+      img.src = URL.createObjectURL(f); label.textContent = "Replace photo"; if (flag) flag.value = "";
+    });
+    clear?.addEventListener("click", () => { input.value = ""; flag.value = "1"; img.src = box.dataset.default; label.textContent = "Add your photo"; clear.hidden = true; dirty = true; });
+  });
   const dialog = $("#del-dialog");
   if (dialog) {
     $("#del-open").addEventListener("click", () => dialog.showModal());

@@ -1,0 +1,72 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}About · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="product-form" data-editor novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">About</h1><p class="page-sub">Everything on your About page, from the heading to the closing line.</p></div>
+    <div class="head-actions">
+      <a class="btn-quiet" href="{% url 'shop:about' %}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>
+      <button type="submit" class="btn-primary" id="save-btn">Save changes</button>
+    </div>
+  </header>
+  {% if errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li></ul>{% endif %}
+  <div class="hsec-list">
+    <section class="card flush"><div class="sec">
+      <h3>Top of the page</h3>
+      <label class="fld"><span>Small label</span><input type="text" name="about_label" value="{{ texts.about_label }}" maxlength="600"></label>
+      <label class="fld"><span>Heading</span><input type="text" name="about_heading" value="{{ heading }}" maxlength="200" data-required="Give the page a heading.">{% if errors.about_heading %}<em class="err">{{ errors.about_heading }}</em>{% endif %}</label>
+    </div></section>
+
+    <section class="card flush"><div class="sec">
+      <h3>Your story</h3>
+      <label class="fld"><span>Story <small>press Enter twice to start a new paragraph</small></span><textarea name="about_text" rows="9" maxlength="5000">{{ store.about_text }}</textarea></label>
+      <label class="fld"><span>Link words <small>the link under the story, to your Contact page</small></span><input type="text" name="about_button" value="{{ texts.about_button }}" maxlength="600"></label>
+      <p class="sub-label">Photo <small>also used by the home page story when a section has no photo of its own</small></p>
+      <div class="photo-pair">
+        <div class="photo-main" data-photo data-default="{{ story_default }}">
+          <div class="photo-frame"><img src="{{ story_image }}" alt=""></div>
+          <div class="photo-side"><b>Computer</b><small>{% if store.about_image %}Your photo{% else %}Our default photo{% endif %}</small>
+            <div class="photo-btns">
+              <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span data-label>{% if store.about_image %}Replace photo{% else %}Add your photo{% endif %}</span><input type="file" name="about_image" accept="image/*" hidden></label>
+              {% if store.about_image %}<button type="button" class="btn-soft" data-clear>Remove</button><input type="hidden" name="clear_image" value="">{% endif %}
+            </div>
+            {% if errors.about_image %}<em class="err">{{ errors.about_image }}</em>{% endif %}</div>
+        </div>
+        <div class="photo-main" data-photo data-default="{{ story_image }}">
+          <div class="photo-frame tall"><img src="{{ story_image_mobile }}" alt=""></div>
+          <div class="photo-side"><b>Phone</b><small>{% if store.about_image_mobile %}Your phone photo{% else %}Uses the computer photo{% endif %}</small>
+            <div class="photo-btns">
+              <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span data-label>{% if store.about_image_mobile %}Replace photo{% else %}Add a phone photo{% endif %}</span><input type="file" name="about_image_mobile" accept="image/*" hidden></label>
+              {% if store.about_image_mobile %}<button type="button" class="btn-soft" data-clear>Remove</button><input type="hidden" name="clear_image_mobile" value="">{% endif %}
+            </div>
+            {% if errors.about_image_mobile %}<em class="err">{{ errors.about_image_mobile }}</em>{% endif %}</div>
+        </div>
+      </div>
+    </div></section>
+
+    <section class="card flush"><div class="sec">
+      <h3>Promises</h3>
+      <p class="hint" style="margin-top:0">Short points under the story, such as “Made in Islamabad”. Three or four read best. Leave none to hide the section.</p>
+      <div class="rows" id="promise-rows"></div>
+      <button type="button" class="btn-soft" id="promise-add" data-max="{{ max_promises }}"><svg class="ic"><use href="#i-plus"/></svg>Add promise</button>
+      <input type="hidden" name="promises" id="promises-field">
+      {% if errors.promises %}<em class="err">{{ errors.promises }}</em>{% endif %}
+    </div></section>
+
+    <section class="card flush"><div class="sec">
+      <h3>Closing line</h3>
+      <label class="fld"><span>Line</span><input type="text" name="about_quote" value="{{ texts.about_quote }}" maxlength="600"></label>
+      <label class="fld"><span>Button words <small>leads to your Collections</small></span><input type="text" name="about_quote_button" value="{{ texts.about_quote_button }}" maxlength="600"></label>
+    </div></section>
+  </div>
+</form>
+{{ promises|json_script:"promises-data" }}
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+<script src="{% asset 'panel/about.js' %}"></script>
+{% endblock %}

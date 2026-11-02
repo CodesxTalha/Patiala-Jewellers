@@ -49,7 +49,7 @@ class PanelTests(TestCase):
         self.assertContains(dash, "Latest visits")
         self.assertContains(dash, "1 on the site right now")
         self.assertContains(self.client.get("/admin/?days=7"), "Last 7 days")
-        for app, name in (("shop", "aboutvalue"), ("shop", "contentblock"),
+        for app, name in (("shop", "contentblock"),
                           ("shop", "enquiry"), ("panel", "visit"),
                           ("panel", "clickevent")):
             self.assertEqual(self.client.get(f"/admin/{app}/{name}/").status_code, 200, name)
@@ -415,7 +415,44 @@ class PanelTests(TestCase):
         self.client.post(f"/admin/home/sections/{sec.pk}/delete/")
         self.assertFalse(HomeSection.objects.filter(pk=sec.pk).exists())
 
+    def test_about_is_one_page_for_everything_on_the_about_page(self):
+        from shop.models import AboutValue
+        self._owner()
+        AboutValue.objects.all().delete()
+        page = self.client.get("/admin/about/")
+        for text in ("Top of the page", "Your story", "Promises", "Closing line", "Save changes"):
+            self.assertContains(page, text)
+        a = AboutValue.objects.create(title="Old promise", text="Stays.")
+        b = AboutValue.objects.create(title="Gone promise", text="Removed.")
+        promises = [{"id": a.pk, "title": "Made in Islamabad", "text": "Every piece.", "on": True},
+                    {"id": None, "title": "New one", "text": "Fresh.", "on": False},
+                    {"id": None, "title": "", "text": "", "on": True}]                       # an empty row is ignored
+        r = self.client.post("/admin/about/", {"about_label": "Who we are", "about_heading": "Our <i>Story</i>", "about_text": "First.\n\nSecond.",
+                                               "about_button": "Visit us", "about_quote": "Made to last.", "about_quote_button": "",
+                                               "promises": json.dumps(promises), "about_image": self._gif("about.gif")})
+        self.assertRedirects(r, "/admin/about/")
+        store = StoreInfo.load()
+        self.assertEqual((store.about_heading, store.about_text), ("Our Story", "First.\n\nSecond."))
+        self.assertTrue(store.about_image)
+        self.assertEqual([(v.title, v.is_active) for v in AboutValue.objects.all()], [("Made in Islamabad", True), ("New one", False)])
+        self.assertFalse(AboutValue.objects.filter(pk=b.pk).exists())
+        about = self.client.get("/about/")
+        for text in ("Who we are", "Our Story", "Second.", "Made in Islamabad", "Made to last."):
+            self.assertContains(about, text)
+        self.assertNotContains(about, "New one")                 # hidden promise
+        self.assertNotContains(about, "Discover the collections")  # cleared button text hides the button
+        self.assertNotContains(self.client.get("/admin/shop/contentblock/"), "Closing line")   # no longer in Page text
+
+        for data, text in (({"about_heading": ""}, "Give the page a heading."),
+                           ({"about_heading": "X", "promises": json.dumps([{"title": "", "text": "no title"}])}, "short title"),
+                           ({"about_heading": "X", "about_image": SimpleUploadedFile("x.gif", b"nope", content_type="image/gif")}, "Please check")):
+            self.assertContains(self.client.post("/admin/about/", data), text)
+        self.client.post("/admin/about/", {"about_heading": "Our Story", "promises": "[]", "clear_image": "1"})
+        self.assertFalse(StoreInfo.load().about_image)
+        self.assertFalse(AboutValue.objects.exists())
+        self.assertNotContains(self.client.get("/about/"), 'class="values"')
+
     def test_locations_and_home_sections_are_for_staff_only(self):
-        for url in ("/admin/locations/", "/admin/locations/new/", "/admin/home/", "/admin/home/sections/new/"):
+        for url in ("/admin/locations/", "/admin/locations/new/", "/admin/home/", "/admin/home/sections/new/", "/admin/about/"):
             self.assertEqual(self.client.get(url).status_code, 302, url)
         self.assertEqual(self.client.post("/admin/home/sections/order/", data="{}", content_type="application/json").status_code, 302)

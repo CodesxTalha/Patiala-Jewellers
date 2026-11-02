@@ -137,3 +137,4 @@ html body.panel a.kind-card:not(#_) { text-decoration: none; color: var(--ink); 
 .kind-card small { color: var(--muted); font-size: 13px; line-height: 1.45; }
 .kind-ic { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: .4rem; }
 .kind-tag { display: inline-block; padding: .1rem .55rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font: 500 11px var(--font-family-primary); }
+.lbtn.is-on { color: var(--ink); border-color: var(--ink); }
