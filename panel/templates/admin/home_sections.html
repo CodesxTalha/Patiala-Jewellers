@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Home page · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<div data-sortlist data-order="{% url 'admin:home_section_order' %}" data-toggle="{% url 'admin:home_section_toggle' 0 %}">
+  <input type="hidden" id="csrf" value="{{ csrf_token }}">
+  <header class="page-head">
+    <div><h1 class="page-title">Home page</h1><p class="page-sub">The sections below the hero. Drag to change their order. <span id="order-note" role="status"></span></p></div>
+    <div class="head-actions">
+      <a class="btn-quiet" href="{{ site_url }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>
+      <a class="btn-primary" href="{% url 'admin:home_section_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add section</a>
+    </div>
+  </header>
+
+  <div class="crow fixed-row">
+    <span class="grip off" aria-hidden="true"></span>
+    <span class="cthumb"><span class="noimg"><svg class="ic"><use href="#i-image"/></svg></span></span>
+    <span class="cname"><b>Hero</b><small>The big picture at the top. It always stays first.</small></span>
+    <a class="btn-quiet crow-edit" href="{% url 'admin:hero' %}">Open Hero</a>
+  </div>
+
+  <ul class="clist" id="clist">
+    {% for s in sections %}
+    <li class="crow{% if not s.is_active %} is-off{% endif %}" draggable="true" data-id="{{ s.pk }}">
+      <span class="grip" aria-hidden="true" title="Drag to reorder">⋮⋮</span>
+      <a class="cthumb" href="{% url 'admin:home_section_edit' s.pk %}" tabindex="-1" aria-hidden="true">{% if s.kind == "story" and s.image %}<img src="{{ s.image.url }}" alt="" loading="lazy">{% else %}<span class="noimg"><svg class="ic"><use href="#i-{% if s.kind == 'products' %}gem{% elif s.kind == 'services' %}wand{% elif s.kind == 'collections' %}grid{% elif s.kind == 'story' %}image{% elif s.kind == 'locations' %}pin{% else %}mail{% endif %}"/></svg></span>{% endif %}</a>
+      <a class="cname" href="{% url 'admin:home_section_edit' s.pk %}"><b>{{ s.title }}</b><small>{{ s.summary }}{% if s.theme == "dark" %} · dark{% endif %}</small></a>
+      <button type="button" class="chip{% if s.is_active %} is-on{% endif %}" data-toggle-field data-id="{{ s.pk }}" title="Show on the website" aria-pressed="{{ s.is_active|yesno:'true,false' }}"><svg class="ic"><use href="#i-eye"/></svg><span>{% if s.is_active %}Showing{% else %}Hidden{% endif %}</span></button>
+      <a class="btn-quiet crow-edit" href="{% url 'admin:home_section_edit' s.pk %}">Edit</a>
+    </li>
+    {% empty %}
+    <li class="card empty-card"><h2>Nothing below the hero yet</h2><p>Add a section: products, services, a photo with your story, your locations or your contact details.</p>
+      <a class="btn-primary" href="{% url 'admin:home_section_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add section</a></li>
+    {% endfor %}
+  </ul>
+</div>
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}

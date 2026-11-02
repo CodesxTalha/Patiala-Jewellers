@@ -1,0 +1,9 @@
+<section class="section{% if x.s.theme == 'dark' %} surface-dark{% endif %}">
+  <div class="container">
+    {% include "shop/home/_head.html" %}
+    <div class="services grid-set d{{ x.s.cols }} m{{ x.s.cols_mobile }}" data-reveal>
+      {% for sv in x.items %}{% include "shop/_service_card.html" %}{% endfor %}
+    </div>
+    {% if x.s.button_label %}<div class="section-foot"><a href="{{ x.s.link|default:'/services/' }}" class="link-underline">{{ x.s.button_label }}</a></div>{% endif %}
+  </div>
+</section>

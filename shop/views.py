@@ -1,11 +1,15 @@
+
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.utils import timezone
+from django.http import HttpResponse
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EnquiryForm
 from .content import DEFAULTS
-from .models import AboutValue, Branch, Category, ContentBlock, Product, Service
+from .models import AboutValue, Branch, Category, ContentBlock, HeroSlide, HomeSection, Product, Service, StoreInfo
 
 
 def content_text(key):
@@ -21,30 +25,85 @@ def visible_products():
     )
 
 
+def hero_slides():
+    """Active slides inside their date window that have a picture or video to show."""
+    today = timezone.localdate()
+    slides = HeroSlide.objects.filter(is_active=True).filter(
+        Q(show_from__isnull=True) | Q(show_from__lte=today), Q(show_until__isnull=True) | Q(show_until__gte=today)
+    )
+    return [sl for sl in slides if sl.desktop_url]
+
+
+def boutique_map():
+    """Pin positions for the maps. When there is exactly one location, `solo` is it: the pages then show one big map."""
+    active = list(Branch.objects.filter(is_active=True))
+    points = [
+        {"id": b.pk, "name": b.name, "address": b.address, "lat": float(b.latitude), "lng": float(b.longitude)}
+        for b in active if b.latitude is not None and b.longitude is not None
+    ]
+    solo = active[0] if len(active) == 1 and points else None
+    return {"points": points, "solo": solo}
+
+
+def home_blocks(store, points):
+    """The home page sections in their saved order, each with what it needs to draw itself. Empty ones are left out."""
+    blocks = []
+    for sec in HomeSection.objects.filter(is_active=True):
+        kind, items = sec.kind, []
+        if kind == HomeSection.Kind.PRODUCTS:
+            try:
+                products = filter_products(sec.params)[0] if sec.link else visible_products().filter(is_featured=True)
+                items = list(products[:sec.count])
+            except Http404:          # the category in the link no longer exists
+                items = []
+        elif kind == HomeSection.Kind.SERVICES:
+            items = list(Service.objects.filter(is_active=True)[:sec.count])
+        elif kind == HomeSection.Kind.COLLECTIONS:
+            items = list(Category.objects.filter(is_active=True)[:sec.count])
+        elif kind == HomeSection.Kind.LOCATIONS:
+            items = [1] if points["points"] or Branch.objects.filter(is_active=True).exists() else []
+        elif kind == HomeSection.Kind.CONTACT:
+            items = [1] if (store.phone or store.whatsapp or store.email) else []
+        else:
+            items = [1]
+        if items:
+            blocks.append({"s": sec, "items": items, "template": f"shop/home/_{kind}.html"})
+    return blocks
+
+
 def home(request):
+    points = boutique_map()
+    store = StoreInfo.load()
+    blocks = home_blocks(store, points)
     return render(request, "shop/home.html", {
-        "featured": visible_products().filter(is_featured=True)[:8],
-        "categories": Category.objects.filter(is_active=True)[:6],
-        "services": Service.objects.filter(is_active=True)[:4],
+        "slides": hero_slides(),
+        "blocks": blocks,
+        "has_map": bool(points["solo"]) and any(b["s"].kind == HomeSection.Kind.LOCATIONS for b in blocks),
+        **points,
     })
 
 
-def collections(request):
+def filter_products(params):
+    """Apply the Collections page filters (category, metal, q). Returns the products and the chosen category."""
     products = visible_products()
     current = None
-
-    slug = request.GET.get("category")
+    slug = params.get("category")
     if slug:
         current = get_object_or_404(Category, slug=slug, is_active=True)
         products = products.filter(category=current)
-
-    metal = request.GET.get("metal")
+    metal = params.get("metal")
     if metal in Product.Metal.values:
         products = products.filter(metal=metal)
-
-    q = request.GET.get("q", "").strip()
+    q = params.get("q", "").strip()
     if q:
         products = products.filter(Q(name__icontains=q) | Q(description__icontains=q) | Q(gemstone__icontains=q))
+    return products, current
+
+
+def collections(request):
+    products, current = filter_products(request.GET)
+    metal = request.GET.get("metal")
+    q = request.GET.get("q", "").strip()
 
     page = Paginator(products, 12).get_page(request.GET.get("page"))
 
@@ -117,12 +176,4 @@ def contact(request):
         messages.success(request, content_text("contact_thanks"))
         return redirect("shop:contact")
 
-    # Boutique positions for the map (only those with coordinates).
-    points = [
-        {
-            "id": b.pk, "name": b.name, "address": b.address,
-            "lat": float(b.latitude), "lng": float(b.longitude),
-        }
-        for b in Branch.objects.filter(is_active=True, latitude__isnull=False, longitude__isnull=False)
-    ]
-    return render(request, "shop/contact.html", {"form": form, "points": points})
+    return render(request, "shop/contact.html", {"form": form, **boutique_map()})

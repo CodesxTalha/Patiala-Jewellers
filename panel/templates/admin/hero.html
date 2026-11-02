@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Hero · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/hero.css' %}">{% endblock %}
+{% block bodyclass %}panel-hero{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<div class="hero-ed" id="hero-ed"
+     data-add="{% url 'admin:hero_add' %}" data-order="{% url 'admin:hero_order' %}" data-settings-url="{% url 'admin:hero_settings' %}"
+     data-save="{% url 'admin:hero_save' 0 %}" data-delete="{% url 'admin:hero_delete' 0 %}">
+  <input type="hidden" id="csrf" value="{{ csrf_token }}">
+  <header class="page-head">
+    <div><h1 class="page-title">Hero</h1><p class="page-sub">The big picture at the top of your home page.</p></div>
+    <div class="head-actions">
+      <span class="saved" id="saved" role="status" aria-live="polite"></span>
+      <a class="btn-quiet" href="{{ site_url }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>
+      <button type="button" class="btn-primary" id="save-btn" disabled>Save changes</button>
+    </div>
+  </header>
+
+  <section class="card film-card">
+    <ul class="film" id="slide-list"></ul>
+    <label class="film-add" id="add-slide"><svg class="ic"><use href="#i-plus"/></svg><span>Add slide</span>
+      <input type="file" id="add-file" accept="image/*,video/mp4,video/webm,video/quicktime" multiple hidden></label>
+  </section>
+
+  <div class="ed-cols" id="ed-main"></div>
+
+  <details class="card more slider-card" id="settings"></details>
+</div>
+<dialog id="del-dialog"><form method="dialog"><h2>Delete this slide?</h2><p id="del-text"></p>
+  <div class="dlg-btns"><button class="btn-quiet" value="cancel">Cancel</button><button class="btn-danger" value="delete">Delete</button></div></form></dialog>
+{{ slides|json_script:"hero-slides" }}
+{{ settings|json_script:"hero-settings" }}
+<script src="{% asset 'panel/hero.js' %}"></script>
+{% endblock %}

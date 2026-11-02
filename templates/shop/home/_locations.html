@@ -1,0 +1,21 @@
+{% load static %}
+<section class="section{% if x.s.theme == 'dark' %} surface-dark{% endif %}"{% if solo %} id="boutiques" data-map-style="{% static 'map/style.json' %}"{% endif %}>
+  <div class="container">
+    {% include "shop/home/_head.html" %}
+    {% if solo %}
+    <div data-reveal>{% include "shop/_solo_boutique.html" with b=solo %}</div>
+    {{ points|json_script:"branch-points" }}
+    {% else %}
+    <div class="boutiques" data-reveal>
+      {% for b in branches %}
+      <div class="boutique">
+        <h3>{{ b.name }}</h3>
+        {% if b.address %}<p>{{ b.address }}</p>{% endif %}
+        {% if b.opening_hours %}<p>{{ b.opening_hours }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% if x.s.button_label %}<div class="section-foot"><a href="{% url 'shop:contact' %}#boutiques" class="link-underline">{{ x.s.button_label }}</a></div>{% endif %}
+    {% endif %}
+  </div>
+</section>

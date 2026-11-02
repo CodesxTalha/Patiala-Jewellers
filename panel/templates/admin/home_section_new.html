@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Add a section · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:home_sections' %}">Home page</a><span>/</span><span>Add a section</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<header class="page-head"><div><h1 class="page-title">What do you want to add?</h1><p class="page-sub">Pick one. You can add as many as you like and change the order later.</p></div></header>
+<div class="kind-grid">
+  {% for kind, name, note, icon in kinds %}
+  <a class="kind-card card" href="{% url 'admin:home_section_new' %}?kind={{ kind }}">
+    <span class="kind-ic"><svg class="ic"><use href="#i-{{ icon }}"/></svg></span>
+    <b>{{ name }}</b><small>{{ note }}</small>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

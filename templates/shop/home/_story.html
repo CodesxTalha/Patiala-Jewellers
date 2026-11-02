@@ -1,0 +1,40 @@
+{% with img=x.s.image mob=x.s.image_mobile %}
+{% if x.s.layout == "behind" %}
+{# The photo fills the band and the words sit on top #}
+<section class="story surface-dark" data-inview>
+  <div class="story-bg" aria-hidden="true">
+    <picture>
+      <source media="(max-width: 767px)" srcset="{% if mob %}{{ mob.url }}{% elif img %}{{ img.url }}{% else %}{{ story_image_mobile }}{% endif %}">
+      <img src="{% if img %}{{ img.url }}{% else %}{{ story_image }}{% endif %}" alt="" loading="lazy">
+    </picture>
+  </div>
+  <div class="story-shade" aria-hidden="true"></div>
+  <div class="container story-content">
+    <div class="story-text" data-reveal>
+      {% if x.s.label %}<span class="label">{{ x.s.label }}</span>{% endif %}
+      <h2>{{ x.s.title }}</h2>
+      {% if x.s.text %}<hr class="rule"><p class="lead">{{ x.s.text }}</p>{% endif %}
+      {% if x.s.button_label %}<a href="{{ x.s.link|default:'/about/' }}" class="link-underline">{{ x.s.button_label }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% else %}
+{# The photo beside the words. Its height follows the picture up to a limit, so a wide photo is never stretched or cut to a fixed box #}
+<section class="section imgtext is-{{ x.s.layout }}{% if x.s.theme == 'dark' %} surface-dark{% endif %}">
+  <div class="container imgtext-grid">
+    <div class="imgtext-media" data-reveal>
+      <picture>
+        <source media="(max-width: 767px)" srcset="{% if mob %}{{ mob.url }}{% elif img %}{{ img.url }}{% else %}{{ story_image_mobile }}{% endif %}">
+        <img src="{% if img %}{{ img.url }}{% else %}{{ story_image }}{% endif %}" alt="" loading="lazy">
+      </picture>
+    </div>
+    <div class="imgtext-text" data-reveal>
+      {% if x.s.label %}<span class="label">{{ x.s.label }}</span>{% endif %}
+      <h2>{{ x.s.title }}</h2>
+      {% if x.s.text %}<hr class="rule"><p class="lead">{{ x.s.text }}</p>{% endif %}
+      {% if x.s.button_label %}<a href="{{ x.s.link|default:'/about/' }}" class="link-underline">{{ x.s.button_label }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endwith %}

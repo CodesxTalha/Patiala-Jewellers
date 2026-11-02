@@ -1,0 +1,173 @@
+{% extends "admin/base_site.html" %}
+{% load humanize %}
+
+{% block bodyclass %}{{ block.super }} panel-home{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Overview</h1>
+    <p class="page-sub">Welcome back{% if user.first_name %}, {{ user.first_name }}{% endif %}. Here is how the site is doing.</p>
+  </div>
+  <div class="head-actions">
+    <div class="seg" role="tablist" aria-label="Period">
+      <a href="?days=7" class="{% if days == 7 %}is-on{% endif %}">7 days</a>
+      <a href="?days=30" class="{% if days == 30 %}is-on{% endif %}">30 days</a>
+      <a href="?days=90" class="{% if days == 90 %}is-on{% endif %}">90 days</a>
+    </div>
+    <a class="btn-primary" href="{% url 'admin:product_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add a piece</a>
+  </div>
+</div>
+
+{# A. Numbers #}
+<section class="grid stats">
+  {% for c in cards %}
+  <article class="card stat">
+    <header><span>{{ c.label }}</span><svg class="ic"><use href="#i-{{ c.icon }}"/></svg></header>
+    <p class="big">{{ c.value|intcomma }}</p>
+    <p class="delta">
+      {% if c.change is None %}<span class="flat">No data for the period before</span>
+      {% elif c.change >= 0 %}<span class="up"><svg class="ic"><use href="#i-up"/></svg>{{ c.change }}%</span> vs the previous {{ days }} days
+      {% else %}<span class="down"><svg class="ic"><use href="#i-down"/></svg>{{ c.change }}%</span> vs the previous {{ days }} days{% endif %}
+    </p>
+  </article>
+  {% endfor %}
+</section>
+
+{% if not has_data %}
+<section class="card empty-note">
+  <h2>No visits yet</h2>
+  <p>Open the website in another tab, click around, then refresh this page. Visits and taps from this computer (localhost) are counted too.</p>
+  {% if site_url %}<a class="btn-primary" href="{{ site_url }}" target="_blank" rel="noopener">Open the website</a>{% endif %}
+</section>
+{% endif %}
+
+{# B. Visits chart and devices #}
+<section class="grid two-one">
+  <article class="card">
+    <header class="card-head">
+      <div><h2>Visits</h2><p>Last {{ days }} days</p></div>
+      <ul class="legend"><li><i class="k-ink"></i>Visitors</li><li><i class="k-grey"></i>Page views</li></ul>
+    </header>
+    <div class="bars" style="--n: {{ series|length }}">
+      {% for s in series %}
+      <div class="bar" title="{{ s.label }}">
+        <span class="views" style="height: {{ s.views_h }}%"></span>
+        <span class="visitors" style="height: {{ s.visitors_h }}%"></span>
+        {% if forloop.counter0|divisibleby:tick_step %}<em>{{ s.tick }}</em>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><div><h2>Devices</h2><p>Where people browse from</p></div></header>
+    {% if devices %}
+    <div class="donut-wrap">
+      <svg class="donut" viewBox="0 0 42 42" role="img" aria-label="Visits by device">
+        <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#EFEFF1" stroke-width="5"/>
+        {% for d in devices %}<circle cx="21" cy="21" r="15.9155" fill="none" stroke="{{ d.color }}" stroke-width="5" stroke-dasharray="{{ d.dash }} {{ d.gap }}" stroke-dashoffset="{{ d.offset }}"/>{% endfor %}
+      </svg>
+      <div class="donut-centre"><b>{{ device_total|intcomma }}</b><small>views</small></div>
+    </div>
+    <ul class="key-list">
+      {% for d in devices %}<li><i style="background: {{ d.color }}"></i><span>{{ d.name }}</span><b>{{ d.pct }}%</b></li>{% endfor %}
+    </ul>
+    {% else %}<p class="muted pad">No visits in this period.</p>{% endif %}
+  </article>
+</section>
+
+{# C. Latest visits and setup #}
+<section class="grid two-one">
+  <article class="card">
+    <header class="card-head">
+      <div><h2>Latest visits</h2><p>{% if live %}<span class="live"><i></i>{{ live }} on the site right now</span>{% else %}Nobody on the site right now{% endif %}</p></div>
+      <a class="btn-quiet" href="{% url 'admin:panel_visit_changelist' %}">All visits</a>
+    </header>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>When</th><th>Page</th><th>Device</th><th>From</th><th>Visitor</th></tr></thead>
+        <tbody>
+          {% for v in latest_visits %}
+          <tr><td class="nowrap">{{ v.when }}</td><td>{{ v.name }}</td><td>{{ v.device|title }} · {{ v.browser }}</td><td>{{ v.where }}{% if v.referrer %} · {{ v.referrer }}{% endif %}</td><td><code>{{ v.short }}</code></td></tr>
+          {% empty %}<tr><td colspan="5" class="muted">Nothing yet.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><div><h2>Store setup</h2><p>{{ setup.done }} of {{ setup.total }} done</p></div></header>
+    <div class="meter"><span style="width: {{ setup.pct }}%"></span></div>
+    <ul class="check-list">
+      {% for i in setup.items %}
+      <li class="{% if i.ok %}is-ok{% endif %}">
+        <span class="tick">{% if i.ok %}<svg class="ic"><use href="#i-check"/></svg>{% endif %}</span>
+        {% if i.ok %}<span>{{ i.label }}</span>{% else %}<a href="{% url i.url %}">{{ i.label }}</a>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+{# D. Taps, pages, pieces #}
+<section class="grid three">
+  <article class="card">
+    <header class="card-head"><div><h2>Taps</h2><p>What visitors press</p></div><a class="btn-quiet" href="{% url 'admin:panel_clickevent_changelist' %}">All</a></header>
+    <ul class="rank">
+      {% for k in click_kinds %}<li><div><span>{{ k.name }}</span><b>{{ k.count|intcomma }}</b></div><span class="track"><span style="width: {{ k.w }}%"></span></span></li>
+      {% empty %}<li class="muted">No taps yet.</li>{% endfor %}
+    </ul>
+    {% if top_clicks %}
+    <h3 class="sub-h">Most pressed</h3>
+    <ul class="plain">{% for t in top_clicks %}<li><span>{{ t.label }} <small>{{ t.kind }}</small></span><b>{{ t.count }}</b></li>{% endfor %}</ul>
+    {% endif %}
+  </article>
+
+  <article class="card">
+    <header class="card-head"><div><h2>Top pages</h2><p>Page views</p></div></header>
+    <ul class="rank">
+      {% for p in top_pages %}<li><div><span>{{ p.name }}</span><b>{{ p.count|intcomma }}</b></div><span class="track"><span style="width: {{ p.w }}%"></span></span></li>
+      {% empty %}<li class="muted">No visits yet.</li>{% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><div><h2>Most viewed pieces</h2><p>Product pages</p></div></header>
+    <ul class="pieces">
+      {% for p in pieces %}
+      <li>{% if p.image %}<img src="{{ p.image }}" alt="">{% else %}<span class="ph"></span>{% endif %}<div><b>{{ p.name }}</b><small>{{ p.category }}</small></div><em>{{ p.count }}</em></li>
+      {% empty %}<li class="muted">No piece has been opened yet.</li>{% endfor %}
+    </ul>
+  </article>
+</section>
+
+{# E. Referrers, taps log, enquiries #}
+<section class="grid three">
+  <article class="card">
+    <header class="card-head"><div><h2>Where visitors come from</h2><p>Other websites and apps</p></div></header>
+    <ul class="rank">
+      {% for r in referrers %}<li><div><span>{{ r.name }}</span><b>{{ r.count }}</b></div><span class="track"><span style="width: {{ r.w }}%"></span></span></li>
+      {% empty %}<li class="muted">Visitors arrived directly, or from this computer.</li>{% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><div><h2>Latest taps</h2></div></header>
+    <ul class="plain">
+      {% for c in latest_clicks %}<li><span>{{ c.get_kind_display }}{% if c.label %} · {{ c.label }}{% endif %} <small>{{ c.path }}</small></span><em>{{ c.when }}</em></li>
+      {% empty %}<li class="muted">No taps yet.</li>{% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><div><h2>New enquiries</h2><p>{{ new_enquiry_count }} waiting</p></div><a class="btn-quiet" href="{% url 'admin:shop_enquiry_changelist' %}">Open</a></header>
+    <ul class="plain">
+      {% for e in new_enquiries %}<li><span><b>{{ e.name }}</b> <small>{{ e.phone }}{% if e.product %} · {{ e.product.name }}{% endif %}</small></span><a href="{% url 'admin:shop_enquiry_change' e.pk %}" class="link">View</a></li>
+      {% empty %}<li class="muted">No new enquiries.</li>{% endfor %}
+    </ul>
+  </article>
+</section>
+{% endblock %}

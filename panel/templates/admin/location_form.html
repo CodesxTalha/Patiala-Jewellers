@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ title }} · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% static 'vendor/maplibre/maplibre-gl.css' %}"><link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:locations' %}">Locations</a><span>/</span><span>{{ title }}</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" class="product-form" data-editor novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">{{ title }}</h1><p class="page-sub">{% if location %}Shown on the Contact page, in the footer and on the home page.{% else %}Add the details, place the pin on the map, and save.{% endif %}</p></div>
+    <div class="head-actions">
+      <button type="submit" class="btn-primary" id="save-btn">Save location</button>
+    </div>
+  </header>
+  {% if form.errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li></ul>{% endif %}
+  <div class="pf-grid">
+    <div class="pf-main">
+      <section class="card flush"><div class="sec">
+        <div class="two">
+          <label class="fld"><span>Name</span><input type="text" name="name" value="{{ form.name.value|default_if_none:'' }}" maxlength="100" placeholder="Gulberg Greens" data-required="Give the location a name." autofocus>{% for e in form.name.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+          <label class="fld"><span>City</span><input type="text" name="city" value="{{ form.city.value|default_if_none:'' }}" maxlength="100" placeholder="Islamabad"></label>
+        </div>
+        <label class="fld"><span>Address</span><textarea name="address" rows="3" placeholder="Shop 4, Main Boulevard">{{ form.address.value|default_if_none:'' }}</textarea></label>
+        <div class="two">
+          <label class="fld"><span>Phone <small>optional</small></span><input type="text" name="phone" value="{{ form.phone.value|default_if_none:'' }}" maxlength="30" placeholder="+92 51 1234567"></label>
+          <label class="fld"><span>Opening hours <small>optional</small></span><input type="text" name="opening_hours" value="{{ form.opening_hours.value|default_if_none:'' }}" maxlength="200" placeholder="Mon to Sat, 11am to 8pm"></label>
+        </div>
+      </div></section>
+
+      <section class="card flush"><div class="sec">
+        <div class="sec-head"><h3>Map pin</h3><button type="button" class="btn-soft" id="pin-clear" hidden>Clear pin</button></div>
+        <p class="hint" style="margin:0 0 .75rem">Click the map to place the pin, or drag it. Without a pin this location shows no map on the site.</p>
+        <div class="pick-map" id="pick-map" data-style="{% static 'map/style.json' %}"></div>
+        <div class="two" style="margin-top:.9rem">
+          <label class="fld"><span>Latitude</span><input type="text" name="latitude" id="lat" inputmode="decimal" value="{{ form.latitude.value|default_if_none:'' }}" placeholder="33.600866">{% for e in form.latitude.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+          <label class="fld"><span>Longitude</span><input type="text" name="longitude" id="lng" inputmode="decimal" value="{{ form.longitude.value|default_if_none:'' }}" placeholder="73.156897">{% for e in form.longitude.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        </div>
+      </div></section>
+    </div>
+    <aside class="pf-side">
+      <section class="card flush"><div class="sec">
+        <h3>On the website</h3>
+        <label class="sw-row"><span>Show this location</span><input type="checkbox" class="sw" name="is_active" {% if form.is_active.value %}checked{% endif %}></label>
+        <p class="hint">With exactly one location showing, the site shows one big map. With two or more, each gets a small map.</p>
+      </div></section>
+      {% if location %}<section class="card flush"><div class="sec sec-end"><button type="button" class="btn-delete" id="del-open"><svg class="ic"><use href="#i-trash"/></svg>Delete this location</button></div></section>{% endif %}
+    </aside>
+  </div>
+</form>
+{% if location %}
+<dialog id="del-dialog"><form method="post" action="{% url 'admin:location_delete' location.pk %}">{% csrf_token %}
+  <h2>Delete this location?</h2><p>“{{ location.name }}” will be removed from the site. This can't be undone.</p>
+  <div class="dlg-btns"><button class="btn-quiet" type="button" id="del-cancel">Cancel</button><button class="btn-danger" type="submit">Delete</button></div></form></dialog>
+{% endif %}
+<script src="{% static 'vendor/maplibre/maplibre-gl.js' %}"></script>
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+<script src="{% asset 'panel/locations.js' %}"></script>
+{% endblock %}

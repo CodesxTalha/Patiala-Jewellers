@@ -1,0 +1,6 @@
+{% if x.s.label or x.s.title %}
+    <div class="section-head" data-reveal>
+      {% if x.s.label %}<span class="label">{{ x.s.label }}</span>{% endif %}
+      <h2>{{ x.s.title }}</h2>
+    </div>
+{% endif %}

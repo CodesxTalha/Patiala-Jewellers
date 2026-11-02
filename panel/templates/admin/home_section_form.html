@@ -1,0 +1,127 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ title }} · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:home_sections' %}">Home page</a><span>/</span><span>{{ title }}</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="product-form" data-editor novalidate id="sec-form">
+  {% csrf_token %}
+  <input type="hidden" name="kind" value="{{ kind }}">
+  <header class="page-head">
+    <div><h1 class="page-title">{{ title }}</h1><p class="page-sub"><span class="kind-tag">{{ kind_name }}</span> A section of the home page.</p></div>
+    <div class="head-actions">
+      <a class="btn-quiet" href="{{ site_url }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>
+      <button type="submit" class="btn-primary" id="save-btn">Save section</button>
+    </div>
+  </header>
+  {% if form.errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li></ul>{% endif %}
+  <div class="pf-grid">
+    <div class="pf-main">
+      <section class="card flush"><div class="sec">
+        <label class="fld"><span>Heading</span><input type="text" name="title" value="{{ form.title.value|default_if_none:'' }}" maxlength="120" data-required="Give the section a heading." autofocus>{% for e in form.title.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        <label class="fld"><span>Small label <small>optional, above the heading</small></span><input type="text" name="label" value="{{ form.label.value|default_if_none:'' }}" maxlength="80"></label>
+        {% if kind == "story" or kind == "contact" %}
+        <label class="fld"><span>Paragraph <small>optional</small></span><textarea name="text" rows="4" maxlength="600">{{ form.text.value|default_if_none:'' }}</textarea></label>
+        {% endif %}
+        {% if kind != "collections" %}
+        <label class="fld"><span>{% if kind == "locations" %}Link words{% else %}Button words{% endif %} <small>optional{% if kind == "story" %}, leads to the link below{% endif %}</small></span><input type="text" name="button_label" value="{{ form.button_label.value|default_if_none:'' }}" maxlength="60">{% for e in form.button_label.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        {% endif %}
+        {% if kind == "story" %}
+        <label class="fld"><span>Button link <small>blank goes to your About page</small></span><input type="text" name="link" value="{{ form.link.value|default_if_none:'' }}" maxlength="400" placeholder="/about/">{% for e in form.link.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        {% endif %}
+      </div></section>
+
+      {% if kind == "products" %}
+      <section class="card flush"><div class="sec">
+        <h3>Which products?</h3>
+        <label class="fld"><span>Collections link <small>copy it from your site's Collections page. Leave empty to show your featured pieces.</small></span>
+          <input type="text" name="link" id="link-input" value="{{ form.link.value|default_if_none:'' }}" maxlength="400" placeholder="http://localhost:8000/collections/?category=rings&metal=gold">
+          {% for e in form.link.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        <div class="hint build-row"><span>Or build one:</span><select id="pick-cat"><option value="">Any category</option>{% for c in categories %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}</select>
+          <select id="pick-metal"><option value="">Any metal</option>{% for v, l in metals %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select>
+          <button type="button" class="btn-soft" id="pick-use">Use this</button></div>
+        <p class="hint">The button under the cards leads to the same link.</p>
+      </div></section>
+      {% endif %}
+
+      {% if kind == "story" %}
+      <section class="card flush"><div class="sec">
+        <h3>Photo</h3>
+        <div class="fld"><span>Where does the photo go?</span>
+          <div class="sg radios">{% for v, l in layouts %}<label><input type="radio" name="layout" value="{{ v }}"{% if form.layout.value == v %} checked{% endif %}><span>{{ l }}</span></label>{% endfor %}</div>
+          <p class="hint">Beside the words, the photo's height follows the picture and stops at a limit, so a wide photo is never stretched.</p></div>
+        <div class="photo-pair">
+          <div class="photo-main" data-photo data-default="{% if story_image %}{{ story_image }}{% else %}{{ story_default }}{% endif %}">
+            <div class="photo-frame"><img src="{% if section and section.image %}{{ section.image.url }}{% else %}{{ story_image }}{% endif %}" alt=""></div>
+            <div class="photo-side"><b>Computer</b><small>{% if section and section.image %}Your photo{% else %}Our default photo until you add one{% endif %}</small>
+              <div class="photo-btns">
+                <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span data-label>{% if section and section.image %}Replace photo{% else %}Add your photo{% endif %}</span><input type="file" name="image" accept="image/*" hidden></label>
+                {% if section and section.image %}<button type="button" class="btn-soft" data-clear>Remove</button><input type="hidden" name="clear_image" value="">{% endif %}
+              </div>
+              {% for e in form.image.errors %}<em class="err">{{ e }}</em>{% endfor %}</div>
+          </div>
+          <div class="photo-main" data-photo data-default="{% if section and section.image %}{{ section.image.url }}{% else %}{{ story_image }}{% endif %}">
+            <div class="photo-frame tall"><img src="{% if section and section.image_mobile %}{{ section.image_mobile.url }}{% elif section and section.image %}{{ section.image.url }}{% else %}{{ story_image_mobile }}{% endif %}" alt=""></div>
+            <div class="photo-side"><b>Phone</b><small>{% if section and section.image_mobile %}Your phone photo{% else %}Uses the computer photo{% endif %}</small>
+              <div class="photo-btns">
+                <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span data-label>{% if section and section.image_mobile %}Replace photo{% else %}Add a phone photo{% endif %}</span><input type="file" name="image_mobile" accept="image/*" hidden></label>
+                {% if section and section.image_mobile %}<button type="button" class="btn-soft" data-clear>Remove</button><input type="hidden" name="clear_image_mobile" value="">{% endif %}
+              </div>
+              {% for e in form.image_mobile.errors %}<em class="err">{{ e }}</em>{% endfor %}</div>
+          </div>
+        </div>
+      </div></section>
+      {% endif %}
+
+      {% if kind == "contact" %}
+      <section class="card flush"><div class="sec">
+        <h3>What shows</h3>
+        <p class="hint" style="margin:0">Your phone, WhatsApp and email come from <a href="{% url 'admin:shop_storeinfo_changelist' %}" style="text-decoration:underline">Store settings</a>. Only the ones you have filled in appear.</p>
+      </div></section>
+      {% endif %}
+
+      {% if kind == "locations" %}
+      <section class="card flush"><div class="sec">
+        <h3>What shows</h3>
+        <p class="hint" style="margin:0">Your active <a href="{% url 'admin:locations' %}" style="text-decoration:underline">locations</a>. One location gets a full-width map; several get a short list.</p>
+      </div></section>
+      {% endif %}
+
+      <section class="card flush"><div class="sec">
+        <h3>Look</h3>
+        {% if kind == "products" or kind == "services" or kind == "collections" %}
+        <label class="fld"><span>How many to show</span><input type="number" name="count" min="1" max="12" value="{{ form.count.value|default:4 }}" style="max-width:6rem">{% for e in form.count.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        {% endif %}
+        {% if kind == "products" or kind == "services" %}
+        <div class="layout-fields">
+          <div class="fld"><span>Cards per row on a computer</span>
+            <div class="sg radios">{% for n in "234" %}<label><input type="radio" name="cols" value="{{ n }}"{% if n == form.cols.value|stringformat:"s" %} checked{% endif %}><span>{{ n }}</span></label>{% endfor %}</div></div>
+          <div class="fld"><span>Cards per row on a phone</span>
+            <div class="sg radios">{% for n in "12" %}<label><input type="radio" name="cols_mobile" value="{{ n }}"{% if n == form.cols_mobile.value|stringformat:"s" %} checked{% endif %}><span>{{ n }}</span></label>{% endfor %}</div></div>
+        </div>
+        {% endif %}
+        <div class="fld"><span>Colour{% if kind == "story" %} <small>when the photo is beside the words</small>{% endif %}</span>
+          <div class="sg radios"><label><input type="radio" name="theme" value="light"{% if form.theme.value != "dark" %} checked{% endif %}><span>Light</span></label><label><input type="radio" name="theme" value="dark"{% if form.theme.value == "dark" %} checked{% endif %}><span>Dark</span></label></div></div>
+      </div></section>
+    </div>
+    <aside class="pf-side">
+      <section class="card flush"><div class="sec">
+        <h3>On the website</h3>
+        <label class="sw-row"><span>Show this section</span><input type="checkbox" class="sw" name="is_active" {% if form.is_active.value|default:True %}checked{% endif %}></label>
+        <p class="hint" style="margin:.5rem 0 0">Change where it sits by dragging it in the Home page list.</p>
+      </div></section>
+      {% if section %}<section class="card flush"><div class="sec sec-end"><button type="button" class="btn-delete" id="del-open"><svg class="ic"><use href="#i-trash"/></svg>Delete this section</button></div></section>{% endif %}
+    </aside>
+  </div>
+</form>
+{% if section %}
+<dialog id="del-dialog"><form method="post" action="{% url 'admin:home_section_delete' section.pk %}">{% csrf_token %}
+  <h2>Delete this section?</h2><p>“{{ section.title }}” will be removed from the home page. Your products and services stay as they are.</p>
+  <div class="dlg-btns"><button class="btn-quiet" type="button" id="del-cancel">Cancel</button><button class="btn-danger" type="submit">Delete</button></div></form></dialog>
+{% endif %}
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+<script src="{% asset 'panel/home.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Products · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<div class="products-page" data-toggle="{% url 'admin:product_toggle' 0 %}">
+  <input type="hidden" id="csrf" value="{{ csrf_token }}">
+  <header class="page-head">
+    <div><h1 class="page-title">Products</h1><p class="page-sub">{{ total }} piece{{ total|pluralize }} in your catalogue.</p></div>
+    <div class="head-actions"><a class="btn-primary" href="{% url 'admin:product_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add product</a></div>
+  </header>
+
+  <form class="toolbar" method="get" role="search">
+    <label class="tb-search"><svg class="ic"><use href="#i-search"/></svg><input type="search" name="q" value="{{ q }}" placeholder="Search by name or stone" aria-label="Search products"></label>
+    <select name="category" aria-label="Category" data-autosubmit>
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.pk }}"{% if category == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+    <div class="sg tb-status">
+      <a href="?{{ status_query.all }}" class="{% if not status %}is-on{% endif %}">All</a>
+      <a href="?{{ status_query.on }}" class="{% if status == 'on' %}is-on{% endif %}">On the site</a>
+      <a href="?{{ status_query.hidden }}" class="{% if status == 'hidden' %}is-on{% endif %}">Hidden</a>
+    </div>
+    {% if filtered %}<a class="tb-clear" href="?">Clear</a>{% endif %}
+  </form>
+
+  {% if page.object_list %}
+  <div class="pgrid">
+    {% for p in page.object_list %}
+    <article class="pcard{% if not p.is_active %} is-off{% endif %}">
+      <a class="pcard-img" href="{% url 'admin:product_edit' p.pk %}" tabindex="-1" aria-hidden="true">
+        {% if p.photo_url %}<img src="{{ p.photo_url }}" alt="" loading="lazy">{% else %}<span class="noimg"><svg class="ic"><use href="#i-gem"/></svg></span>{% endif %}
+        {% if not p.is_active %}<em class="tag">Hidden</em>{% endif %}
+      </a>
+      <div class="pcard-body">
+        <a class="pcard-name" href="{% url 'admin:product_edit' p.pk %}">{{ p.name }}</a>
+        <small>{{ p.category.name }} · {{ p.price_label }}</small>
+      </div>
+      <div class="pcard-actions">
+        <button type="button" class="chip{% if p.is_featured %} is-on{% endif %}" data-toggle-field="is_featured" data-id="{{ p.pk }}" title="Show on the home page" aria-pressed="{{ p.is_featured|yesno:'true,false' }}"><svg class="ic"><use href="#i-star"/></svg><span>Featured</span></button>
+        <button type="button" class="chip{% if p.is_active %} is-on{% endif %}" data-toggle-field="is_active" data-id="{{ p.pk }}" title="Show on the website" aria-pressed="{{ p.is_active|yesno:'true,false' }}"><svg class="ic"><use href="#i-eye"/></svg><span>{% if p.is_active %}Showing{% else %}Hidden{% endif %}</span></button>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% if page.paginator.num_pages > 1 %}
+  <nav class="pager" aria-label="Pages">
+    {% if page.has_previous %}<a class="btn-quiet" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page.previous_page_number }}">Previous</a>{% else %}<span class="btn-quiet is-dim">Previous</span>{% endif %}
+    <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="btn-quiet" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page.next_page_number }}">Next</a>{% else %}<span class="btn-quiet is-dim">Next</span>{% endif %}
+  </nav>
+  {% endif %}
+  {% else %}
+  <div class="card empty-card">
+    {% if filtered %}<h2>No pieces match</h2><p>Try a different word, or clear the filters.</p><a class="btn-quiet" href="?">Clear filters</a>
+    {% else %}<h2>Add your first piece</h2><p>Products show on your Collections page and, if you feature them, on the home page.</p>
+      <a class="btn-primary" href="{% url 'admin:product_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add product</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+<script src="{% asset 'panel/products.js' %}"></script>
+{% endblock %}

@@ -15,14 +15,16 @@ Website for Patiala Jewelers (Gold & Diamonds, Islamabad), built with Django and
 | `/admin/` | Admin panel |
 
 ## Admin panel
-- **Categories**: name, image, display order, show/hide
-- **Products**: details, price (blank shows "Price on request"), main photo plus gallery, featured and visible toggles
+Open `/admin/` and sign in. Create your login first with `python manage.py createsuperuser`. The admin lives in its own app, `panel/` (layout, dashboard, all model admins, and the visitor and click tracking in `panel/tracking.py`); `shop/` holds only the public site. Visits from localhost are counted too, so you can test it.
+- **Hero**: a visual editor (add, drag to order, live computer and phone preview, one Save button)
+- **Home page**: the sections below the hero as one list. Drag to reorder, switch each on or off, and add as many as you like: products (from a Collections link or the featured pieces), categories, services, image and text (photo beside or behind the words), locations, contact. Cards per row (computer and phone) and light or dark are set per section
+- **Products**: a grid to browse, search and filter, quick show and feature switches, and a simple editor (details, price, main photo, more photos, live preview)
+- **Categories** and **Services**: lists you reorder by dragging, with show or hide switches and a small editor
+- **Locations**: your boutiques, with a click-to-place map pin. One location shows one big map
 - **Enquiries**: messages from the contact and product forms, with status and internal notes
-- **Branches**: the store locations (PWD, DHA II, Ghauri Town, F-7) with address, phone, hours and map
-- **Services**: name, photo, summary, steps, time and price, order
-- **Page text**: every line of copy on the pages (edit only, rows are fixed)
-- **About values**: the short promises on the About page
-- **Store information**: name, tagline, contact, socials, colours, fonts, logo, hero film, About text
+- **Page text** and **About promises**: the copy on the pages and the short promises on the About page
+- **Store settings**: name, tagline, contact, socials, colours, fonts, logo, About text
+- **Visitors** and **Clicks**: the tracking logs
 
 ## Demo content
 The site ships with demo products so the front end looks complete. Photos are image links (Unsplash, product-only), not downloads.

@@ -1,0 +1,13 @@
+<section class="section{% if x.s.theme == 'dark' %} surface-dark{% endif %}">
+  <div class="container">
+    {% include "shop/home/_head.html" %}
+    <div class="tiles" data-reveal>
+      {% for c in x.items %}
+      <a href="{{ c.get_absolute_url }}" class="tile">
+        <div class="tile-img">{% if c.photo_url %}<img src="{{ c.photo_url }}" alt="" loading="lazy">{% endif %}</div>
+        <h3>{{ c.name }}</h3>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>

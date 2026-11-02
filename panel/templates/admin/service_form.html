@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ title }} · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:services' %}">Services</a><span>/</span><span>{{ title }}</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="product-form" data-editor novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">{{ title }}</h1><p class="page-sub">{% if service %}This service has its own page on the site.{% else %}Fill in the basics and save. You can change anything later.{% endif %}</p></div>
+    <div class="head-actions">
+      {% if service %}<a class="btn-quiet" href="{{ service.get_absolute_url }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>{% endif %}
+      <button type="submit" class="btn-primary" id="save-btn">Save service</button>
+    </div>
+  </header>
+  {% if form.errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li></ul>{% endif %}
+  <div class="pf-grid">
+    <div class="pf-main">
+      <section class="card flush"><div class="sec">
+        <label class="fld"><span>Name</span><input type="text" name="name" value="{{ form.name.value|default_if_none:'' }}" maxlength="100" placeholder="Ring resizing" data-required="Give the service a name." autofocus>{% for e in form.name.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        <label class="fld"><span>Short line <small>shown on the service cards</small></span><input type="text" name="summary" value="{{ form.summary.value|default_if_none:'' }}" maxlength="160" placeholder="Sized up or down to fit perfectly." data-required="Add one short line. It shows on the service cards.">{% for e in form.summary.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        <label class="fld"><span>Line under the title <small>optional, top of the service page</small></span><input type="text" name="intro" value="{{ form.intro.value|default_if_none:'' }}" maxlength="200"></label>
+        <label class="fld"><span>Description <small>a few sentences on the service page</small></span><textarea name="description" rows="5">{{ form.description.value|default_if_none:'' }}</textarea></label>
+      </div></section>
+
+      <section class="card flush"><div class="sec">
+        <h3>What is included</h3>
+        <div class="rows" id="includes-rows"></div>
+        <button type="button" class="btn-soft" id="includes-add"><svg class="ic"><use href="#i-plus"/></svg>Add item</button>
+        <input type="hidden" name="includes" id="includes-field">
+      </div></section>
+
+      <section class="card flush"><div class="sec">
+        <h3>How it works</h3>
+        <div class="rows" id="steps-rows"></div>
+        <button type="button" class="btn-soft" id="steps-add"><svg class="ic"><use href="#i-plus"/></svg>Add step</button>
+        <input type="hidden" name="process" id="process-field">
+      </div></section>
+
+      <section class="card flush"><div class="sec">
+        <h3>Photo</h3>
+        <div class="photo-main">
+          <div class="photo-frame" id="main-frame">{% if service and service.photo_url %}<img id="main-img" src="{{ service.photo_url }}" alt="">{% else %}<span class="noimg" id="main-empty">No photo yet</span>{% endif %}</div>
+          <div class="photo-side">
+            <b>Service photo</b><small>A wide photo works best. It is the big picture at the top of the service page.</small>
+            <div class="photo-btns">
+              <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span id="main-label">{% if service and service.photo_url %}Replace photo{% else %}Add photo{% endif %}</span><input type="file" name="image" accept="image/*" hidden id="main-input"></label>
+              {% if service and service.image %}<button type="button" class="btn-soft" id="main-clear">Remove</button><input type="hidden" name="clear_image" id="clear-flag" value="">{% endif %}
+            </div>
+            {% for e in form.image.errors %}<em class="err">{{ e }}</em>{% endfor %}
+          </div>
+        </div>
+      </div></section>
+    </div>
+    <aside class="pf-side">
+      <section class="card flush"><div class="sec">
+        <h3>On the website</h3>
+        <label class="sw-row"><span>Show this service</span><input type="checkbox" class="sw" name="is_active" {% if form.is_active.value %}checked{% endif %}></label>
+      </div></section>
+      <section class="card flush"><div class="sec">
+        <h3>Quick facts</h3>
+        <label class="fld"><span>Time it takes</span><input type="text" name="turnaround" value="{{ form.turnaround.value|default_if_none:'' }}" maxlength="60" placeholder="Same day"></label>
+        <label class="fld"><span>Price note</span><input type="text" name="price_note" value="{{ form.price_note.value|default_if_none:'' }}" maxlength="60" placeholder="From Rs 1,500"></label>
+        <p class="hint" style="margin-top:0">Both are optional and show on the service page.</p>
+      </div></section>
+      {% if service %}<section class="card flush"><div class="sec sec-end"><button type="button" class="btn-delete" id="del-open"><svg class="ic"><use href="#i-trash"/></svg>Delete this service</button></div></section>{% endif %}
+    </aside>
+  </div>
+</form>
+{% if service %}
+<dialog id="del-dialog"><form method="post" action="{% url 'admin:service_delete' service.pk %}">{% csrf_token %}
+  <h2>Delete this service?</h2><p>“{{ service.name }}” and its page will be removed. This can't be undone.</p>
+  <div class="dlg-btns"><button class="btn-quiet" type="button" id="del-cancel">Cancel</button><button class="btn-danger" type="submit">Delete</button></div></form></dialog>
+{% endif %}
+{{ lists|json_script:"service-lists" }}
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+<script src="{% asset 'panel/services.js' %}"></script>
+{% endblock %}

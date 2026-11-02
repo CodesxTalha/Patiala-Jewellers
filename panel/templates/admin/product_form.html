@@ -1,0 +1,115 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ title }} · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:products' %}">Products</a><span>/</span><span>{{ title }}</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="product-form" id="product-form" novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">{{ title }}</h1><p class="page-sub">{% if product %}Last changed {{ product.updated_at|timesince }} ago.{% else %}Fill in the basics and save. You can change anything later.{% endif %}</p></div>
+    <div class="head-actions">
+      {% if product %}<a class="btn-quiet" href="{{ product.get_absolute_url }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>{% endif %}
+      <button type="submit" class="btn-primary" id="save-btn">Save product</button>
+    </div>
+  </header>
+
+  {% if form.errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li>{% for e in form.non_field_errors %}<li class="error">{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+  <div class="pf-grid">
+    <div class="pf-main">
+      <section class="card flush">
+        <div class="sec">
+          <label class="fld"><span>Name</span><input type="text" name="name" value="{{ form.name.value|default_if_none:'' }}" maxlength="200" placeholder="Solitaire diamond ring" required data-bind="name" autofocus>{% for e in form.name.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+          <label class="fld"><span>Category</span>
+            <select name="category" required data-bind="category">
+              <option value="">Choose a category</option>
+              {% for c in categories %}<option value="{{ c.pk }}"{% if form.category.value|stringformat:"s" == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.name }}{% if not c.is_active %} (hidden){% endif %}</option>{% endfor %}
+            </select>
+            {% for e in form.category.errors %}<em class="err">{{ e }}</em>{% endfor %}
+            {% if not categories %}<em class="err">There are no categories yet. <a href="{% url 'admin:category_new' %}">Add one first</a>.</em>{% endif %}
+          </label>
+          <label class="fld"><span>Description <small>shown on the product page</small></span><textarea name="description" rows="5" placeholder="A few lines about the piece.">{{ form.description.value|default_if_none:'' }}</textarea></label>
+        </div>
+      </section>
+
+      <section class="card flush">
+        <div class="sec">
+          <h3>Photos</h3>
+          <div class="photo-main">
+            <div class="photo-frame" id="main-frame">
+              {% if product and product.photo_url %}<img id="main-img" src="{{ product.photo_url }}" alt="">{% else %}<span class="noimg" id="main-empty">No photo yet</span>{% endif %}
+            </div>
+            <div class="photo-side">
+              <b>Main photo</b><small>The first photo people see, and the one on the cards.</small>
+              <div class="photo-btns">
+                <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span id="main-label">{% if product and product.photo_url %}Replace photo{% else %}Add photo{% endif %}</span><input type="file" name="image" accept="image/*" hidden id="main-input"></label>
+                {% if product and product.image %}<button type="button" class="btn-soft" id="main-clear">Remove</button><input type="hidden" name="clear_image" id="clear-flag" value="">{% endif %}
+              </div>
+              {% for e in form.image.errors %}<em class="err">{{ e }}</em>{% endfor %}
+            </div>
+          </div>
+          <p class="sub-label">More photos <small>optional</small></p>
+          <div class="gal" id="gal">
+            {% for g in gallery %}{% if g.photo_url %}
+            <div class="gal-item" data-existing>
+              <img src="{{ g.photo_url }}" alt="">
+              <input type="checkbox" name="remove_gallery" value="{{ g.pk }}" hidden>
+              <button type="button" class="gal-x" aria-label="Remove this photo" title="Remove">×</button>
+              <em class="gal-note">Will be removed</em>
+            </div>
+            {% endif %}{% endfor %}
+            <label class="gal-add" id="gal-add"><svg class="ic"><use href="#i-plus"/></svg><span>Add photos</span><input type="file" name="gallery" accept="image/*" multiple hidden id="gal-input"></label>
+          </div>
+          <p class="hint">Square photos on a plain background look best. JPG or PNG, up to 12 MB each.</p>
+        </div>
+      </section>
+
+      <section class="card flush">
+        <div class="sec">
+          <h3>Details</h3>
+          <div class="two">
+            <label class="fld"><span>Metal</span><select name="metal">{% for v, l in metals %}<option value="{{ v }}"{% if form.metal.value == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+            <label class="fld"><span>Purity</span><input type="text" name="purity" value="{{ form.purity.value|default_if_none:'' }}" maxlength="30" placeholder="22K, 18K, 925"></label>
+            <label class="fld"><span>Weight <small>grams</small></span><input type="text" name="weight_grams" inputmode="decimal" value="{% if form.is_bound %}{{ form.weight_grams.value|default_if_none:'' }}{% else %}{{ form.weight_grams.value|floatformat:'-3' }}{% endif %}" placeholder="8.5">{% for e in form.weight_grams.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+            <label class="fld"><span>Gemstone</span><input type="text" name="gemstone" value="{{ form.gemstone.value|default_if_none:'' }}" maxlength="100" placeholder="Diamond, Ruby, Kundan"></label>
+          </div>
+          <label class="fld"><span>Price <small>leave empty to show “Price on request”</small></span>
+            <div class="money"><i>Rs</i><input type="text" name="price" inputmode="decimal" value="{% if form.is_bound %}{{ form.price.value|default_if_none:'' }}{% else %}{{ form.price.value|floatformat:'-2' }}{% endif %}" placeholder="185000" data-bind="price"></div>
+            {% for e in form.price.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        </div>
+      </section>
+    </div>
+
+    <aside class="pf-side">
+      <section class="card flush">
+        <div class="sec">
+          <h3>On the website</h3>
+          <label class="sw-row"><span>Show this piece</span><input type="checkbox" class="sw" name="is_active" {% if form.is_active.value %}checked{% endif %}></label>
+          <label class="sw-row"><span>Feature on the home page</span><input type="checkbox" class="sw" name="is_featured" {% if form.is_featured.value %}checked{% endif %}></label>
+          {% if product and not product.category.is_active %}<p class="note">Its category is hidden, so this piece is not on the site until you show that category.</p>{% endif %}
+        </div>
+      </section>
+      <section class="card flush">
+        <div class="sec">
+          <h3>How it looks in the shop</h3>
+          <div class="pcard preview">
+            <div class="pcard-img" id="pv-img"></div>
+            <div class="pcard-body"><span class="pcard-name" id="pv-name">Name of the piece</span><small id="pv-sub">Category · Price on request</small></div>
+          </div>
+        </div>
+      </section>
+      {% if product %}<section class="card flush"><div class="sec sec-end"><button type="button" class="btn-delete" id="del-open"><svg class="ic"><use href="#i-trash"/></svg>Delete this product</button></div></section>{% endif %}
+    </aside>
+  </div>
+</form>
+{% if product %}
+<dialog id="del-dialog"><form method="post" action="{% url 'admin:product_delete' product.pk %}">{% csrf_token %}
+  <h2>Delete this product?</h2><p>“{{ product.name }}” and its photos will be removed. This can't be undone. Enquiries about it stay.</p>
+  <div class="dlg-btns"><button class="btn-quiet" type="button" id="del-cancel">Cancel</button><button class="btn-danger" type="submit">Delete</button></div></form></dialog>
+{% endif %}
+<script src="{% asset 'panel/products.js' %}"></script>
+{% endblock %}

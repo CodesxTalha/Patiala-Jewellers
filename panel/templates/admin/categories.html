@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Categories · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<div data-sortlist data-order="{% url 'admin:category_order' %}" data-toggle="{% url 'admin:category_toggle' 0 %}">
+  <input type="hidden" id="csrf" value="{{ csrf_token }}">
+  <header class="page-head">
+    <div><h1 class="page-title">Categories</h1><p class="page-sub">Drag to change the order they have on the site. <span id="order-note" role="status"></span></p></div>
+    <div class="head-actions"><a class="btn-primary" href="{% url 'admin:category_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add category</a></div>
+  </header>
+  {% if categories %}
+  <ul class="clist" id="clist">
+    {% for c in categories %}
+    <li class="crow{% if not c.is_active %} is-off{% endif %}" draggable="true" data-id="{{ c.pk }}">
+      <span class="grip" aria-hidden="true" title="Drag to reorder">⋮⋮</span>
+      <a class="cthumb" href="{% url 'admin:category_edit' c.pk %}" tabindex="-1" aria-hidden="true">{% if c.photo_url %}<img src="{{ c.photo_url }}" alt="" loading="lazy">{% else %}<span class="noimg"><svg class="ic"><use href="#i-grid"/></svg></span>{% endif %}</a>
+      <a class="cname" href="{% url 'admin:category_edit' c.pk %}"><b>{{ c.name }}</b><small>{{ c.n }} piece{{ c.n|pluralize }}</small></a>
+      <button type="button" class="chip{% if c.is_active %} is-on{% endif %}" data-toggle-field data-id="{{ c.pk }}" title="Show on the website" aria-pressed="{{ c.is_active|yesno:'true,false' }}"><svg class="ic"><use href="#i-eye"/></svg><span>{% if c.is_active %}Showing{% else %}Hidden{% endif %}</span></button>
+      <a class="btn-quiet crow-edit" href="{% url 'admin:category_edit' c.pk %}">Edit</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="card empty-card"><h2>Add your first category</h2><p>Categories group your pieces, for example Rings, Necklaces or Bangles.</p>
+    <a class="btn-primary" href="{% url 'admin:category_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add category</a></div>
+  {% endif %}
+</div>
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}

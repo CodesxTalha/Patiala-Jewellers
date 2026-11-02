@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ title }} · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:categories' %}">Categories</a><span>/</span><span>{{ title }}</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="product-form" data-editor novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">{{ title }}</h1><p class="page-sub">{% if category %}{{ category.n }} piece{{ category.n|pluralize }} in this category.{% else %}Name it, add a photo if you like, and save.{% endif %}</p></div>
+    <div class="head-actions">
+      {% if category %}<a class="btn-quiet" href="{{ category.get_absolute_url }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>{% endif %}
+      <button type="submit" class="btn-primary" id="save-btn">Save category</button>
+    </div>
+  </header>
+  {% if form.errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li></ul>{% endif %}
+  <div class="pf-grid">
+    <div class="pf-main">
+      <section class="card flush"><div class="sec">
+        <label class="fld"><span>Name</span><input type="text" name="name" value="{{ form.name.value|default_if_none:'' }}" maxlength="100" placeholder="Rings" data-required="Give the category a name." autofocus>{% for e in form.name.errors %}<em class="err">{{ e }}</em>{% endfor %}</label>
+        <label class="fld"><span>Description <small>optional</small></span><textarea name="description" rows="4" placeholder="A line about this category.">{{ form.description.value|default_if_none:'' }}</textarea></label>
+      </div></section>
+      <section class="card flush"><div class="sec">
+        <h3>Photo</h3>
+        <div class="photo-main">
+          <div class="photo-frame" id="main-frame">{% if category and category.photo_url %}<img id="main-img" src="{{ category.photo_url }}" alt="">{% else %}<span class="noimg" id="main-empty">No photo yet</span>{% endif %}</div>
+          <div class="photo-side">
+            <b>Category photo</b><small>Shown on the home page and the Collections page.</small>
+            <div class="photo-btns">
+              <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span id="main-label">{% if category and category.photo_url %}Replace photo{% else %}Add photo{% endif %}</span><input type="file" name="image" accept="image/*" hidden id="main-input"></label>
+              {% if category and category.image %}<button type="button" class="btn-soft" id="main-clear">Remove</button><input type="hidden" name="clear_image" id="clear-flag" value="">{% endif %}
+            </div>
+            {% for e in form.image.errors %}<em class="err">{{ e }}</em>{% endfor %}
+          </div>
+        </div>
+      </div></section>
+    </div>
+    <aside class="pf-side">
+      <section class="card flush"><div class="sec">
+        <h3>On the website</h3>
+        <label class="sw-row"><span>Show this category</span><input type="checkbox" class="sw" name="is_active" {% if form.is_active.value %}checked{% endif %}></label>
+        <p class="hint">Hiding a category also hides its pieces from the site.</p>
+      </div></section>
+      {% if category %}
+      <section class="card flush"><div class="sec">
+        <h3>Pieces</h3>
+        <p class="hint" style="margin:0 0 .75rem">{{ category.n }} piece{{ category.n|pluralize }} here.</p>
+        <a class="btn-soft" href="{% url 'admin:products' %}?category={{ category.pk }}">View them</a>
+      </div></section>
+      <section class="card flush"><div class="sec sec-end">
+        {% if category.n %}<p class="hint" style="margin:0">To delete this category, first move or delete its {{ category.n }} piece{{ category.n|pluralize }}.</p>
+        {% else %}<button type="button" class="btn-delete" id="del-open"><svg class="ic"><use href="#i-trash"/></svg>Delete this category</button>{% endif %}
+      </div></section>
+      {% endif %}
+    </aside>
+  </div>
+</form>
+{% if category and not category.n %}
+<dialog id="del-dialog"><form method="post" action="{% url 'admin:category_delete' category.pk %}">{% csrf_token %}
+  <h2>Delete this category?</h2><p>“{{ category.name }}” will be removed. This can't be undone.</p>
+  <div class="dlg-btns"><button class="btn-quiet" type="button" id="del-cancel">Cancel</button><button class="btn-danger" type="submit">Delete</button></div></form></dialog>
+{% endif %}
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}

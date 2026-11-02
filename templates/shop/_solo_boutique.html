@@ -1,0 +1,9 @@
+{# One location: its details in the middle, and a full-width map under them. #}
+<div class="solo-boutique">
+  <h3>{{ b.name }}</h3>
+  {% if b.address %}<p>{{ b.address }}</p>{% endif %}
+  {% if b.opening_hours %}<p>{{ b.opening_hours }}</p>{% endif %}
+  {% if b.phone %}<p><a href="tel:{{ b.phone }}">{{ b.phone }}</a></p>{% endif %}
+  <div class="full-map" data-full-map="{{ b.pk }}" role="img" aria-label="Map showing the {{ b.name }} boutique"></div>
+  <a class="link-underline" href="{{ b.maps_url }}" target="_blank" rel="noopener">Get directions</a>
+</div>

@@ -1,0 +1,35 @@
+{% load i18n static panel_tags %}<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Sign in · {{ store.name }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="NONE,NOARCHIVE">
+<link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+<link href="{{ store.fonts_url }}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+<link rel="stylesheet" href="{% asset 'panel/panel.css' %}">
+<style>:root{ {{ store.theme_css }} }</style>
+</head>
+<body class="panel login-page">
+<main class="login-card">
+  {% include "_monogram.html" with cls="login-mono" %}
+  <h1>{{ store.name }}</h1>
+  <p class="login-sub">Sign in to manage your site</p>
+
+  {% if form.errors and not form.non_field_errors %}<p class="login-error">Please check your username and password.</p>{% endif %}
+  {% for error in form.non_field_errors %}<p class="login-error">{{ error }}</p>{% endfor %}
+  {% if user.is_authenticated %}<p class="login-error">You are signed in as {{ username }}, but this account cannot open the panel. Sign in with another account.</p>{% endif %}
+
+  <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    {{ form.password }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn-primary wide">Sign in</button>
+  </form>
+  <a class="login-back" href="{{ site_url|default:'/' }}">Back to the website</a>
+</main>
+</body>
+</html>

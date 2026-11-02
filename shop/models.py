@@ -1,3 +1,5 @@
+from urllib.parse import parse_qsl, urlsplit
+
 from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
@@ -162,6 +164,11 @@ def _rgb(hex_color):
     return ", ".join(str(int(h[i:i + 2], 16)) for i in (0, 2, 4))
 
 
+COLS_DESKTOP = [(2, "2"), (3, "3"), (4, "4")]
+COLS_MOBILE = [(1, "1"), (2, "2")]
+THEMES = [("light", "Light"), ("dark", "Dark")]
+
+
 class StoreInfo(models.Model):
     """Single editable record with the brand's general details and About text."""
 
@@ -205,11 +212,19 @@ class StoreInfo(models.Model):
     )
     favicon = models.ImageField(upload_to="brand/", blank=True, help_text="Optional browser-tab icon. Square PNG, at least 64 px.")
 
-    # ----- Home page hero. Leave empty to use the built-in film. -----
-    hero_video = models.FileField(upload_to="hero/", blank=True, help_text="Landscape film for desktop (MP4, under 8 MB is best).")
-    hero_video_mobile = models.FileField(upload_to="hero/", blank=True, help_text="Optional portrait film for phones. Falls back to the desktop film.")
-    hero_poster = models.ImageField(upload_to="hero/", blank=True, help_text="Still image shown while the film loads.")
-    hero_poster_mobile = models.ImageField(upload_to="hero/", blank=True, help_text="Optional portrait still for phones.")
+    # ----- Home page hero slider (the slides themselves are under Hero slides) -----
+    hero_autoplay = models.BooleanField("Slide automatically", default=True)
+    hero_interval = models.PositiveSmallIntegerField("Seconds per slide", default=6, help_text="Between 3 and 20.")
+    hero_transition = models.CharField("Transition", max_length=10, default="slide",
+                                       choices=[("slide", "Slide"), ("fade", "Fade")])
+    hero_show_arrows = models.BooleanField("Show arrows", default=True)
+    hero_show_dots = models.BooleanField("Show dots", default=True)
+
+    # ----- Turn parts of the site on or off -----
+    show_preloader = models.BooleanField("Intro screen when the site opens", default=True)
+    show_whatsapp_button = models.BooleanField("Floating WhatsApp button", default=True)
+
+    # ----- About page and the Our Story section -----
     about_heading = models.CharField(max_length=200, default="Our Story")
     about_text = models.TextField(blank=True)
     about_image = models.ImageField(
@@ -366,6 +381,56 @@ class Service(models.Model):
         return f"Hello, I would like to enquire about your {self.name.lower()} service."
 
 
+class HomeSection(models.Model):
+    """One block of the home page. The list of these, in display order, is the page below the hero."""
+
+    class Kind(models.TextChoices):
+        PRODUCTS = "products", "Products"
+        SERVICES = "services", "Services"
+        COLLECTIONS = "collections", "Categories"
+        STORY = "story", "Image and text"
+        LOCATIONS = "locations", "Locations"
+        CONTACT = "contact", "Contact"
+
+    class Layout(models.TextChoices):
+        LEFT = "left", "Photo on the left"
+        RIGHT = "right", "Photo on the right"
+        BEHIND = "behind", "Photo behind the text"
+
+    kind = models.CharField(max_length=12, choices=Kind.choices, default=Kind.PRODUCTS)
+    label = models.CharField("Small label", max_length=80, blank=True)
+    title = models.CharField("Heading", max_length=120)
+    text = models.TextField("Paragraph", max_length=600, blank=True)
+    link = models.CharField(max_length=400, blank=True, help_text="A collections link such as /collections/?category=rings&metal=gold")
+    button_label = models.CharField("Button words", max_length=60, blank=True)
+    count = models.PositiveSmallIntegerField("How many to show", default=4)
+    theme = models.CharField("Colour", max_length=5, choices=THEMES, default="light")
+    cols = models.PositiveSmallIntegerField("Per row on a computer", choices=COLS_DESKTOP, default=4)
+    cols_mobile = models.PositiveSmallIntegerField("Per row on a phone", choices=COLS_MOBILE, default=2)
+    layout = models.CharField("Photo position", max_length=6, choices=Layout.choices, default=Layout.LEFT)
+    image = models.ImageField(upload_to="home/", blank=True)
+    image_mobile = models.ImageField(upload_to="home/", blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["display_order", "id"]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def params(self):
+        """The filters in the link (category, metal, q), as the Collections page reads them."""
+        return dict(parse_qsl(urlsplit(self.link).query))
+
+    @property
+    def summary(self):
+        if self.kind in (self.Kind.PRODUCTS, self.Kind.SERVICES):
+            return f"{self.get_kind_display()} · {self.cols} per row"
+        return self.get_kind_display()
+
+
 class ContentBlock(models.Model):
     """One editable line of text on the site. The rows are created from shop/content.py."""
 
@@ -396,3 +461,101 @@ class AboutValue(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class HeroSlide(models.Model):
+    """One slide of the home page hero. With more than one active slide the hero slides on its own."""
+
+    class Kind(models.TextChoices):
+        IMAGE = "image", "Image"
+        VIDEO = "video", "Video"
+
+    class Tone(models.TextChoices):
+        DARK = "dark", "Dark text (for light photos)"
+        LIGHT = "light", "Light text (for dark photos)"
+
+    class Align(models.TextChoices):
+        LEFT = "left", "Left"
+        CENTER = "center", "Centre"
+
+    class Tint(models.TextChoices):
+        NONE = "none", "None"
+        SOFT = "soft", "Soft"
+        MEDIUM = "medium", "Medium"
+
+    name = models.CharField(max_length=100, help_text="Only you see this. For example: Eid collection.")
+    kind = models.CharField(max_length=10, choices=Kind.choices, default=Kind.IMAGE)
+    image = models.ImageField("Image (desktop)", upload_to="hero/", blank=True,
+                              help_text="Wide photo, at least 2000 px across.")
+    image_mobile = models.ImageField("Image (phone)", upload_to="hero/", blank=True,
+                                     help_text="Tall photo for phones, shown full screen. Falls back to the desktop image.")
+    video = models.FileField("Video (desktop)", upload_to="hero/", blank=True, help_text="MP4, ideally under 8 MB.")
+    video_mobile = models.FileField("Video (phone)", upload_to="hero/", blank=True,
+                                    help_text="Optional tall video. Falls back to the desktop video.")
+    poster = models.ImageField("Still image for the video", upload_to="hero/", blank=True,
+                               help_text="Shown while the video loads. Optional.")
+
+    show_text = models.BooleanField("Show text on this slide", default=True)
+    heading = models.CharField(max_length=120, blank=True)
+    text = models.CharField("Line under the heading", max_length=220, blank=True)
+    button_label = models.CharField(max_length=40, blank=True, help_text="Leave empty for no button.")
+    link = models.CharField("Link", max_length=300, blank=True,
+                            help_text="Where the button goes, for example /collections/ or https://... With no button and no text, the whole slide becomes the link.")
+    open_in_new_tab = models.BooleanField(default=False)
+    text_tone = models.CharField("Text colour on desktop", max_length=10, choices=Tone.choices, default=Tone.DARK)
+    text_align = models.CharField("Text position on desktop", max_length=10, choices=Align.choices, default=Align.LEFT)
+    tint = models.CharField("Darken the picture", max_length=10, choices=Tint.choices, default=Tint.NONE)
+
+    seconds = models.PositiveSmallIntegerField("Seconds on screen", null=True, blank=True,
+                                               help_text="Leave empty to use the default from Store information.")
+    show_from = models.DateField("Show from", null=True, blank=True)
+    show_until = models.DateField("Show until", null=True, blank=True)
+    display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first.")
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["display_order", "id"]
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        self.link = (self.link or "").strip()
+        errors = {}
+        if self.kind == self.Kind.IMAGE and not self.image:
+            errors["image"] = "Add the image for this slide, or switch the type to Video."
+        if self.kind == self.Kind.VIDEO and not self.video:
+            errors["video"] = "Add the video for this slide, or switch the type to Image."
+        if self.link and not self.link.startswith(("/", "http://", "https://", "tel:", "mailto:", "#")):
+            errors["link"] = "Start the link with / (a page on this site) or https://"
+        if self.button_label and not self.link:
+            errors["link"] = "A button needs a link."
+        if self.seconds is not None and not 3 <= self.seconds <= 20:
+            errors["seconds"] = "Use a number between 3 and 20."
+        if self.show_from and self.show_until and self.show_until < self.show_from:
+            errors["show_until"] = "This date is before the start date."
+        if errors:
+            raise ValidationError(errors)
+
+    @property
+    def has_text(self):
+        return bool(self.heading or self.text or (self.button_label and self.link))
+
+    @property
+    def desktop_url(self):
+        f = self.video if self.kind == self.Kind.VIDEO else self.image
+        return f.url if f else ""
+
+    @property
+    def mobile_url(self):
+        f = (self.video_mobile or self.video) if self.kind == self.Kind.VIDEO else (self.image_mobile or self.image)
+        return f.url if f else ""
+
+    @property
+    def poster_url(self):
+        return self.poster.url if self.poster else (self.image.url if self.image else "")
+
+    @property
+    def poster_mobile_url(self):
+        return self.image_mobile.url if self.image_mobile else self.poster_url

@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import AboutValue, Category, ContentBlock, Enquiry, Product, Service, StoreInfo
+from .models import AboutValue, HeroSlide, Category, ContentBlock, Enquiry, Product, Service, StoreInfo
 
 # 1x1 transparent GIF
 GIF = (b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00"
@@ -149,14 +149,15 @@ class ShopTests(TestCase):
         self.assertContains(self.client.get(reverse("shop:home")), "<img class=\"monogram")
 
     def test_page_text_comes_from_the_database(self):
-        self.assertContains(self.client.get(reverse("shop:home")), "Find your piece")
-        ContentBlock.objects.filter(key="home_collections_title").update(text="Choose your treasure")
-        home = self.client.get(reverse("shop:home"))
-        self.assertContains(home, "Choose your treasure")
-        self.assertNotContains(home, "Find your piece")
+        url = reverse("shop:collections")
+        self.assertContains(self.client.get(url), "All pieces")
+        ContentBlock.objects.filter(key="collections_title").update(text="Choose your treasure")
+        page = self.client.get(url)
+        self.assertContains(page, "Choose your treasure")
+        self.assertNotContains(page, "All pieces")
         # a missing row never breaks the page: the starting text is used
-        ContentBlock.objects.filter(key="home_collections_title").delete()
-        self.assertContains(self.client.get(reverse("shop:home")), "Find your piece")
+        ContentBlock.objects.filter(key="collections_title").delete()
+        self.assertContains(self.client.get(url), "All pieces")
 
     def test_about_values_come_from_the_database(self):
         AboutValue.objects.all().delete()
@@ -166,10 +167,57 @@ class ShopTests(TestCase):
         self.assertContains(page, "Made in Islamabad")
         self.assertNotContains(page, "Hidden")
 
-    def test_hero_film_can_be_uploaded(self):
-        info = StoreInfo.load()
-        info.hero_video = SimpleUploadedFile("film.mp4", b"x", content_type="video/mp4")
-        info.save()
+    def _slide(self, **kw):
+        kw.setdefault("name", "Slide")
+        kw.setdefault("image", SimpleUploadedFile("s.gif", GIF, content_type="image/gif"))
+        return HeroSlide.objects.create(**kw)
+
+    def test_hero_falls_back_to_the_built_in_film(self):
         home = self.client.get(reverse("shop:home"))
-        self.assertContains(home, "hero/film")
+        self.assertContains(home, "img/hero/hero.mp4")
+        self.assertNotContains(home, "data-hero-slider")
+
+    def test_hero_slider_options(self):
+        self._slide(name="A", heading="First heading", link="/collections/", button_label="Shop", display_order=1)
+        self._slide(name="B", heading="Second heading", show_text=False, link="/services/", display_order=2,
+                    image_mobile=SimpleUploadedFile("m.gif", GIF, content_type="image/gif"))
+        self._slide(name="Off", heading="Hidden heading", is_active=False)
+        home = self.client.get(reverse("shop:home"))
+        self.assertContains(home, "data-hero-slider")
+        self.assertContains(home, "First heading")
+        self.assertNotContains(home, "<h2>Second heading")    # text switched off on that slide (the image keeps it as alt text)
+        self.assertNotContains(home, "Hidden heading")
         self.assertNotContains(home, "img/hero/hero.mp4")
+        self.assertContains(home, 'href="/services/"')         # slide B is a link as a whole
+        self.assertContains(home, 'max-width: 899px')          # phone image
+        self.assertContains(home, "hero-next")                 # more than one slide: controls
+
+    def test_single_slide_has_no_controls_and_dates_are_respected(self):
+        import datetime
+        self._slide(name="Only", heading="Only heading")
+        self._slide(name="Later", heading="Future heading", show_from=datetime.date.today() + datetime.timedelta(days=3))
+        self._slide(name="Past", heading="Expired heading", show_until=datetime.date.today() - datetime.timedelta(days=1))
+        home = self.client.get(reverse("shop:home"))
+        self.assertContains(home, "Only heading")
+        self.assertNotContains(home, "Future heading")
+        self.assertNotContains(home, "Expired heading")
+        self.assertNotContains(home, "hero-next")
+
+    def test_one_location_gets_a_full_map_and_several_get_small_ones(self):
+        from .models import Branch
+        Branch.objects.all().delete()
+        one = Branch.objects.create(name="Gulberg", address="Plot 1", latitude="33.600866", longitude="73.156897")
+        for url in (reverse("shop:home"), reverse("shop:contact")):
+            page = self.client.get(url)
+            self.assertContains(page, f'data-full-map="{one.pk}"')
+            self.assertContains(page, "solo-boutique")
+            self.assertContains(page, "Get directions")
+            self.assertNotContains(page, "data-mini-map")
+            self.assertContains(page, "branch-points")
+        Branch.objects.create(name="DHA", address="Plot 2", latitude="33.5", longitude="73.1")
+        for url in (reverse("shop:home"), reverse("shop:contact")):
+            self.assertNotContains(self.client.get(url), "data-full-map")
+        self.assertContains(self.client.get(reverse("shop:contact")), "data-mini-map")
+        Branch.objects.exclude(pk=one.pk).delete()
+        Branch.objects.filter(pk=one.pk).update(latitude=None, longitude=None)          # one location without a pin: no map at all
+        self.assertNotContains(self.client.get(reverse("shop:contact")), "data-full-map")

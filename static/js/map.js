@@ -1,4 +1,4 @@
-/* Boutique maps (Contact page).
+/* Boutique maps (Contact page, and the home page when there is one location).
    A small map under each boutique, plus one larger map in a dialog when you press "enlarge".
    MapLibre GL with the site's own colour style (static/map/style.json) on free OpenFreeMap tiles. No API key. */
 (() => {
@@ -43,6 +43,27 @@
   } else {
     minis.forEach(makeMini);
   }
+
+  /* ----- One location: a full-width map you can move around (Ctrl or two fingers to zoom, so the page still scrolls) ----- */
+  const makeFull = (el) => {
+    const p = byId[el.dataset.fullMap];
+    if (!p || el.dataset.ready) return;
+    el.dataset.ready = "1";
+    const map = new maplibregl.Map({
+      container: el, style, center: [p.lng, p.lat], zoom: 15.5, minZoom: 9, maxZoom: 18, attributionControl: false,
+      cooperativeGestures: true, dragRotate: false, pitchWithRotate: false, touchPitch: false,
+    });
+    map.touchZoomRotate.disableRotation();
+    map.addControl(attribution(), "bottom-left");
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+    new maplibregl.Marker({ element: pinEl(p.name), anchor: "center" }).setLngLat([p.lng, p.lat]).addTo(map);
+  };
+  section.querySelectorAll("[data-full-map]").forEach((el) => {
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { makeFull(el); io.disconnect(); } }), { rootMargin: "300px" });
+      io.observe(el);
+    } else makeFull(el);
+  });
 
   /* ----- Large map in a dialog: one shared map, moved to whichever boutique was chosen ----- */
   const dialog = document.getElementById("map-dialog");

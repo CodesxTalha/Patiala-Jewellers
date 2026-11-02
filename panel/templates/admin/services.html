@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Services · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<div data-sortlist data-order="{% url 'admin:service_order' %}" data-toggle="{% url 'admin:service_toggle' 0 %}">
+  <input type="hidden" id="csrf" value="{{ csrf_token }}">
+  <header class="page-head">
+    <div><h1 class="page-title">Services</h1><p class="page-sub">Drag to change the order they have on the site. <span id="order-note" role="status"></span></p></div>
+    <div class="head-actions"><a class="btn-primary" href="{% url 'admin:service_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add service</a></div>
+  </header>
+  {% if services %}
+  <ul class="clist" id="clist">
+    {% for s in services %}
+    <li class="crow{% if not s.is_active %} is-off{% endif %}" draggable="true" data-id="{{ s.pk }}">
+      <span class="grip" aria-hidden="true" title="Drag to reorder">⋮⋮</span>
+      <a class="cthumb" href="{% url 'admin:service_edit' s.pk %}" tabindex="-1" aria-hidden="true">{% if s.photo_url %}<img src="{{ s.photo_url }}" alt="" loading="lazy">{% else %}<span class="noimg"><svg class="ic"><use href="#i-wand"/></svg></span>{% endif %}</a>
+      <a class="cname" href="{% url 'admin:service_edit' s.pk %}"><b>{{ s.name }}</b><small>{{ s.summary }}</small></a>
+      <button type="button" class="chip{% if s.is_active %} is-on{% endif %}" data-toggle-field data-id="{{ s.pk }}" title="Show on the website" aria-pressed="{{ s.is_active|yesno:'true,false' }}"><svg class="ic"><use href="#i-eye"/></svg><span>{% if s.is_active %}Showing{% else %}Hidden{% endif %}</span></button>
+      <a class="btn-quiet crow-edit" href="{% url 'admin:service_edit' s.pk %}">Edit</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="card empty-card"><h2>Add your first service</h2><p>Services such as polishing, repair or resizing, each with its own page.</p>
+    <a class="btn-primary" href="{% url 'admin:service_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add service</a></div>
+  {% endif %}
+</div>
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,9 @@
+<section class="section{% if x.s.theme == 'dark' %} surface-dark{% endif %}">
+  <div class="container">
+    {% include "shop/home/_head.html" %}
+    <div class="product-grid grid-set d{{ x.s.cols }} m{{ x.s.cols_mobile }}" data-reveal>
+      {% for p in x.items %}{% include "shop/_product_card.html" %}{% endfor %}
+    </div>
+    {% if x.s.button_label %}<div class="section-foot"><a href="{{ x.s.link|default:'/collections/' }}" class="btn">{{ x.s.button_label }}</a></div>{% endif %}
+  </div>
+</section>

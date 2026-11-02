@@ -1,0 +1,15 @@
+<section class="section{% if x.s.theme == 'dark' %} surface-dark{% endif %}">
+  <div class="container contact-grid contact-stack">
+    {% include "shop/home/_head.html" %}
+    {% if x.s.text %}<p class="lead section-lead" data-reveal>{{ x.s.text }}</p>{% endif %}
+    <div data-reveal>
+      <ul class="contact-list">
+        {% if store.phone %}<li><span class="label">Phone</span><a href="tel:{{ store.phone }}">{{ store.phone }}</a></li>{% endif %}
+        {% if store.whatsapp %}<li><span class="label">WhatsApp</span><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Message us</a></li>{% endif %}
+        {% if store.email %}<li><span class="label">Email</span><a href="mailto:{{ store.email }}">{{ store.email }}</a></li>{% endif %}
+      </ul>
+      {% include "shop/_social_icons.html" %}
+    </div>
+    {% if x.s.button_label %}<div class="section-foot"><a href="{{ x.s.link|default:'/contact/' }}" class="btn">{{ x.s.button_label }}</a></div>{% endif %}
+  </div>
+</section>

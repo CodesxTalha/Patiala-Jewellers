@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static assets %}
 
 {% block title %}Contact · {{ store.name }}{% endblock %}
 
@@ -7,7 +7,7 @@
 
 {% block scripts %}
 <script src="{% static 'vendor/maplibre/maplibre-gl.js' %}" defer></script>
-<script src="{% static 'js/map.js' %}" defer></script>
+<script src="{% asset 'js/map.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -20,6 +20,9 @@
 
 <section class="section section--flush" id="boutiques" data-map-style="{% static 'map/style.json' %}">
   <div class="container">
+    {% if solo %}
+    {% include "shop/_solo_boutique.html" with b=solo %}
+    {% else %}
     <div class="boutiques">
       {% for b in branches %}
       <div class="boutique">
@@ -41,6 +44,7 @@
       <p class="empty">Boutique details are coming soon.</p>
       {% endfor %}
     </div>
+    {% endif %}
   </div>
 </section>
 
@@ -71,8 +75,8 @@
         {% if store.phone %}<li><span class="label">Phone</span><a href="tel:{{ store.phone }}">{{ store.phone }}</a></li>{% endif %}
         {% if store.whatsapp %}<li><span class="label">WhatsApp</span><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Message us</a></li>{% endif %}
         {% if store.email %}<li><span class="label">Email</span><a href="mailto:{{ store.email }}">{{ store.email }}</a></li>{% endif %}
-        {% for label, url in store.socials %}<li><span class="label">{{ label }}</span><a href="{{ url }}" target="_blank" rel="noopener">Follow us</a></li>{% endfor %}
       </ul>
+      {% include "shop/_social_icons.html" %}
     </div>
     <div class="panel" id="appointment">
       <h2 class="panel-title">{{ txt.contact_form_title }}</h2>

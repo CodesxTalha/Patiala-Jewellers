@@ -32,7 +32,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    "panel",
+    "panel.admin_apps.PanelAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "panel.tracking.TrackingMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

@@ -117,6 +117,82 @@
     phone.addEventListener("change", loadHero);
   }
 
+  /* ---------- Hero slider: slides or fades, swipe, dots, arrows, autoplay that pauses when you hover or leave the tab ---------- */
+  const slider = $("[data-hero-slider]");
+  if (slider) {
+    const slides = $$(".hero-slide", slider);
+    const dots = $$(".hero-dot", slider);
+    const phone = matchMedia("(max-width: 899px)");
+    const baseSeconds = Math.min(20, Math.max(3, parseInt(slider.dataset.interval, 10) || 6));
+    const autoplay = slider.dataset.autoplay === "1" && !reduceMotion && slides.length > 1;
+    let current = 0, timer = null, hovering = false, busy = false;
+
+    const loadVideo = (slide) => {
+      const v = $("video", slide);
+      if (!v) return;
+      const src = phone.matches ? (v.dataset.srcMobile || v.dataset.src) : v.dataset.src;
+      if (src && v.getAttribute("src") !== src) { v.setAttribute("src", src); v.load(); }
+      if (phone.matches && v.dataset.posterMobile) v.poster = v.dataset.posterMobile;
+    };
+    const play = (slide) => { const v = $("video", slide); if (v) { loadVideo(slide); v.play?.().catch(() => {}); } };
+    const pause = (slide) => { const v = $("video", slide); if (v) v.pause?.(); };
+    const paint = () => dots.forEach((d, i) => { d.classList.toggle("is-current", i === current); d.setAttribute("aria-selected", i === current ? "true" : "false"); });
+
+    const schedule = () => {
+      clearTimeout(timer);
+      if (!autoplay || hovering || document.hidden) return;
+      const secs = parseInt(slides[current].dataset.seconds, 10) || baseSeconds;
+      timer = setTimeout(() => go(current + 1, 1), Math.min(20, Math.max(3, secs)) * 1000);
+    };
+
+    function go(n, dir) {
+      const next = (n + slides.length) % slides.length;
+      if (next === current || busy || slides.length < 2) return;
+      busy = true;
+      const from = slides[current], to = slides[next];
+      dir = dir || (next > current ? 1 : -1);
+      to.classList.add("no-anim");
+      to.classList.toggle("is-before", dir < 0);
+      void to.offsetWidth;                                // lock the starting side before animating
+      to.classList.remove("no-anim");
+      loadVideo(to); play(to);
+      to.classList.add("is-active");
+      from.classList.remove("is-active");
+      from.classList.toggle("is-before", dir > 0);
+      current = next;
+      loadVideo(slides[(current + 1) % slides.length]);   // warm the next video
+      paint();
+      setTimeout(() => { pause(from); busy = false; }, 950);
+      schedule();
+    }
+
+    slides[0].classList.add("is-active");
+    loadVideo(slides[0]); play(slides[0]);
+    if (slides.length > 1) loadVideo(slides[1]);
+    paint();
+    $(".hero-prev", slider)?.addEventListener("click", () => go(current - 1, -1));
+    $(".hero-next", slider)?.addEventListener("click", () => go(current + 1, 1));
+    dots.forEach((d, i) => d.addEventListener("click", () => go(i, i > current ? 1 : -1)));
+    slider.addEventListener("mouseenter", () => { hovering = true; clearTimeout(timer); });
+    slider.addEventListener("mouseleave", () => { hovering = false; schedule(); });
+    document.addEventListener("visibilitychange", schedule);
+    phone.addEventListener("change", () => { slides.forEach((s) => { const v = $("video", s); if (v) { v.removeAttribute("src"); } }); loadVideo(slides[current]); play(slides[current]); });
+
+    // Swipe on touch screens
+    let x0 = null, y0 = null;
+    slider.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    slider.addEventListener("touchend", (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) go(current + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    }, { passive: true });
+    slider.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") go(current + 1, 1); else if (e.key === "ArrowLeft") go(current - 1, -1);
+    });
+    schedule();
+  }
+
   /* ---------- Fade in sections as they enter the screen ---------- */
   const reveal = $$("[data-reveal], [data-inview]");
   if ("IntersectionObserver" in window && !reduceMotion) {
