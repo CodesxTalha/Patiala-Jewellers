@@ -13,7 +13,7 @@ from shop.content import DEFAULTS
 from shop.context_processors import STORY_IMAGE_FALLBACK
 from shop.models import AboutValue, ContentBlock, StoreInfo
 
-TEXTS = ("about_label", "about_button", "about_quote", "about_quote_button")
+TEXTS = ("about_label", "about_lead", "about_button", "about_quote", "about_quote_button")
 PHOTOS = (("about_image", "clear_image"), ("about_image_mobile", "clear_image_mobile"))
 SHOW = ("show_about_story", "show_about_promises", "show_about_closing")
 MAX_PHOTO_MB = 12

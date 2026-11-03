@@ -6,9 +6,9 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">{{ txt.services_label }}</span>
+    {% if txt.services_label %}<span class="label">{{ txt.services_label }}</span>{% endif %}
     <h1>{{ txt.services_title }}</h1>
-    <p class="lead">{{ txt.services_lead }}</p>
+    {% if txt.services_lead %}<p class="lead">{{ txt.services_lead }}</p>{% endif %}
   </div>
 </section>
 

@@ -6,9 +6,9 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">{{ txt.collections_label }}</span>
+    {% if txt.collections_label %}<span class="label">{{ txt.collections_label }}</span>{% endif %}
     <h1>{% if current_category %}{{ current_category.name }}{% else %}{{ txt.collections_title }}{% endif %}</h1>
-    {% if current_category.description %}<p class="lead">{{ current_category.description }}</p>{% endif %}
+    {% if current_category %}{% if current_category.description %}<p class="lead">{{ current_category.description }}</p>{% endif %}{% elif txt.collections_lead %}<p class="lead">{{ txt.collections_lead }}</p>{% endif %}
   </div>
 </section>
 

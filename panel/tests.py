@@ -435,8 +435,15 @@ class PanelTests(TestCase):
         for gone in ("WhatsApp button text", "Hero:", "Service page: steps", "Closing line"):
             self.assertNotContains(text, gone)
         self.assertEqual(text.content.decode().count('name="t_services_'), 3)
-        self.client.post("/admin/text/", {"t_collections_title": "Every piece"})
+        self.client.post("/admin/text/", {"t_collections_title": "Every piece", "t_collections_lead": "Browse it all.",
+                                          "t_contact_lead": "We reply fast.", "t_services_label": ""})
         self.assertContains(self.client.get("/collections/"), "Every piece")
+        self.assertContains(self.client.get("/collections/"), "Browse it all.")
+        self.assertContains(self.client.get("/contact/"), "We reply fast.")
+        self.assertNotContains(self.client.get("/services/"), 'class="label"')           # an empty label is left out
+        for page in ("collections", "services", "contact", "favorites"):                 # the same three top fields on every page
+            for part in ("label", "title", "lead"):
+                self.assertContains(text, f'name="t_{page}_{part}"')
 
     def test_about_is_one_page_for_everything_on_the_about_page(self):
         from shop.models import AboutValue

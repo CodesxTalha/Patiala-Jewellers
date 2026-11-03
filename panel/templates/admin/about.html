@@ -19,8 +19,9 @@
   <div class="hsec-list">
     <section class="card flush"><div class="sec">
       <h3>Top of the page</h3>
-      <label class="fld"><span>Small label</span><input type="text" name="about_label" value="{{ texts.about_label }}" maxlength="600"></label>
+      <label class="fld"><span>Small label on top</span><input type="text" name="about_label" value="{{ texts.about_label }}" maxlength="600"></label>
       <label class="fld"><span>Heading</span><input type="text" name="about_heading" value="{{ heading }}" maxlength="200" data-required="Give the page a heading.">{% if errors.about_heading %}<em class="err">{{ errors.about_heading }}</em>{% endif %}</label>
+      <label class="fld"><span>Subheading under the heading</span><input type="text" name="about_lead" value="{{ texts.about_lead }}" maxlength="600"></label>
     </div></section>
 
     <section class="card flush"><div class="sec">

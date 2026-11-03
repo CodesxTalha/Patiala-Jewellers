@@ -13,8 +13,9 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">{{ txt.contact_label }}</span>
+    {% if txt.contact_label %}<span class="label">{{ txt.contact_label }}</span>{% endif %}
     <h1>{{ txt.contact_title }}</h1>
+    {% if txt.contact_lead %}<p class="lead">{{ txt.contact_lead }}</p>{% endif %}
   </div>
 </section>
 

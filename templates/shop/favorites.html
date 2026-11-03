@@ -5,9 +5,9 @@
 {% block content %}
 <section class="page-head">
   <div class="container">
-    <span class="label">{{ txt.favorites_label }}</span>
+    {% if txt.favorites_label %}<span class="label">{{ txt.favorites_label }}</span>{% endif %}
     <h1>{{ txt.favorites_title }}</h1>
-    <p class="lead">{{ txt.favorites_lead }}</p>
+    {% if txt.favorites_lead %}<p class="lead">{{ txt.favorites_lead }}</p>{% endif %}
   </div>
 </section>
 
