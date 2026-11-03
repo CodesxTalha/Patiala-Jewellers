@@ -23,7 +23,7 @@ Open `/admin/` and sign in. Create your login first with `python manage.py creat
 - **Locations**: your boutiques, with a click-to-place map pin. One location shows one big map
 - **Enquiries**: messages from the contact and product forms, with status and internal notes
 - **About**: one page for everything on the About page (heading, story, photo, promises, closing line)
-- **Page text**: the labels, headings and messages on the Collections, Services, Contact and Favorites pages, plus the hero line, all on one page
+- **Page text**: the headings and messages of the Collections, Services, Contact and Favorites pages. The hero is edited in Hero, the Home sections in Home page.
 - **Settings**: brand, logo, contact, social links, colours, fonts, the intro screen and the WhatsApp button (words included), all on one page
 - **Visitors** and **Clicks**: the tracking logs
 

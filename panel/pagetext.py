@@ -1,5 +1,4 @@
-"""Page text: every line of wording on the public pages, grouped by page, on one page with one Save button.
-The About page's wording is edited in About, and the WhatsApp button's wording in Settings."""
+"""Page text: the headings and messages of the Collections, Services, Contact and Favorites pages, one card per page, one Save button."""
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -8,22 +7,26 @@ from django.utils.html import strip_tags
 from shop.content import DEFAULTS
 from shop.models import ContentBlock
 
-ELSEWHERE = ("About", "Everywhere")
-ORDER = ["Home", "Collections", "Services", "Contact", "Favorites"]
+# Only wording a visitor really sees and an owner would change. The hero, the Home sections, About and the WhatsApp button are
+# edited in their own pages, and small labels deep inside a page keep their built-in wording.
+SHOWN = ("collections_label", "collections_title", "collections_empty", "product_note",
+         "services_label", "services_title", "services_lead",
+         "contact_label", "contact_title", "contact_direct_title", "contact_form_title", "contact_thanks",
+         "favorites_label", "favorites_title", "favorites_lead", "favorites_empty")
+ORDER = ["Collections", "Services", "Contact", "Favorites"]
 
 
 def _blocks():
-    for key, (group, label, text) in DEFAULTS.items():                 # a row that is missing is created, so every line can be edited
-        if group not in ELSEWHERE:
-            ContentBlock.objects.get_or_create(key=key, defaults={"group": group, "label": label, "text": text})
-    rows = ContentBlock.objects.exclude(group__in=ELSEWHERE).filter(key__in=DEFAULTS)
+    for key in SHOWN:                                                   # a row that is missing is created, so every line can be edited
+        group, label, text = DEFAULTS[key]
+        ContentBlock.objects.get_or_create(key=key, defaults={"group": group, "label": label, "text": text})
+    rows = ContentBlock.objects.filter(key__in=SHOWN)
     groups = {}
     for b in rows:
-        b.group, b.label = DEFAULTS[b.key][:2]                          # the page and wording come from the list, so a moved line follows it
-        if b.group not in ELSEWHERE:
-            groups.setdefault(b.group, []).append(b)
+        b.group, b.label = DEFAULTS[b.key][:2]
+        groups.setdefault(b.group, []).append(b)
     names = [g for g in ORDER if g in groups] + sorted(g for g in groups if g not in ORDER)
-    return [{"name": g, "rows": sorted(groups[g], key=lambda b: list(DEFAULTS).index(b.key))} for g in names]
+    return [{"name": g, "rows": sorted(groups[g], key=lambda b: SHOWN.index(b.key))} for g in names]
 
 
 def editor(request, site):

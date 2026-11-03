@@ -432,7 +432,9 @@ class PanelTests(TestCase):
         self.assertEqual(StoreInfo.load().color_light, "#FFFFFF")
         text = self.client.get("/admin/text/")
         self.assertContains(text, "Services")
-        self.assertNotContains(text, "WhatsApp button text")
+        for gone in ("WhatsApp button text", "Hero:", "Service page: steps", "Closing line"):
+            self.assertNotContains(text, gone)
+        self.assertEqual(text.content.decode().count('name="t_services_'), 3)
         self.client.post("/admin/text/", {"t_collections_title": "Every piece"})
         self.assertContains(self.client.get("/collections/"), "Every piece")
 
