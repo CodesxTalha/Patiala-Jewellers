@@ -1,22 +1,6 @@
 from django.contrib import admin
 
-from shop.models import Enquiry
-
 from .models import ClickEvent, Visit
-
-
-@admin.register(Enquiry)
-class EnquiryAdmin(admin.ModelAdmin):
-    list_display = ("name", "phone", "email", "product", "status", "created_at")
-    list_editable = ("status",)
-    list_filter = ("status", "created_at")
-    search_fields = ("name", "phone", "email", "message")
-    readonly_fields = ("name", "phone", "email", "message", "product", "created_at")
-    fields = ("name", "phone", "email", "product", "message", "created_at", "status", "notes")
-    date_hierarchy = "created_at"
-
-    def has_add_permission(self, request):
-        return False  # enquiries come from the website only
 
 
 class ReadOnlyLog(admin.ModelAdmin):

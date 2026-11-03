@@ -163,9 +163,9 @@
   </article>
 
   <article class="card">
-    <header class="card-head"><div><h2>New enquiries</h2><p>{{ new_enquiry_count }} waiting</p></div><a class="btn-quiet" href="{% url 'admin:shop_enquiry_changelist' %}">Open</a></header>
+    <header class="card-head"><div><h2>New enquiries</h2><p>{{ new_enquiry_count }} waiting</p></div><a class="btn-quiet" href="{% url 'admin:enquiries' %}">Open</a></header>
     <ul class="plain">
-      {% for e in new_enquiries %}<li><span><b>{{ e.name }}</b> <small>{{ e.phone }}{% if e.product %} · {{ e.product.name }}{% endif %}</small></span><a href="{% url 'admin:shop_enquiry_change' e.pk %}" class="link">View</a></li>
+      {% for e in new_enquiries %}<li><span><b>{{ e.name }}</b> <small>{{ e.phone }}{% if e.product %} · {{ e.product.name }}{% endif %}</small></span><a href="{% url 'admin:enquiry' e.pk %}" class="link">View</a></li>
       {% empty %}<li class="muted">No new enquiries.</li>{% endfor %}
     </ul>
   </article>

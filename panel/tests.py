@@ -49,7 +49,7 @@ class PanelTests(TestCase):
         self.assertContains(dash, "Latest visits")
         self.assertContains(dash, "1 on the site right now")
         self.assertContains(self.client.get("/admin/?days=7"), "Last 7 days")
-        for app, name in (("shop", "enquiry"), ("panel", "visit"),
+        for app, name in (("panel", "visit"),
                           ("panel", "clickevent")):
             self.assertEqual(self.client.get(f"/admin/{app}/{name}/").status_code, 200, name)
         for page, text in (("settings", "Colours"), ("text", "Page text")):
@@ -414,6 +414,31 @@ class PanelTests(TestCase):
 
         self.client.post(f"/admin/home/sections/{sec.pk}/delete/")
         self.assertFalse(HomeSection.objects.filter(pk=sec.pk).exists())
+
+    def test_enquiries_inbox_filters_opens_saves_and_deletes(self):
+        from shop.models import Enquiry
+        self._owner()
+        self.assertContains(self.client.get("/admin/enquiries/"), "No enquiries yet")
+        a = Enquiry.objects.create(name="Amna Khan", phone="0300 1234567", message="Do you have this ring in 18K?")
+        b = Enquiry.objects.create(name="Bilal", phone="+92 51 2223344", email="b@x.co", message="Opening hours?", status="closed")
+        page = self.client.get("/admin/enquiries/")
+        for text in ("Amna Khan", "Bilal", "Do you have this ring"):
+            self.assertContains(page, text)
+        self.assertNotContains(self.client.get("/admin/enquiries/?status=new"), "Bilal")
+        self.assertNotContains(self.client.get("/admin/enquiries/?q=amna"), "Bilal")
+        self.assertContains(self.client.get("/admin/enquiries/?q=zzz"), "No enquiries match")
+        self.assertContains(self.client.get("/admin/"), "Amna Khan")                          # the dashboard links into the same inbox
+        detail = self.client.get(f"/admin/enquiries/{a.pk}/")
+        self.assertContains(detail, "https://wa.me/923001234567")                              # 0300… becomes 92300…
+        self.assertContains(detail, "Private note")
+        self.assertRedirects(self.client.post(f"/admin/enquiries/{a.pk}/", {"status": "contacted", "notes": "Called <b>her</b>."}), f"/admin/enquiries/{a.pk}/")
+        a.refresh_from_db()
+        self.assertEqual((a.status, a.notes), ("contacted", "Called her."))
+        self.client.post(f"/admin/enquiries/{a.pk}/", {"status": "bogus", "notes": ""})
+        a.refresh_from_db()
+        self.assertEqual(a.status, "contacted")
+        self.assertRedirects(self.client.post(f"/admin/enquiries/{b.pk}/delete/"), "/admin/enquiries/")
+        self.assertFalse(Enquiry.objects.filter(pk=b.pk).exists())
 
     def test_settings_and_page_text_are_single_pages(self):
         self._owner()

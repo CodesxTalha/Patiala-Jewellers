@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Enquiries · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div><h1 class="page-title">Enquiries</h1><p class="page-sub">Messages from your website. {{ total }} in all.</p></div>
+</header>
+<form class="toolbar" method="get" role="search">
+  <label class="tb-search"><svg class="ic"><use href="#i-search"/></svg><input type="search" name="q" value="{{ q }}" placeholder="Search by name, phone, piece or message" aria-label="Search enquiries"></label>
+  {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+  <div class="sg tb-status">{% for v, l, n, query in tabs %}<a href="?{{ query }}" class="{% if status == v %}is-on{% endif %}">{{ l }} <small>{{ n }}</small></a>{% endfor %}</div>
+  {% if filtered %}<a class="tb-clear" href="?">Clear</a>{% endif %}
+</form>
+{% if page.object_list %}
+<ul class="clist enq-list">
+  {% for e in page %}
+  <li class="crow enq-row">
+    <a class="cname" href="{% url 'admin:enquiry' e.pk %}">
+      <b>{{ e.name }}{% if e.product %} <small>about {{ e.product.name }}</small>{% endif %}</b>
+      <small>{{ e.phone }}{% if e.email %} · {{ e.email }}{% endif %}</small>
+      <span class="enq-msg">{{ e.short }}</span>
+    </a>
+    <span class="enq-when">{{ e.created_at|date:"j M, H:i" }}</span>
+    <span class="enq-status s-{{ e.status }}">{{ e.get_status_display }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% if page.paginator.num_pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if page.has_previous %}<a class="btn-quiet" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page.previous_page_number }}">Previous</a>{% else %}<span class="btn-quiet is-dim">Previous</span>{% endif %}
+  <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a class="btn-quiet" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page.next_page_number }}">Next</a>{% else %}<span class="btn-quiet is-dim">Next</span>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<div class="card empty-card">
+  {% if filtered %}<h2>No enquiries match</h2><p>Try a different word, or clear the filters.</p><a class="btn-quiet" href="?">Clear filters</a>
+  {% else %}<h2>No enquiries yet</h2><p>When someone sends a message from the Contact page or a product page, it shows up here.</p>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

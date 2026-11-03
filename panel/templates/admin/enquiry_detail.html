@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ enquiry.name }} · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:enquiries' %}">Enquiries</a><span>/</span><span>{{ enquiry.name }}</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" class="product-form" data-editor novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">{{ enquiry.name }}</h1><p class="page-sub">Sent {{ enquiry.created_at|date:"j F Y, H:i" }}{% if enquiry.product %} · about {{ enquiry.product.name }}{% endif %}</p></div>
+    <div class="head-actions"><button type="submit" class="btn-primary" id="save-btn">Save changes</button></div>
+  </header>
+  <div class="pf-grid">
+    <div class="pf-main">
+      <section class="card flush"><div class="sec">
+        <h3>Message</h3>
+        <p class="enq-full">{{ enquiry.message|linebreaksbr }}</p>
+        <div class="enq-reach">
+          <a class="btn-soft" href="tel:{{ enquiry.phone }}">Call {{ enquiry.phone }}</a>
+          {% if wa %}<a class="btn-soft" href="https://wa.me/{{ wa }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+          {% if enquiry.email %}<a class="btn-soft" href="mailto:{{ enquiry.email }}">Email {{ enquiry.email }}</a>{% endif %}
+        </div>
+      </div></section>
+      <section class="card flush"><div class="sec">
+        <h3>Private note</h3>
+        <label class="fld"><span>Only you and your team see this <small>for example “Called, coming Saturday”</small></span><textarea name="notes" rows="5" maxlength="2000">{{ enquiry.notes }}</textarea></label>
+      </div></section>
+    </div>
+    <aside class="pf-side">
+      <section class="card flush"><div class="sec">
+        <h3>Status</h3>
+        <div class="sg radios">{% for v, l in statuses %}<label><input type="radio" name="status" value="{{ v }}"{% if enquiry.status == v %} checked{% endif %}><span>{{ l }}</span></label>{% endfor %}</div>
+        <p class="hint">Mark it Contacted once you have replied, and Closed when it is done.</p>
+      </div></section>
+      {% if enquiry.product %}<section class="card flush"><div class="sec">
+        <h3>Piece</h3>
+        <p class="hint" style="margin:0 0 .75rem">{{ enquiry.product.name }}</p>
+        <a class="btn-soft" href="{% url 'admin:product_edit' enquiry.product.pk %}">Open the piece</a>
+      </div></section>{% endif %}
+      <section class="card flush"><div class="sec sec-end"><button type="button" class="btn-delete" id="del-open"><svg class="ic"><use href="#i-trash"/></svg>Delete this enquiry</button></div></section>
+    </aside>
+  </div>
+</form>
+<dialog id="del-dialog"><form method="post" action="{% url 'admin:enquiry_delete' enquiry.pk %}">{% csrf_token %}
+  <h2>Delete this enquiry?</h2><p>The message from {{ enquiry.name }} will be removed. This can't be undone.</p>
+  <div class="dlg-btns"><button class="btn-quiet" type="button" id="del-cancel">Cancel</button><button class="btn-danger" type="submit">Delete</button></div></form></dialog>
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}
