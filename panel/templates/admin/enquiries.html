@@ -19,13 +19,12 @@
 <ul class="clist enq-list">
   {% for e in page %}
   <li class="crow enq-row">
-    <a class="cname" href="{% url 'admin:enquiry' e.pk %}">
-      <b>{{ e.name }}{% if e.product %} <small>about {{ e.product.name }}</small>{% endif %}</b>
-      <small>{{ e.phone }}{% if e.email %} · {{ e.email }}{% endif %}</small>
-      <span class="enq-msg">{{ e.short }}</span>
+    <a class="enq-link" href="{% url 'admin:enquiry' e.pk %}">
+      <span class="enq-who"><b>{{ e.name }}</b><small>{{ e.phone }}</small>{% if e.email %}<small>{{ e.email }}</small>{% endif %}</span>
+      <span class="enq-text">{% if e.product %}<em>About {{ e.product.name }}</em>{% endif %}{{ e.short }}</span>
+      <span class="enq-when">{{ e.created_at|date:"j M, H:i" }}</span>
+      <span class="enq-status s-{{ e.status }}">{{ e.get_status_display }}</span>
     </a>
-    <span class="enq-when">{{ e.created_at|date:"j M, H:i" }}</span>
-    <span class="enq-status s-{{ e.status }}">{{ e.get_status_display }}</span>
   </li>
   {% endfor %}
 </ul>
