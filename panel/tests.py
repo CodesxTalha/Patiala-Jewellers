@@ -437,6 +437,10 @@ class PanelTests(TestCase):
         self.client.post(f"/admin/enquiries/{a.pk}/", {"status": "bogus", "notes": ""})
         a.refresh_from_db()
         self.assertEqual(a.status, "contacted")
+        r = self.client.post(f"/admin/enquiries/{b.pk}/status/", {"status": "new"}).json()          # changed from the list
+        self.assertEqual((r["ok"], r["counts"]["new"]), (True, 1))
+        self.assertEqual(self.client.post(f"/admin/enquiries/{b.pk}/status/", {"status": "bogus"}).status_code, 400)
+        self.assertEqual(self.client.get(f"/admin/enquiries/{b.pk}/status/").status_code, 405)
         self.assertRedirects(self.client.post(f"/admin/enquiries/{b.pk}/delete/"), "/admin/enquiries/")
         self.assertFalse(Enquiry.objects.filter(pk=b.pk).exists())
 

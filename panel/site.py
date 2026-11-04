@@ -87,6 +87,7 @@ class PanelAdminSite(AdminSite):
             path("hero/<int:pk>/delete/", wrap(hero.delete_slide), name="hero_delete"),
             path("enquiries/", wrap(lambda r: enquiries.listing(r, self)), name="enquiries"),
             path("enquiries/<int:pk>/", wrap(lambda r, pk: enquiries.detail(r, self, pk)), name="enquiry"),
+            path("enquiries/<int:pk>/status/", wrap(enquiries.set_status), name="enquiry_status"),
             path("enquiries/<int:pk>/delete/", wrap(enquiries.delete), name="enquiry_delete"),
             path("settings/", wrap(lambda r: settings.editor(r, self)), name="settings"),
             path("text/", wrap(lambda r: pagetext.editor(r, self)), name="pagetext"),

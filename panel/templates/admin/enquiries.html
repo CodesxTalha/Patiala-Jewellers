@@ -1,10 +1,15 @@
 {% extends "admin/base.html" %}
 {% load static panel_tags %}
-{% block title %}Enquiries · {{ site_title }}{% endblock %}
-{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
-{% block bodyclass %}panel-products{% endblock %}
-{% block content_title %}{% endblock %}
-{% block content_subtitle %}{% endblock %}
+{% block title %}Enquiries · {{ site_title }}<script src="{% asset 'panel/enquiries.js' %}"></script>
+{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}"><script src="{% asset 'panel/enquiries.js' %}"></script>
+{% endblock %}
+{% block bodyclass %}panel-products<script src="{% asset 'panel/enquiries.js' %}"></script>
+{% endblock %}
+{% block content_title %}<script src="{% asset 'panel/enquiries.js' %}"></script>
+{% endblock %}
+{% block content_subtitle %}<script src="{% asset 'panel/enquiries.js' %}"></script>
+{% endblock %}
 {% block content %}
 <header class="page-head">
   <div><h1 class="page-title">Enquiries</h1><p class="page-sub">Messages from your website. {{ total }} in all.</p></div>
@@ -12,22 +17,22 @@
 <form class="toolbar" method="get" role="search">
   <label class="tb-search"><svg class="ic"><use href="#i-search"/></svg><input type="search" name="q" value="{{ q }}" placeholder="Search by name, phone, piece or message" aria-label="Search enquiries"></label>
   {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
-  <div class="sg tb-status">{% for v, l, n, query in tabs %}<a href="?{{ query }}" class="{% if status == v %}is-on{% endif %}">{{ l }} <small>{{ n }}</small></a>{% endfor %}</div>
+  <div class="sg tb-status">{% for v, l, n, query in tabs %}<a href="?{{ query }}" class="{% if status == v %}is-on{% endif %}">{{ l }} <small data-count="{{ v }}">{{ n }}</small></a>{% endfor %}</div>
   {% if filtered %}<a class="tb-clear" href="?">Clear</a>{% endif %}
 </form>
 {% if page.object_list %}
-<ul class="clist enq-list">
+<section class="card flush etable" data-status-url="{% url 'admin:enquiry_status' 0 %}">
+  <input type="hidden" id="csrf" value="{{ csrf_token }}">
+  <div class="erow ehead" aria-hidden="true"><span>Customer</span><span>Message</span><span>Received</span><span>Status</span></div>
   {% for e in page %}
-  <li class="crow enq-row">
-    <a class="enq-link" href="{% url 'admin:enquiry' e.pk %}">
-      <span class="enq-who"><b>{{ e.name }}</b><small>{{ e.phone }}</small>{% if e.email %}<small>{{ e.email }}</small>{% endif %}</span>
-      <span class="enq-text">{% if e.product %}<em>About {{ e.product.name }}</em>{% endif %}{{ e.short }}</span>
-      <span class="enq-when">{{ e.created_at|date:"j M, H:i" }}</span>
-      <span class="enq-status s-{{ e.status }}">{{ e.get_status_display }}</span>
-    </a>
-  </li>
+  <div class="erow" data-id="{{ e.pk }}">
+    <a class="ewho" href="{% url 'admin:enquiry' e.pk %}"><b>{{ e.name }}</b><small>{{ e.phone }}</small>{% if e.email %}<small>{{ e.email }}</small>{% endif %}</a>
+    <a class="etext" href="{% url 'admin:enquiry' e.pk %}">{% if e.product %}<em>{{ e.product.name }}</em>{% endif %}<span>{{ e.short }}</span></a>
+    <span class="ewhen">{{ e.created_at|date:"j M Y" }}<small>{{ e.created_at|date:"H:i" }}</small></span>
+    <span class="estatus"><select class="enq-select s-{{ e.status }}" aria-label="Status of the enquiry from {{ e.name }}" data-status>{% for v, l in statuses %}<option value="{{ v }}"{% if e.status == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></span>
+  </div>
   {% endfor %}
-</ul>
+</section>
 {% if page.paginator.num_pages > 1 %}
 <nav class="pager" aria-label="Pages">
   {% if page.has_previous %}<a class="btn-quiet" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page.previous_page_number }}">Previous</a>{% else %}<span class="btn-quiet is-dim">Previous</span>{% endif %}
@@ -41,4 +46,5 @@
   {% else %}<h2>No enquiries yet</h2><p>When someone sends a message from the Contact page or a product page, it shows up here.</p>{% endif %}
 </div>
 {% endif %}
+<script src="{% asset 'panel/enquiries.js' %}"></script>
 {% endblock %}

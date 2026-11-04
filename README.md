@@ -21,7 +21,7 @@ Open `/admin/` and sign in. Create your login first with `python manage.py creat
 - **Products**: a grid to browse, search and filter, quick show and feature switches, and a simple editor (details, price, main photo, more photos, live preview)
 - **Categories** and **Services**: lists you reorder by dragging, with show or hide switches and a small editor
 - **Locations**: your boutiques, with a click-to-place map pin. One location shows one big map
-- **Enquiries**: an inbox with New, Contacted and Closed tabs and search. Open one to read it, call, WhatsApp or email the customer, set its status and keep a private note.
+- **Enquiries**: one tidy table with New, Contacted and Closed tabs and search. Change a status right in the row. Open one to read it, call, WhatsApp or email the customer and keep a private note.
 - **About**: one page for everything on the About page (heading, story, photo, promises, closing line)
 - **Page text**: the top of the Collections, Services, Contact and Favorites pages (small label, heading, subheading) plus a few messages. About has the same three at the top of About. The hero is edited in Hero, the Home sections in Home page.
 - **Settings**: brand, logo, contact, social links, colours, fonts, the intro screen and the WhatsApp button (words included), all on one page

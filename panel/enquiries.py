@@ -47,7 +47,7 @@ def listing(request, site):
     tabs = [("", "All", sum(counts.values()))] + [(v, l, counts.get(v, 0)) for v, l in STATUSES]
     for row in page:
         row.short = " ".join(row.message.split())[:140]
-    context = dict(site.each_context(request), title="Enquiries", page=page, q=q, status=status, filtered=bool(q or status), total=sum(counts.values()),
+    context = dict(site.each_context(request), title="Enquiries", page=page, statuses=STATUSES, q=q, status=status, filtered=bool(q or status), total=sum(counts.values()),
                    tabs=[(v, l, n, urlencode({**{k: x for k, x in keep.items() if k != "status"}, **({"status": v} if v else {})})) for v, l, n in tabs],
                    base_query=urlencode(keep))
     return render(request, "admin/enquiries.html", context)
@@ -80,3 +80,18 @@ def delete(request, pk):
     enquiry.delete()
     messages.success(request, f"The enquiry from {name} was deleted.")
     return redirect("admin:enquiries")
+
+
+@require_POST
+def set_status(request, pk):
+    """Change the status from the list without opening the enquiry. Answers with the new tab counts."""
+    if not request.user.has_perm("shop.change_enquiry"):
+        return _no_permission()
+    enquiry = get_object_or_404(Enquiry, pk=pk)
+    value = request.POST.get("status")
+    if value not in dict(STATUSES):
+        return JsonResponse({"ok": False, "error": "Unknown status"}, status=400)
+    enquiry.status = value
+    enquiry.save(update_fields=["status"])
+    counts = dict(Enquiry.objects.values_list("status").annotate(n=Count("pk")))
+    return JsonResponse({"ok": True, "status": value, "counts": {v: counts.get(v, 0) for v, _ in STATUSES}})
