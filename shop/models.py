@@ -155,8 +155,15 @@ SERIF_FONTS = ["Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskervi
                "DM Serif Display", "Bodoni Moda", "Cinzel"]
 
 
-def _choices(names):
-    return [(n, n) for n in names]
+ALL_FONTS = SANS_FONTS + SERIF_FONTS
+# Weights Google Fonts really has, for the few fonts that lack some of 400, 500 and 600. Asking for a missing weight makes
+# Google refuse the whole request, so only weights that exist are asked for.
+ONLY_REGULAR = {"Marcellus", "DM Serif Display", "Lato", "Libre Baskerville"}
+
+
+def _choices(names=None):
+    """Every font can be used for any job, shown in two groups so the list stays easy to scan."""
+    return [("Sans-serif", [(n, n) for n in SANS_FONTS]), ("Serif", [(n, n) for n in SERIF_FONTS])]
 
 
 def _rgb(hex_color):
@@ -196,13 +203,13 @@ class StoreInfo(models.Model):
     color_cream = models.CharField("Text on dark", max_length=7, default="#F3EFE6", validators=[HEX])
 
     # ----- Fonts: a primary sans, a secondary serif, and the face used for the logo wordmark. -----
-    font_primary = models.CharField("Primary font", max_length=40, choices=_choices(SANS_FONTS), default="Montserrat",
+    font_primary = models.CharField("Primary font", max_length=40, choices=_choices(), default="Montserrat",
                                     help_text="Headings, names, buttons and small labels.")
     heading_weight = models.PositiveSmallIntegerField(
         "Heading weight", choices=[(400, "Regular"), (500, "Medium"), (600, "Semibold")], default=500)
-    font_secondary = models.CharField("Secondary font", max_length=40, choices=_choices(SERIF_FONTS), default="Playfair Display",
+    font_secondary = models.CharField("Secondary font", max_length=40, choices=_choices(), default="Playfair Display",
                                       help_text="Paragraphs and descriptions.")
-    font_wordmark = models.CharField("Logo wordmark font", max_length=40, choices=_choices(SERIF_FONTS), default="Playfair Display",
+    font_wordmark = models.CharField("Logo wordmark font", max_length=40, choices=_choices(), default="Playfair Display",
                                      help_text="The PATIALA lettering next to the monogram.")
 
     # ----- Logo -----
@@ -279,9 +286,9 @@ class StoreInfo(models.Model):
         light = self._hex(self.color_light, "#FAF8F3")
         dark = self._hex(self.color_dark, "#161513")
         cream = self._hex(self.color_cream, "#F3EFE6")
-        sans = self._font(self.font_primary, SANS_FONTS, "Montserrat")
-        serif = self._font(self.font_secondary, SERIF_FONTS, "Playfair Display")
-        brand = self._font(self.font_wordmark, SERIF_FONTS, "Playfair Display")
+        sans = self._font(self.font_primary, ALL_FONTS, "Montserrat")
+        serif = self._font(self.font_secondary, ALL_FONTS, "Playfair Display")
+        brand = self._font(self.font_wordmark, ALL_FONTS, "Playfair Display")
         weight = self.heading_weight if self.heading_weight in (400, 500, 600) else 500
         return mark_safe(
             f"--soft-white:{light};--soft-black:{dark};--gold:{self._hex(self.color_gold, '#B8975A')};"
@@ -294,12 +301,12 @@ class StoreInfo(models.Model):
     @property
     def fonts_url(self):
         """One Google Fonts request for every face the site uses."""
-        fams = {
-            self._font(self.font_secondary, SERIF_FONTS, "Playfair Display"): "wght@400",
-            self._font(self.font_wordmark, SERIF_FONTS, "Playfair Display"): "wght@400",
-        }
-        fams[self._font(self.font_primary, SANS_FONTS, "Montserrat")] = "wght@400;500;600"
-        parts = [f"family={name.replace(' ', '+')}:{weights}" for name, weights in fams.items()]
+        wanted = {}
+        for field, default, weights in (("font_primary", "Montserrat", (400, 500, 600)), ("font_secondary", "Playfair Display", (400,)),
+                                        ("font_wordmark", "Playfair Display", (400,))):
+            name = self._font(getattr(self, field), ALL_FONTS, default)
+            wanted.setdefault(name, set()).update(weights if name not in ONLY_REGULAR else (400,))
+        parts = [f"family={name.replace(' ', '+')}:wght@{';'.join(str(n) for n in sorted(sizes))}" for name, sizes in wanted.items()]
         return "https://fonts.googleapis.com/css2?" + "&".join(parts) + "&display=swap"
 
     @property

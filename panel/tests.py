@@ -538,6 +538,20 @@ class PanelTests(TestCase):
         for text in ("Brand", "Colours", "Fonts", "On every page", "Save changes"):
             self.assertContains(page, text)
         self.assertNotContains(page, 'name="phone"')                  # contact details are edited in Contact
+        for field in ("font_primary", "font_secondary", "font_wordmark"):         # every font can be picked for every job
+            select = page.content.decode().split(f'name="{field}"')[1].split("</select>")[0]
+            for font in ("Montserrat", "Lato", "Playfair Display", "Cinzel"):
+                self.assertIn(f">{font}</option>", select, (field, font))
+        from shop.models import ALL_FONTS
+        info = StoreInfo.load()
+        info.font_primary, info.font_secondary, info.font_wordmark = "Cinzel", "Lato", "Montserrat"       # a serif as main, a sans as paragraph font
+        self.assertEqual(info.fonts_url.count("family="), 3)
+        self.assertIn("family=Lato:wght@400&", info.fonts_url)                                            # only weights Google really has
+        self.assertIn("--font-display:'Cinzel'", info.theme_css)
+        self.assertIn("--font-serif:'Lato'", info.theme_css)
+        info.font_primary = info.font_secondary = "Marcellus"
+        self.assertEqual(info.fonts_url.count("Marcellus"), 1)
+        self.assertIn("family=Marcellus:wght@400&", info.fonts_url)
         data = {"name": "Patiala Jewelers", "descriptor": "Gold", "tagline": "Hello", "color_light": "#FFFFFF", "color_dark": "#111111",
                 "color_gold": "#B8975A", "color_gold_light": "#C9A96A", "color_gold_deep": "#8A6D35", "color_cream": "#F3EFE6",
                 "font_primary": "Montserrat", "heading_weight": "500", "font_secondary": "Playfair Display",
