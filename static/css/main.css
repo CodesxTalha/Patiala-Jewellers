@@ -586,20 +586,21 @@ input:focus, textarea:focus { outline: 0; border-bottom-color: var(--soft-black)
 [hidden] { display: none !important; }
 
 /* ---------- Footer ---------- */
-.site-footer { padding: var(--space) 0 2rem; text-align: center; border-top: var(--line-dark); }
+.site-footer { padding: clamp(3.5rem, 7vw, 5.5rem) 0 2rem; text-align: center; border-top: var(--line-dark); }
 .footer-links, .footer-branches {
   display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2.25rem;
   margin: 0; padding: 0; list-style: none;
   font-size: .72rem; font-weight: 400; letter-spacing: var(--track-label); text-transform: uppercase;
 }
-.footer-links { margin-top: 3rem; }
-.footer-links a:hover { opacity: .65; }
-.footer-branches { margin-top: 1.75rem; color: rgba(var(--cream-rgb), .85); }
+.footer-links { margin-top: 2.5rem; }
+.footer-links a:hover, .footer-branches a:hover, .footer-contact a:hover { opacity: .65; }
+.footer-branches { margin-top: 1.5rem; color: rgba(var(--cream-rgb), .85); }
+.footer-contact { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 2rem; margin: 1.5rem 0 0; padding: 0; list-style: none; font-size: .9rem; }
+.site-footer .social-row { margin-top: 1.25rem; padding-top: 0; border-top: 0; gap: .5rem; }
+.site-footer .social-btn svg { width: 22px; height: 22px; }
 @media (max-width: 599px) { .footer-links, .footer-branches { gap: .6rem 1.4rem; } }
-.footer-meta { margin: 2rem 0 0; font-size: .85rem; }
-.footer-meta a:hover { opacity: .65; }
 .copyright {
-  margin: 4rem 0 0; padding-top: 1.5rem;
+  margin: 3rem 0 0; padding-top: 1.5rem;
   border-top: var(--line-dark);
   font-size: .68rem; font-weight: 400; letter-spacing: var(--track-label); text-transform: uppercase; opacity: .78;
 }
@@ -749,7 +750,7 @@ body.modal-open { overflow: hidden; }
 .crumbs > span:last-child { max-width: 32ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------- Typeface roles: Montserrat leads, Playfair supports paragraphs. Small capitals stay Montserrat. ---------- */
-.fav-bar p, .flash, .form-error, .hero-label, .pdp-note, .price, .pdp-price, .footer-meta, .footer-branches, .boutique p:not(:first-of-type) { font-family: var(--font-body); }
+.fav-bar p, .flash, .form-error, .hero-label, .pdp-note, .price, .pdp-price, .footer-contact, .footer-branches, .boutique p:not(:first-of-type) { font-family: var(--font-body); }
 .prose p:first-child, .quote { font-family: var(--font-display); font-weight: var(--heading-weight); letter-spacing: -.01em; }
 .lockup-name, .header-wordmark .lockup-name { font-family: var(--font-brand); }
 

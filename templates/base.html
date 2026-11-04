@@ -121,14 +121,16 @@
       </ul>
       {% if branches %}
       <ul class="footer-branches">
-        {% for b in branches %}<li>{{ b.name }}</li>{% endfor %}
+        {% for b in branches %}<li><a href="{% url 'shop:contact' %}#locations">{{ b.name }}{% if b.city and b.city|lower not in b.name|lower %}, {{ b.city }}{% endif %}</a></li>{% endfor %}
       </ul>
       {% endif %}
-      <p class="footer-meta muted">
-        Islamabad{% if store.phone %} · <a href="tel:{{ store.phone }}">{{ store.phone }}</a>{% endif %}
-        {% if store.email %} · <a href="mailto:{{ store.email }}">{{ store.email }}</a>{% endif %}
-        {% for label, url in store.socials %} · <a href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>{% endfor %}
-      </p>
+      {% if store.phone or store.email %}
+      <ul class="footer-contact">
+        {% if store.phone %}<li><a href="tel:{{ store.phone }}">{{ store.phone }}</a></li>{% endif %}
+        {% if store.email %}<li><a href="mailto:{{ store.email }}">{{ store.email }}</a></li>{% endif %}
+      </ul>
+      {% endif %}
+      {% include "shop/_social_icons.html" %}
       <p class="copyright">© {% now "Y" %} {{ store.name }}</p>
     </div>
   </footer>
