@@ -79,14 +79,14 @@
       {% if kind == "contact" %}
       <section class="card flush"><div class="sec">
         <h3>What shows</h3>
-        <p class="hint" style="margin:0">Your phone, WhatsApp and email come from <a href="{% url 'admin:settings' %}" style="text-decoration:underline">Settings</a>. Only the ones you have filled in appear.</p>
+        <p class="hint" style="margin:0">Your phone, WhatsApp and email come from <a href="{% url 'admin:contact' %}" style="text-decoration:underline">Contact</a>. Only the ones you have filled in appear.</p>
       </div></section>
       {% endif %}
 
       {% if kind == "locations" %}
       <section class="card flush"><div class="sec">
         <h3>What shows</h3>
-        <p class="hint" style="margin:0">Your active <a href="{% url 'admin:locations' %}" style="text-decoration:underline">locations</a>. One location gets a full-width map; several get a short list.</p>
+        <p class="hint" style="margin:0">Your active <a href="{% url 'admin:contact' %}#locations" style="text-decoration:underline">locations</a>. One location gets a full-width map; several get a short list.</p>
       </div></section>
       {% endif %}
 

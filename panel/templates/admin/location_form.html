@@ -3,7 +3,7 @@
 {% block title %}{{ title }} · {{ site_title }}{% endblock %}
 {% block extrastyle %}<link rel="stylesheet" href="{% static 'vendor/maplibre/maplibre-gl.css' %}"><link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
 {% block bodyclass %}panel-products{% endblock %}
-{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:locations' %}">Locations</a><span>/</span><span>{{ title }}</span>{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:contact' %}#locations">Contact</a><span>/</span><span>{{ title }}</span>{% endblock %}
 {% block content_title %}{% endblock %}
 {% block content_subtitle %}{% endblock %}
 {% block content %}

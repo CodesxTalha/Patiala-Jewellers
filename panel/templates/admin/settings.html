@@ -9,7 +9,7 @@
 <form method="post" enctype="multipart/form-data" class="product-form" data-editor novalidate>
   {% csrf_token %}
   <header class="page-head">
-    <div><h1 class="page-title">Settings</h1><p class="page-sub">Your brand, contact details, colours and fonts. These show across the whole site.</p></div>
+    <div><h1 class="page-title">Settings</h1><p class="page-sub">Your brand, colours and fonts. These show across the whole site. Phone, email and social links are in <a href="{% url 'admin:contact' %}" style="text-decoration:underline">Contact</a>.</p></div>
     <div class="head-actions">
       <a class="btn-quiet" href="{% url 'shop:home' %}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See the site</span></a>
       <button type="submit" class="btn-primary" id="save-btn">Save changes</button>
@@ -47,24 +47,6 @@
     </div></section>
 
     <section class="card flush"><div class="sec">
-      <h3>Contact</h3>
-      <p class="hint" style="margin-top:0">Used by the Contact page, the footer, the Contact sections on the Home page and the WhatsApp button. Empty ones are left out.</p>
-      <div class="two">
-        <label class="fld"><span>Phone</span>{{ form.phone }}{% if form.phone.errors %}<em class="err">{{ form.phone.errors.0 }}</em>{% endif %}</label>
-        <label class="fld"><span>Email</span>{{ form.email }}{% if form.email.errors %}<em class="err">{{ form.email.errors.0 }}</em>{% endif %}</label>
-      </div>
-      <label class="fld"><span>WhatsApp number <small>with the country code, digits only, for example 923001234567</small></span>{{ form.whatsapp }}{% if form.whatsapp.errors %}<em class="err">{{ form.whatsapp.errors.0 }}</em>{% endif %}</label>
-    </div></section>
-
-    <section class="card flush"><div class="sec">
-      <h3>Social media</h3>
-      <p class="hint" style="margin-top:0">Paste the full link of each page. Only the ones you fill in show as icons on the site.</p>
-      <div class="two">
-        {% for f in socials %}<label class="fld"><span>{{ f.label }}</span>{{ f }}{% if f.errors %}<em class="err">{{ f.errors.0 }}</em>{% endif %}</label>{% endfor %}
-      </div>
-    </div></section>
-
-    <section class="card flush"><div class="sec">
       <h3>Colours</h3>
       <p class="hint" style="margin-top:0">About 60% of the site is Light, 30% Dark and 10% Gold.</p>
       <div class="colour-row">
@@ -90,7 +72,7 @@
     <section class="card flush"><div class="sec">
       <h3>On every page</h3>
       <label class="sw-row"><span>Intro screen when the site opens</span><input type="checkbox" class="sw" name="show_preloader" {% if store.show_preloader %}checked{% endif %}></label>
-      <label class="sw-row"><span>Round WhatsApp button</span><input type="checkbox" class="sw" name="show_whatsapp_button" {% if store.show_whatsapp_button %}checked{% endif %}></label>
+      <label class="sw-row"><span>Round WhatsApp button <small>uses the number from Contact</small></span><input type="checkbox" class="sw" name="show_whatsapp_button" {% if store.show_whatsapp_button %}checked{% endif %}></label>
       <label class="fld" style="margin-top:.85rem"><span>First message a customer sends</span><input type="text" name="whatsapp_message" value="{{ texts.whatsapp_message }}" maxlength="600"></label>
       <label class="fld"><span>Button words <small>shown next to the button on a computer</small></span><input type="text" name="whatsapp_label" value="{{ texts.whatsapp_label }}" maxlength="600"></label>
     </div></section>

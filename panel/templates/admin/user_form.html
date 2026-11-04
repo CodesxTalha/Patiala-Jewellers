@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ title }} · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'admin:index' %}">Overview</a><span>/</span><a href="{% url 'admin:users' %}">Users</a><span>/</span><span>{{ title }}</span>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" class="product-form" data-editor novalidate autocomplete="off">
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">{{ title }}</h1><p class="page-sub">{% if person %}Change their details, role or password.{% else %}Give them a name, a username and a password, then choose what they can do.{% endif %}</p></div>
+    <div class="head-actions"><button type="submit" class="btn-primary" id="save-btn">Save user</button></div>
+  </header>
+  {% if errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li></ul>{% endif %}
+  <div class="pf-grid">
+    <div class="pf-main">
+      <section class="card flush"><div class="sec">
+        <h3>Who</h3>
+        <div class="two">
+          <label class="fld"><span>First name</span><input type="text" name="first_name" value="{{ data.first_name }}" maxlength="150"></label>
+          <label class="fld"><span>Last name</span><input type="text" name="last_name" value="{{ data.last_name }}" maxlength="150"></label>
+        </div>
+        <label class="fld"><span>Email <small>optional</small></span><input type="text" name="email" value="{{ data.email }}" maxlength="254">{% if errors.email %}<em class="err">{{ errors.email }}</em>{% endif %}</label>
+      </div></section>
+      <section class="card flush"><div class="sec">
+        <h3>Signing in</h3>
+        <label class="fld"><span>Username</span><input type="text" name="username" value="{{ data.username }}" maxlength="150" data-required="Choose a username to sign in with." autocomplete="off">{% if errors.username %}<em class="err">{{ errors.username }}</em>{% endif %}</label>
+        <label class="fld"><span>{% if person %}New password <small>leave empty to keep the current one</small>{% else %}Password <small>at least 8 characters</small>{% endif %}</span><input type="password" name="password" autocomplete="new-password">{% if errors.password %}<em class="err">{{ errors.password }}</em>{% endif %}</label>
+      </div></section>
+    </div>
+    <aside class="pf-side">
+      <section class="card flush"><div class="sec">
+        <h3>Role</h3>
+        {% if is_me %}<p class="hint" style="margin:0">This is you, so your role and access stay as they are.</p>
+        {% else %}
+        <div class="role-list">{% for v, l, d in roles %}<label class="role"><input type="radio" name="role" value="{{ v }}"{% if data.role == v %} checked{% endif %}><span><b>{{ l }}</b><small>{{ d }}</small></span></label>{% endfor %}</div>
+        {% if errors.role %}<em class="err">{{ errors.role }}</em>{% endif %}
+        {% endif %}
+      </div></section>
+      {% if not is_me %}<section class="card flush"><div class="sec">
+        <h3>Access</h3>
+        <label class="sw-row"><span>Can sign in</span><input type="checkbox" class="sw" name="is_active" {% if data.is_active %}checked{% endif %}></label>
+        <p class="hint">Switch off to stop someone signing in without deleting them.</p>
+      </div></section>{% endif %}
+      {% if can_delete %}<section class="card flush"><div class="sec sec-end"><button type="button" class="btn-delete" id="del-open"><svg class="ic"><use href="#i-trash"/></svg>Delete this user</button></div></section>{% endif %}
+    </aside>
+  </div>
+</form>
+{% if can_delete %}
+<dialog id="del-dialog"><form method="post" action="{% url 'admin:user_delete' person.pk %}">{% csrf_token %}
+  <h2>Delete this user?</h2><p>{{ title }} will no longer be able to sign in. This can't be undone.</p>
+  <div class="dlg-btns"><button class="btn-quiet" type="button" id="del-cancel">Cancel</button><button class="btn-danger" type="submit">Delete</button></div></form></dialog>
+{% endif %}
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}

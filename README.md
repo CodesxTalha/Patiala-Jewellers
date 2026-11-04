@@ -20,11 +20,12 @@ Open `/admin/` and sign in. Create your login first with `python manage.py creat
 - **Home page**: the sections below the hero as one list. Drag to reorder, switch each on or off, and add as many as you like: products (from a Collections link or the featured pieces), categories, services, image and text (photo beside or behind the words), locations, contact. Cards per row (computer and phone) and light or dark are set per section
 - **Products**: a grid to browse, search and filter, quick show and feature switches, and a simple editor (details, price, main photo, more photos, live preview)
 - **Categories** and **Services**: lists you reorder by dragging, with show or hide switches and a small editor
-- **Locations**: your boutiques, with a click-to-place map pin. One location shows one big map
+- **Contact**: everything about the Contact page in one place: its top (label, heading, subheading), your phone, email and WhatsApp, social links, the form's words, and your locations (drag to order, show or hide, click-to-place map pin; one location shows one big map)
 - **Enquiries**: one tidy table with New, Contacted and Closed tabs and search. Change a status right in the row. Open one to read it, call, WhatsApp or email the customer and keep a private note.
 - **About**: one page for everything on the About page (heading, story, photo, promises, closing line)
-- **Page text**: the top of the Collections, Services, Contact and Favorites pages (small label, heading, subheading) plus a few messages. About has the same three at the top of About. The hero is edited in Hero, the Home sections in Home page.
-- **Settings**: brand, logo, contact, social links, colours, fonts, the intro screen and the WhatsApp button (words included), all on one page
+- **Page text**: the top of the Collections, Services and Favorites pages (small label, heading, subheading) plus a few messages. About and Contact have the same three at the top of their own pages. The hero is edited in Hero, the Home sections in Home page.
+- **Settings**: brand, logo, colours, fonts, the intro screen and the WhatsApp button (words included), all on one page
+- **Users**: the people who can sign in. An Owner can do everything, including managing users. An Editor can edit the site but not the users. You can switch someone off without deleting them, and there is always at least one Owner
 - **Visitors**: a period switch (7, 30 or 90 days), then Pages, Pieces (views, visitors and hearts for every piece) or Recent visits, filterable by section and device
 - **Clicks**: what people tapped (WhatsApp, calls, email, social, hearts, map), filterable by type and page, as a summary or a recent list
 - The Products list also shows each piece's views over the last 30 days

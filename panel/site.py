@@ -14,6 +14,7 @@ NAV = [
         ("view:categories", "Categories", "grid"),
         ("view:services", "Services", "wand"),
         ("view:about", "About", "star"),
+        ("view:contact", "Contact", "pin"),
         ("view:pagetext", "Page text", "text"),
     ]),
     ("Inbox", [
@@ -23,13 +24,9 @@ NAV = [
         ("view:visitors", "Visitors", "users"),
         ("view:clicks", "Clicks", "pointer"),
     ]),
-    ("Store", [
-        ("view:locations", "Locations", "pin"),
+    ("Site", [
         ("view:settings", "Settings", "cog"),
-    ]),
-    ("Team", [
-        ("User", "Users", "user"),
-        ("Group", "Groups", "shield"),
+        ("view:users", "Users", "user"),
     ]),
 ]
 
@@ -76,7 +73,7 @@ class PanelAdminSite(AdminSite):
 
     def get_urls(self):
         from django.urls import path
-        from . import about, categories, enquiries, hero, home, insights, locations, pagetext, products, services, settings
+        from . import about, categories, contact, enquiries, hero, home, insights, locations, pagetext, products, services, settings, users
         wrap = self.admin_view
         return [
             path("hero/", wrap(lambda r: hero.editor(r, self)), name="hero"),
@@ -91,6 +88,11 @@ class PanelAdminSite(AdminSite):
             path("enquiries/<int:pk>/delete/", wrap(enquiries.delete), name="enquiry_delete"),
             path("visitors/", wrap(lambda r: insights.visitors(r, self)), name="visitors"),
             path("clicks/", wrap(lambda r: insights.clicks(r, self)), name="clicks"),
+            path("contact/", wrap(lambda r: contact.editor(r, self)), name="contact"),
+            path("users/", wrap(lambda r: users.listing(r, self)), name="users"),
+            path("users/new/", wrap(lambda r: users.editor(r, self)), name="user_new"),
+            path("users/<int:pk>/", wrap(lambda r, pk: users.editor(r, self, pk)), name="user_edit"),
+            path("users/<int:pk>/delete/", wrap(users.delete), name="user_delete"),
             path("settings/", wrap(lambda r: settings.editor(r, self)), name="settings"),
             path("text/", wrap(lambda r: pagetext.editor(r, self)), name="pagetext"),
             path("about/", wrap(lambda r: about.editor(r, self)), name="about"),

@@ -5,6 +5,7 @@ from django import forms
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from shop.models import Branch
@@ -40,10 +41,7 @@ def _no_permission():
 
 
 def listing(request, site):
-    if not request.user.has_perm("shop.view_branch"):
-        return _no_permission()
-    context = dict(site.each_context(request), title="Locations", locations=Branch.objects.all())
-    return render(request, "admin/locations.html", context)
+    return redirect(reverse("admin:contact") + "#locations")        # locations live on the Contact page
 
 
 def editor(request, site, pk=None):
@@ -75,7 +73,7 @@ def delete(request, pk):
     name = location.name
     location.delete()
     messages.success(request, f"“{name}” deleted.")
-    return redirect("admin:locations")
+    return redirect(reverse("admin:contact") + "#locations")
 
 
 @require_POST

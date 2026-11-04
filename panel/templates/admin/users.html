@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Users · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div><h1 class="page-title">Users</h1><p class="page-sub">The people who can sign in to this panel.</p></div>
+  <div class="head-actions"><a class="btn-primary" href="{% url 'admin:user_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add user</a></div>
+</header>
+<section class="card flush etable itable" style="--cols: minmax(0,2fr) minmax(0,1.6fr) 110px 150px 90px">
+  <div class="erow ehead" aria-hidden="true"><span>Name</span><span class="hide-sm">Email</span><span>Role</span><span class="hide-sm">Last signed in</span><span class="hide-sm">Status</span></div>
+  {% for u in users %}
+  <div class="erow">
+    <a class="ename ething" href="{% url 'admin:user_edit' u.pk %}"><span class="uav">{{ u.display|slice:":1"|upper }}</span><span><b>{{ u.display }}{% if u.pk == user.pk %} <small class="you">you</small>{% endif %}</b><small>{{ u.username }}</small></span></a>
+    <span class="hide-sm muted-cell ename"><b style="font-weight:400;font-size:13px">{{ u.email|default:"-" }}</b></span>
+    <span><span class="enq-select-like">{% if u.role == "owner" %}Owner{% else %}Editor{% endif %}</span></span>
+    <span class="hide-sm muted-cell">{% if u.last_login %}{{ u.last_login|date:"j M Y" }}{% else %}Never{% endif %}</span>
+    <span class="hide-sm muted-cell">{% if u.is_active %}Active{% else %}Switched off{% endif %}</span>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

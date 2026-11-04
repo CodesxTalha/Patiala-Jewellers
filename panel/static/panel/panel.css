@@ -338,3 +338,9 @@ dialog#del-dialog h2 { font-size: 18px; margin-bottom: .5rem; } dialog#del-dialo
 .dlg-btns { display: flex; justify-content: flex-end; gap: .6rem; }
 .dlg-btns button { height: 38px; padding: 0 1.1rem; border-radius: var(--radius-s); font: 500 13px var(--font-family-primary); cursor: pointer; border: 1px solid var(--line); background: #fff; }
 .dlg-btns .btn-danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+
+/* A shorter window: a tighter sidebar so every entry is visible without scrolling */
+@media (min-width: 1001px) and (max-height: 960px) {
+  .side-nav { padding: .5rem .75rem; } .nav-group { margin-top: .7rem; } .nav-group p { margin-bottom: .2rem; }
+  .nav-item { padding: .42rem .75rem; } .side-user { margin: .5rem .75rem; padding: .55rem .75rem; }
+}

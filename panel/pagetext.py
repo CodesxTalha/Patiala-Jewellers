@@ -1,4 +1,4 @@
-"""Page text: the top of each page (small label, heading, subheading) and a few messages, for the Collections, Services, Contact and Favorites pages, one card per page, one Save button."""
+"""Page text: the top of the Collections, Services and Favorites pages (small label, heading, subheading) and a few messages, one card per page, one Save button. Contact and About have their own pages."""
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -11,9 +11,8 @@ from shop.models import ContentBlock
 # edited in their own pages, and small labels deep inside a page keep their built-in wording.
 SHOWN = ("collections_label", "collections_title", "collections_lead", "collections_empty", "product_note",
          "services_label", "services_title", "services_lead",
-         "contact_label", "contact_title", "contact_lead", "contact_direct_title", "contact_form_title", "contact_thanks",
          "favorites_label", "favorites_title", "favorites_lead", "favorites_empty")
-ORDER = ["Collections", "Services", "Contact", "Favorites"]
+ORDER = ["Collections", "Services", "Favorites"]
 
 
 def _blocks():

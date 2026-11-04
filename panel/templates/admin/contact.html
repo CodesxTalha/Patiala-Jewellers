@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags %}
+{% block title %}Contact · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+<form method="post" class="product-form" data-editor novalidate>
+  {% csrf_token %}
+  <header class="page-head">
+    <div><h1 class="page-title">Contact</h1><p class="page-sub">How customers reach you: your details, social links, locations and the words on the Contact page.</p></div>
+    <div class="head-actions">
+      <a class="btn-quiet" href="{% url 'shop:contact' %}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg><span>See it on the site</span></a>
+      <button type="submit" class="btn-primary" id="save-btn">Save changes</button>
+    </div>
+  </header>
+  {% if form.errors %}<ul class="messagelist"><li class="error">Please check the highlighted fields.</li></ul>{% endif %}
+  <div class="hsec-list">
+    <section class="card flush"><div class="sec">
+      <h3>Top of the page</h3>
+      <label class="fld"><span>Small label on top</span><input type="text" name="contact_label" value="{{ texts.contact_label }}" maxlength="600"></label>
+      <label class="fld"><span>Heading</span><input type="text" name="contact_title" value="{{ texts.contact_title }}" maxlength="600"></label>
+      <label class="fld"><span>Subheading under the heading</span><input type="text" name="contact_lead" value="{{ texts.contact_lead }}" maxlength="600"></label>
+    </div></section>
+
+    <section class="card flush"><div class="sec">
+      <h3>Your details</h3>
+      <p class="hint" style="margin-top:0">Shown on the Contact page, in the footer, in Contact sections on the Home page and behind the WhatsApp button. Empty ones are left out.</p>
+      <label class="fld"><span>Heading above the details</span><input type="text" name="contact_direct_title" value="{{ texts.contact_direct_title }}" maxlength="600"></label>
+      <div class="two">
+        <label class="fld"><span>Phone</span>{{ form.phone }}{% if form.phone.errors %}<em class="err">{{ form.phone.errors.0 }}</em>{% endif %}</label>
+        <label class="fld"><span>Email</span>{{ form.email }}{% if form.email.errors %}<em class="err">{{ form.email.errors.0 }}</em>{% endif %}</label>
+      </div>
+      <label class="fld"><span>WhatsApp number <small>with the country code, digits only, for example 923001234567</small></span>{{ form.whatsapp }}{% if form.whatsapp.errors %}<em class="err">{{ form.whatsapp.errors.0 }}</em>{% endif %}</label>
+    </div></section>
+
+    <section class="card flush"><div class="sec">
+      <h3>Social media</h3>
+      <p class="hint" style="margin-top:0">Paste the full link of each page. Only the ones you fill in show as icons on the site.</p>
+      <div class="two">
+        {% for f in socials %}<label class="fld"><span>{{ f.label }}</span>{{ f }}{% if f.errors %}<em class="err">{{ f.errors.0 }}</em>{% endif %}</label>{% endfor %}
+      </div>
+    </div></section>
+
+    <section class="card flush"><div class="sec">
+      <h3>The message form</h3>
+      <label class="fld"><span>Heading above the form</span><input type="text" name="contact_form_title" value="{{ texts.contact_form_title }}" maxlength="600"></label>
+      <label class="fld"><span>Message after it is sent</span><input type="text" name="contact_thanks" value="{{ texts.contact_thanks }}" maxlength="600"></label>
+      <p class="hint">Messages arrive in <a href="{% url 'admin:enquiries' %}" style="text-decoration:underline">Enquiries</a>.</p>
+    </div></section>
+  </div>
+</form>
+
+{% if can_edit_locations %}
+<section class="card flush loc-card" id="locations" data-sortlist data-order="{% url 'admin:location_order' %}" data-toggle="{% url 'admin:location_toggle' 0 %}">
+  <input type="hidden" id="csrf" value="{{ csrf_token }}">
+  <div class="sec">
+    <div class="loc-head">
+      <div><h3>Locations</h3><p class="hint" style="margin:0">Your boutiques. One location shows one big map, several show small maps. Drag to reorder. <span id="order-note" role="status"></span></p></div>
+      <a class="btn-soft" href="{% url 'admin:location_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add location</a>
+    </div>
+    {% if locations %}
+    <ul class="clist plain" id="clist">
+      {% for l in locations %}
+      <li class="crow{% if not l.is_active %} is-off{% endif %}" draggable="true" data-id="{{ l.pk }}">
+        <span class="grip" aria-hidden="true" title="Drag to reorder">⋮⋮</span>
+        <a class="cname" href="{% url 'admin:location_edit' l.pk %}"><b>{{ l.name }}</b><small>{% if l.address %}{{ l.address|truncatechars:70 }}{% else %}{{ l.city }}{% endif %}{% if l.latitude is None %} · no map pin{% endif %}</small></a>
+        <button type="button" class="chip{% if l.is_active %} is-on{% endif %}" data-toggle-field data-id="{{ l.pk }}" title="Show on the website" aria-pressed="{{ l.is_active|yesno:'true,false' }}"><svg class="ic"><use href="#i-eye"/></svg><span>{% if l.is_active %}Showing{% else %}Hidden{% endif %}</span></button>
+        <a class="btn-quiet crow-edit" href="{% url 'admin:location_edit' l.pk %}">Edit</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="hint" style="margin:1rem 0 0">No locations yet. Add your first boutique to show it on the Contact page, in the footer and on the home page.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+<script src="{% asset 'panel/catalogue.js' %}"></script>
+{% endblock %}

@@ -289,7 +289,8 @@ class PanelTests(TestCase):
         Branch.objects.all().delete()
         a = Branch.objects.create(name="Gulberg", display_order=0, latitude="33.6", longitude="73.15")
         b = Branch.objects.create(name="DHA", display_order=1)
-        page = self.client.get("/admin/locations/")
+        self.assertRedirects(self.client.get("/admin/locations/"), "/admin/contact/#locations", fetch_redirect_response=False)   # no page of its own
+        page = self.client.get("/admin/contact/")
         self.assertContains(page, "Gulberg")
         self.assertContains(page, "no map pin")
         self.assertContains(self.client.get("/admin/locations/new/"), "Map pin")
@@ -308,7 +309,7 @@ class PanelTests(TestCase):
         self.assertTrue(self.client.post(f"/admin/locations/{f7.pk}/toggle/").json()["value"])
         self.client.post("/admin/locations/order/", data=f'{{"ids":[{f7.pk},{b.pk},{a.pk}]}}', content_type="application/json")
         self.assertEqual([x.name for x in Branch.objects.all()], ["F7 Markaz", "DHA", "Gulberg"])
-        self.assertRedirects(self.client.post(f"/admin/locations/{b.pk}/delete/"), "/admin/locations/")
+        self.assertRedirects(self.client.post(f"/admin/locations/{b.pk}/delete/"), "/admin/contact/#locations", fetch_redirect_response=False)
         self.assertEqual(Branch.objects.count(), 2)
 
     def test_home_starts_with_the_old_sections_as_an_orderable_list(self):
@@ -425,7 +426,7 @@ class PanelTests(TestCase):
         pages = self.client.get("/admin/visitors/")
         for text in ("Visitors", "Page views", "Solitaire Ring", "Contact", "Pages per visitor"):
             self.assertContains(pages, text)
-        self.assertNotContains(self.client.get("/admin/visitors/?section=home"), "/contact/")        # filter by section
+        self.assertNotContains(self.client.get("/admin/visitors/?section=home"), "<small>/contact/</small>")        # filter by section
         self.assertNotContains(self.client.get("/admin/visitors/?device=desktop"), f"/collections/{ring.slug}/")
         pieces = self.client.get("/admin/visitors/?view=pieces")
         self.assertContains(pieces, "Solitaire Ring")
@@ -440,6 +441,67 @@ class PanelTests(TestCase):
         self.assertContains(self.client.get("/admin/clicks/?view=recent&section=pieces"), "Solitaire Ring")
         self.assertContains(self.client.get("/admin/products/"), "2 views in 30 days")              # the Products list shows views
         self.assertEqual(self.client.get("/admin/visitors/?days=zzz&view=zzz&section=zzz").status_code, 200)
+
+    def test_contact_page_editor_holds_details_socials_words_and_locations(self):
+        self._owner()
+        Branch.objects.all().delete()
+        Branch.objects.create(name="Gulberg", display_order=0)
+        page = self.client.get("/admin/contact/")
+        for text in ("Top of the page", "Your details", "Social media", "The message form", "Locations", "Gulberg", "Add location"):
+            self.assertContains(page, text)
+        data = {"contact_label": "Reach us", "contact_title": "Come and see us", "contact_lead": "We reply fast.", "contact_direct_title": "Call us",
+                "contact_form_title": "Write to us", "contact_thanks": "Thanks a lot.", "phone": "0300 111", "email": "hi@x.co",
+                "whatsapp": "+92 300 1234567", "instagram_url": "https://instagram.com/x"}
+        self.assertRedirects(self.client.post("/admin/contact/", data), "/admin/contact/")
+        store = StoreInfo.load()
+        self.assertEqual((store.phone, store.whatsapp, store.instagram_url), ("0300 111", "923001234567", "https://instagram.com/x"))
+        public = self.client.get("/contact/")
+        for text in ("Reach us", "Come and see us", "We reply fast.", "Call us", "Write to us", "0300 111"):
+            self.assertContains(public, text)
+        self.assertContains(self.client.post("/admin/contact/", dict(data, email="nope", whatsapp="12")), "Please check")
+        self.assertEqual(StoreInfo.load().phone, "0300 111")
+        for gone in ("Locations", "Groups"):                          # no sidebar entry of their own any more
+            self.assertNotContains(page, f"<span>{gone}</span>")
+
+    def test_users_page_adds_edits_protects_and_deletes_people(self):
+        User = get_user_model()
+        self._owner()
+        owner = User.objects.get(username="owner")
+        page = self.client.get("/admin/users/")
+        self.assertContains(page, "Add user")
+        self.assertNotContains(page, "<span>Groups</span>")
+        self.assertEqual(self.client.get("/admin/auth/user/").status_code, 404)                 # Django's own list is gone
+        self.assertEqual(self.client.get("/admin/auth/group/").status_code, 404)
+        self.assertContains(self.client.post("/admin/users/new/", {"username": "sara"}), "Set a password")
+        self.assertContains(self.client.post("/admin/users/new/", {"username": "sara", "password": "123"}), "Please check")
+        self.assertContains(self.client.post("/admin/users/new/", {"username": "OWNER", "password": "a-strong-pass-9"}), "already uses")
+        r = self.client.post("/admin/users/new/", {"username": "sara", "first_name": "Sara", "password": "a-strong-pass-9", "role": "editor", "is_active": "on"})
+        self.assertRedirects(r, "/admin/users/")
+        sara = User.objects.get(username="sara")
+        self.assertTrue(sara.is_staff and not sara.is_superuser and sara.is_active)
+        self.assertTrue(sara.has_perm("shop.change_product") and not sara.has_perm("auth.change_user"))
+        # an editor can edit the site but not the users
+        self.client.logout()
+        self.client.force_login(sara)
+        self.assertEqual(self.client.get("/admin/products/").status_code, 200)
+        self.assertEqual(self.client.get("/admin/users/").status_code, 403)
+        self.client.logout()
+        self.client.force_login(owner)
+        # the only owner cannot be demoted, switched off or deleted, and nobody deletes themselves
+        self.assertContains(self.client.post(f"/admin/users/{sara.pk}/", {"username": "sara", "role": "owner", "is_active": "on", "password": "x"}), "Please check")
+        owner_page = self.client.post(f"/admin/users/{owner.pk}/", {"username": "owner", "role": "editor"})              # your own role is not changed here
+        owner.refresh_from_db()
+        self.assertTrue(owner.is_superuser and owner.is_active)
+        self.client.post(f"/admin/users/{owner.pk}/delete/")
+        self.assertTrue(User.objects.filter(pk=owner.pk).exists())
+        self.client.post(f"/admin/users/{sara.pk}/", {"username": "sara", "role": "owner", "is_active": "on"})
+        sara.refresh_from_db()
+        self.assertTrue(sara.is_superuser)
+        self.client.post(f"/admin/users/{sara.pk}/", {"username": "sara", "role": "editor"})              # switched off and demoted
+        sara.refresh_from_db()
+        self.assertFalse(sara.is_active or sara.is_superuser)
+        self.client.post(f"/admin/users/{sara.pk}/delete/")
+        self.assertFalse(User.objects.filter(pk=sara.pk).exists())
 
     def test_enquiries_inbox_filters_opens_saves_and_deletes(self):
         from shop.models import Enquiry
@@ -473,16 +535,16 @@ class PanelTests(TestCase):
     def test_settings_and_page_text_are_single_pages(self):
         self._owner()
         page = self.client.get("/admin/settings/")
-        for text in ("Brand", "Contact", "Social media", "Colours", "Fonts", "On every page", "Save changes"):
+        for text in ("Brand", "Colours", "Fonts", "On every page", "Save changes"):
             self.assertContains(page, text)
-        data = {"name": "Patiala Jewelers", "descriptor": "Gold", "tagline": "Hello", "phone": "0300", "whatsapp": "+92 300 1234567",
-                "email": "a@b.co", "instagram_url": "https://instagram.com/x", "color_light": "#FFFFFF", "color_dark": "#111111",
+        self.assertNotContains(page, 'name="phone"')                  # contact details are edited in Contact
+        data = {"name": "Patiala Jewelers", "descriptor": "Gold", "tagline": "Hello", "color_light": "#FFFFFF", "color_dark": "#111111",
                 "color_gold": "#B8975A", "color_gold_light": "#C9A96A", "color_gold_deep": "#8A6D35", "color_cream": "#F3EFE6",
                 "font_primary": "Montserrat", "heading_weight": "500", "font_secondary": "Playfair Display",
                 "font_wordmark": "Playfair Display", "whatsapp_message": "Hi there", "show_whatsapp_button": "on"}
         self.assertRedirects(self.client.post("/admin/settings/", data), "/admin/settings/")
         store = StoreInfo.load()
-        self.assertEqual((store.whatsapp, store.color_light, store.show_preloader, store.show_whatsapp_button), ("923001234567", "#FFFFFF", False, True))
+        self.assertEqual((store.color_light, store.show_preloader, store.show_whatsapp_button), ("#FFFFFF", False, True))
         self.assertContains(self.client.post("/admin/settings/", dict(data, color_light="red", name="")), "Please check")
         self.assertEqual(StoreInfo.load().color_light, "#FFFFFF")
         text = self.client.get("/admin/text/")
@@ -490,13 +552,12 @@ class PanelTests(TestCase):
         for gone in ("WhatsApp button text", "Hero:", "Service page: steps", "Closing line"):
             self.assertNotContains(text, gone)
         self.assertEqual(text.content.decode().count('name="t_services_'), 3)
-        self.client.post("/admin/text/", {"t_collections_title": "Every piece", "t_collections_lead": "Browse it all.",
-                                          "t_contact_lead": "We reply fast.", "t_services_label": ""})
+        self.assertNotContains(text, 'name="t_contact_')               # the Contact page's words are edited in Contact
+        self.client.post("/admin/text/", {"t_collections_title": "Every piece", "t_collections_lead": "Browse it all.", "t_services_label": ""})
         self.assertContains(self.client.get("/collections/"), "Every piece")
         self.assertContains(self.client.get("/collections/"), "Browse it all.")
-        self.assertContains(self.client.get("/contact/"), "We reply fast.")
         self.assertNotContains(self.client.get("/services/"), 'class="label"')           # an empty label is left out
-        for page in ("collections", "services", "contact", "favorites"):                 # the same three top fields on every page
+        for page in ("collections", "services", "favorites"):                            # the same three top fields on every page
             for part in ("label", "title", "lead"):
                 self.assertContains(text, f'name="t_{page}_{part}"')
 

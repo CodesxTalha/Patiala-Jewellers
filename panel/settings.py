@@ -1,4 +1,4 @@
-"""Settings: brand, contact, social links, colours, fonts and the site-wide switches, on one page with one Save button."""
+"""Settings: the brand, colours, fonts and the site-wide switches, on one page with one Save button. Contact details and social links are in Contact."""
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -11,7 +11,6 @@ from shop.content import DEFAULTS
 from shop.models import ContentBlock, StoreInfo
 
 COLOURS = ("color_light", "color_dark", "color_gold", "color_gold_light", "color_gold_deep", "color_cream")
-SOCIALS = ("instagram_url", "facebook_url", "tiktok_url", "youtube_url", "pinterest_url", "x_url")
 FONTS = ("font_primary", "heading_weight", "font_secondary", "font_wordmark")
 SWITCHES = ("show_preloader", "show_whatsapp_button")
 TEXTS = ("whatsapp_message", "whatsapp_label")           # the words of the WhatsApp button, kept with its switch
@@ -22,7 +21,7 @@ MAX_FILE_MB = 4
 class SettingsForm(forms.ModelForm):
     class Meta:
         model = StoreInfo
-        fields = ("name", "descriptor", "tagline", "phone", "whatsapp", "email") + SOCIALS + COLOURS + FONTS
+        fields = ("name", "descriptor", "tagline") + COLOURS + FONTS
         widgets = {c: forms.TextInput(attrs={"type": "color"}) for c in COLOURS}
 
     def __init__(self, *args, **kwargs):
@@ -31,14 +30,6 @@ class SettingsForm(forms.ModelForm):
             self.fields[name].required = True
         for name in self.fields:
             self.fields[name].help_text = ""
-        for name in SOCIALS:
-            self.fields[name].label = name.split("_")[0].title() if name != "x_url" else "X (Twitter)"
-
-    def clean_whatsapp(self):
-        digits = "".join(ch for ch in self.cleaned_data["whatsapp"] if ch.isdigit())
-        if self.cleaned_data["whatsapp"] and len(digits) < 8:
-            raise ValidationError("Use the full number with the country code, for example 923001234567.")
-        return digits
 
 
 def _texts():
@@ -89,6 +80,5 @@ def editor(request, site):
             return redirect("admin:settings")
         store = StoreInfo.load()
     context = dict(site.each_context(request), title="Settings", form=form, store=store, texts=_texts(), file_errors=file_errors,
-                   colours=[form[c] for c in COLOURS[:3]], more_colours=[form[c] for c in COLOURS[3:]],
-                   socials=[form[s] for s in SOCIALS])
+                   colours=[form[c] for c in COLOURS[:3]], more_colours=[form[c] for c in COLOURS[3:]])
     return render(request, "admin/settings.html", context)
