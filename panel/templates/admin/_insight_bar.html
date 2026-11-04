@@ -1,0 +1,5 @@
+{# Shared top of Visitors and Clicks: title, period switch. Expects: heading, sub, period_links #}
+<header class="page-head">
+  <div><h1 class="page-title">{{ heading }}</h1><p class="page-sub">{{ sub }}</p></div>
+  <div class="head-actions"><div class="seg" role="tablist" aria-label="Period">{% for l in period_links %}<a href="?{{ l.query }}" class="{% if l.on %}is-on{% endif %}">{{ l.days }} days</a>{% endfor %}</div></div>
+</header>

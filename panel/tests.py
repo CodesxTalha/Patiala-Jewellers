@@ -49,9 +49,6 @@ class PanelTests(TestCase):
         self.assertContains(dash, "Latest visits")
         self.assertContains(dash, "1 on the site right now")
         self.assertContains(self.client.get("/admin/?days=7"), "Last 7 days")
-        for app, name in (("panel", "visit"),
-                          ("panel", "clickevent")):
-            self.assertEqual(self.client.get(f"/admin/{app}/{name}/").status_code, 200, name)
         for page, text in (("settings", "Colours"), ("text", "Page text")):
             self.assertContains(self.client.get(f"/admin/{page}/"), text)
         self.assertContains(self.client.get("/admin/hero/"), "Add slide")
@@ -414,6 +411,35 @@ class PanelTests(TestCase):
 
         self.client.post(f"/admin/home/sections/{sec.pk}/delete/")
         self.assertFalse(HomeSection.objects.filter(pk=sec.pk).exists())
+
+    def test_visitors_and_clicks_reports_filter_and_count(self):
+        self._owner()
+        cat = Category.objects.create(name="Rings")
+        ring = Product.objects.create(name="Solitaire Ring", category=cat, price=1000)
+        Product.objects.create(name="Quiet Bangle", category=cat, price=500)
+        for path, device, vid in (("/", "mobile", "a"), ("/", "desktop", "b"), (f"/collections/{ring.slug}/", "mobile", "a"),
+                                  (f"/collections/{ring.slug}/", "mobile", "c"), ("/contact/", "desktop", "b")):
+            Visit.objects.create(visitor=vid * 32, path=path, device=device, browser="Chrome", ip="127.0.0.1", referrer="instagram.com" if vid == "c" else "")
+        ClickEvent.objects.create(visitor="a" * 32, kind="whatsapp", label="Floating button", path="/")
+        ClickEvent.objects.create(visitor="c" * 32, kind="favorite", label=ring.slug, path=f"/collections/{ring.slug}/")
+        pages = self.client.get("/admin/visitors/")
+        for text in ("Visitors", "Page views", "Solitaire Ring", "Contact", "Pages per visitor"):
+            self.assertContains(pages, text)
+        self.assertNotContains(self.client.get("/admin/visitors/?section=home"), "/contact/")        # filter by section
+        self.assertNotContains(self.client.get("/admin/visitors/?device=desktop"), f"/collections/{ring.slug}/")
+        pieces = self.client.get("/admin/visitors/?view=pieces")
+        self.assertContains(pieces, "Solitaire Ring")
+        self.assertContains(pieces, "Quiet Bangle")                                                 # a piece nobody opened still shows
+        self.assertLess(pieces.content.decode().index("Solitaire Ring"), pieces.content.decode().index("Quiet Bangle"))
+        self.assertContains(self.client.get("/admin/visitors/?view=recent"), "instagram.com")
+        self.assertContains(self.client.get("/admin/visitors/?days=7&view=pages&q=contact"), "Contact")
+        taps = self.client.get("/admin/clicks/")
+        for text in ("Floating button", "Solitaire Ring", "WhatsApp", "Saved to favorites"):         # a heart shows the piece's name
+            self.assertContains(taps, text)
+        self.assertNotContains(self.client.get("/admin/clicks/?kind=whatsapp"), "Saved to favorites</span>")
+        self.assertContains(self.client.get("/admin/clicks/?view=recent&section=pieces"), "Solitaire Ring")
+        self.assertContains(self.client.get("/admin/products/"), "2 views in 30 days")              # the Products list shows views
+        self.assertEqual(self.client.get("/admin/visitors/?days=zzz&view=zzz&section=zzz").status_code, 200)
 
     def test_enquiries_inbox_filters_opens_saves_and_deletes(self):
         from shop.models import Enquiry

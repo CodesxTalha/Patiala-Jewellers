@@ -1,4 +1,5 @@
 """Products: a clean list to browse and a simple editor to create and change a piece."""
+from datetime import timedelta
 from urllib.parse import urlencode
 
 from django import forms
@@ -6,12 +7,15 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from shop.models import Category, Product, ProductImage
+
+from .models import Visit
 
 PER_PAGE = 24
 MAX_NEW_PHOTOS = 20
@@ -47,6 +51,10 @@ def listing(request, site):
         products = products.filter(is_active=False)
     page = Paginator(products, PER_PAGE).get_page(request.GET.get("page"))
     keep = {k: v for k, v in (("q", q), ("category", category), ("status", status)) if v}
+    since = timezone.now() - timedelta(days=30)
+    seen = {r["path"]: r["n"] for r in Visit.objects.filter(created_at__gte=since, path__in=[f"/collections/{p.slug}/" for p in page]).values("path").annotate(n=Count("id"))}
+    for p in page:
+        p.views = seen.get(f"/collections/{p.slug}/", 0)
     context = dict(
         site.each_context(request), title="Products", page=page, q=q, category=category, status=status,
         categories=Category.objects.all(), total=Product.objects.count(), filtered=bool(keep),

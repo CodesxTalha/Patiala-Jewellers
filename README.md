@@ -25,7 +25,9 @@ Open `/admin/` and sign in. Create your login first with `python manage.py creat
 - **About**: one page for everything on the About page (heading, story, photo, promises, closing line)
 - **Page text**: the top of the Collections, Services, Contact and Favorites pages (small label, heading, subheading) plus a few messages. About has the same three at the top of About. The hero is edited in Hero, the Home sections in Home page.
 - **Settings**: brand, logo, contact, social links, colours, fonts, the intro screen and the WhatsApp button (words included), all on one page
-- **Visitors** and **Clicks**: the tracking logs
+- **Visitors**: a period switch (7, 30 or 90 days), then Pages, Pieces (views, visitors and hearts for every piece) or Recent visits, filterable by section and device
+- **Clicks**: what people tapped (WhatsApp, calls, email, social, hearts, map), filterable by type and page, as a summary or a recent list
+- The Products list also shows each piece's views over the last 30 days
 
 ## Demo content
 The site ships with demo products so the front end looks complete. Photos are image links (Unsplash, product-only), not downloads.

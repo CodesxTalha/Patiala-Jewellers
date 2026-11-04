@@ -84,7 +84,7 @@
   <article class="card">
     <header class="card-head">
       <div><h2>Latest visits</h2><p>{% if live %}<span class="live"><i></i>{{ live }} on the site right now</span>{% else %}Nobody on the site right now{% endif %}</p></div>
-      <a class="btn-quiet" href="{% url 'admin:panel_visit_changelist' %}">All visits</a>
+      <a class="btn-quiet" href="{% url 'admin:visitors' %}">All visits</a>
     </header>
     <div class="table-wrap">
       <table class="tbl">
@@ -115,7 +115,7 @@
 {# D. Taps, pages, pieces #}
 <section class="grid three">
   <article class="card">
-    <header class="card-head"><div><h2>Taps</h2><p>What visitors press</p></div><a class="btn-quiet" href="{% url 'admin:panel_clickevent_changelist' %}">All</a></header>
+    <header class="card-head"><div><h2>Taps</h2><p>What visitors press</p></div><a class="btn-quiet" href="{% url 'admin:clicks' %}">All</a></header>
     <ul class="rank">
       {% for k in click_kinds %}<li><div><span>{{ k.name }}</span><b>{{ k.count|intcomma }}</b></div><span class="track"><span style="width: {{ k.w }}%"></span></span></li>
       {% empty %}<li class="muted">No taps yet.</li>{% endfor %}

@@ -20,8 +20,8 @@ NAV = [
         ("view:enquiries", "Enquiries", "mail"),
     ]),
     ("Insights", [
-        ("Visit", "Visitors", "users"),
-        ("ClickEvent", "Clicks", "pointer"),
+        ("view:visitors", "Visitors", "users"),
+        ("view:clicks", "Clicks", "pointer"),
     ]),
     ("Store", [
         ("view:locations", "Locations", "pin"),
@@ -76,7 +76,7 @@ class PanelAdminSite(AdminSite):
 
     def get_urls(self):
         from django.urls import path
-        from . import about, categories, enquiries, hero, home, locations, pagetext, products, services, settings
+        from . import about, categories, enquiries, hero, home, insights, locations, pagetext, products, services, settings
         wrap = self.admin_view
         return [
             path("hero/", wrap(lambda r: hero.editor(r, self)), name="hero"),
@@ -89,6 +89,8 @@ class PanelAdminSite(AdminSite):
             path("enquiries/<int:pk>/", wrap(lambda r, pk: enquiries.detail(r, self, pk)), name="enquiry"),
             path("enquiries/<int:pk>/status/", wrap(enquiries.set_status), name="enquiry_status"),
             path("enquiries/<int:pk>/delete/", wrap(enquiries.delete), name="enquiry_delete"),
+            path("visitors/", wrap(lambda r: insights.visitors(r, self)), name="visitors"),
+            path("clicks/", wrap(lambda r: insights.clicks(r, self)), name="clicks"),
             path("settings/", wrap(lambda r: settings.editor(r, self)), name="settings"),
             path("text/", wrap(lambda r: pagetext.editor(r, self)), name="pagetext"),
             path("about/", wrap(lambda r: about.editor(r, self)), name="about"),

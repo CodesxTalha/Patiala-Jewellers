@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags humanize %}
+{% block title %}Clicks · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+{% include "admin/_insight_bar.html" with heading="Clicks" sub="What people tapped: WhatsApp, calls, email, social links, hearts and the map." %}
+<section class="card flush istats">
+  <div><small>Taps{% if kind %} · {{ kind_label }}{% endif %}</small><b>{{ total|intcomma }}</b></div>
+  <div><small>People who tapped</small><b>{{ people|intcomma }}</b></div>
+</section>
+<div class="sg tb-status itabs">{% for t in kind_tabs %}<a href="?{{ t.query }}" class="{% if t.on %}is-on{% endif %}">{{ t.label }} <small>{{ t.n }}</small></a>{% endfor %}</div>
+<form class="toolbar" method="get" data-autosubmit-form>
+  <input type="hidden" name="days" value="{{ p.days }}"><input type="hidden" name="view" value="{{ view }}"><input type="hidden" name="kind" value="{{ kind }}">
+  <select name="section" aria-label="Page"><option value="">Taps on any page</option>{% for v, l in sections %}<option value="{{ v }}"{% if section == v %} selected{% endif %}>On {{ l }}</option>{% endfor %}</select>
+  <div class="sg tb-status">{% for t in view_tabs %}<a href="?{{ t.query }}" class="{% if t.on %}is-on{% endif %}">{{ t.label }}</a>{% endfor %}</div>
+  {% if clear %}<a class="tb-clear" href="?days={{ p.days }}&view={{ view }}">Clear</a>{% endif %}
+</form>
+
+{% if view == "summary" %}
+  {% if items %}
+  <section class="card flush etable itable" style="--cols: minmax(0,2fr) 150px minmax(170px,1.3fr) 90px">
+    <div class="erow ehead" aria-hidden="true"><span>What was tapped</span><span class="hide-sm">Type</span><span>Taps</span><span class="hide-sm">People</span></div>
+    {% for i in items %}
+    <div class="erow"><span class="ename"><b>{{ i.name }}</b></span><span class="hide-sm muted-cell">{{ i.kind }}</span>
+      <span class="ibar"><i style="width:{{ i.w }}%"></i><b>{{ i.taps|intcomma }}</b></span><span class="hide-sm">{{ i.visitors|intcomma }}</span></div>
+    {% endfor %}
+  </section>
+  {% else %}<div class="card empty-card"><h2>No taps yet</h2><p>{% if clear %}Nothing matches these filters in this period.{% else %}Taps on WhatsApp, phone numbers, social links and hearts show up here.{% endif %}</p>{% if clear %}<a class="btn-quiet" href="?days={{ p.days }}">Clear filters</a>{% endif %}</div>{% endif %}
+{% else %}
+  {% if page.object_list %}
+  <section class="card flush etable itable" style="--cols: 110px minmax(0,2fr) 150px minmax(0,1.2fr)">
+    <div class="erow ehead" aria-hidden="true"><span>When</span><span>What</span><span class="hide-sm">Type</span><span class="hide-sm">On page</span></div>
+    {% for r in page %}
+    <div class="erow"><span class="muted-cell" title="{{ r.created_at|date:'j M Y, H:i' }}">{{ r.when }}</span><span class="ename"><b>{{ r.name }}</b></span>
+      <span class="hide-sm muted-cell">{{ r.kind_label }}</span><span class="hide-sm muted-cell">{{ r.on_page }}</span></div>
+    {% endfor %}
+  </section>
+  {% if page.paginator.num_pages > 1 %}
+  <nav class="pager" aria-label="Pages">
+    {% if page.has_previous %}<a class="btn-quiet" href="?{{ base_query }}&page={{ page.previous_page_number }}">Previous</a>{% else %}<span class="btn-quiet is-dim">Previous</span>{% endif %}
+    <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="btn-quiet" href="?{{ base_query }}&page={{ page.next_page_number }}">Next</a>{% else %}<span class="btn-quiet is-dim">Next</span>{% endif %}
+  </nav>{% endif %}
+  {% else %}<div class="card empty-card"><h2>No taps to show</h2><p>Nothing matches these filters in this period.</p><a class="btn-quiet" href="?days={{ p.days }}&view=recent">Clear filters</a></div>{% endif %}
+{% endif %}
+<script src="{% asset 'panel/insights.js' %}"></script>
+{% endblock %}

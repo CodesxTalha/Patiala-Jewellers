@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+{% load static panel_tags humanize %}
+{% block title %}Visitors · {{ site_title }}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" href="{% asset 'panel/products.css' %}">{% endblock %}
+{% block bodyclass %}panel-products{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+{% block content %}
+{% include "admin/_insight_bar.html" with heading="Visitors" sub="Who looked at your site, and at what. People on this computer count too." %}
+<section class="card flush istats">
+  {% for label, value in summary %}<div><small>{{ label }}</small><b>{{ value|intcomma }}</b></div>{% endfor %}
+</section>
+<div class="sg tb-status itabs">{% for t in view_tabs %}<a href="?{{ t.query }}" class="{% if t.on %}is-on{% endif %}">{{ t.label }}</a>{% endfor %}</div>
+<form class="toolbar" method="get" data-autosubmit-form>
+  <input type="hidden" name="days" value="{{ p.days }}"><input type="hidden" name="view" value="{{ view }}">
+  {% if view != "recent" %}<label class="tb-search"><svg class="ic"><use href="#i-search"/></svg><input type="search" name="q" value="{{ q }}" placeholder="{% if view == 'pieces' %}Search pieces{% else %}Search pages{% endif %}" aria-label="Search"></label>{% endif %}
+  {% if view != "pieces" %}<select name="section" aria-label="Section"><option value="">All pages</option>{% for v, l in sections %}<option value="{{ v }}"{% if section == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>{% endif %}
+  <select name="device" aria-label="Device"><option value="">All devices</option>{% for v, l in devices %}<option value="{{ v }}"{% if device == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  {% if clear %}<a class="tb-clear" href="?days={{ p.days }}&view={{ view }}">Clear</a>{% endif %}
+</form>
+
+{% if view == "pages" %}
+  {% if items %}
+  <section class="card flush etable itable" style="--cols: minmax(0,2fr) 130px minmax(170px,1.3fr) 90px">
+    <div class="erow ehead" aria-hidden="true"><span>Page</span><span class="hide-sm">Section</span><span>Views</span><span class="hide-sm">Visitors</span></div>
+    {% for i in items %}
+    <div class="erow"><span class="ename"><b>{{ i.name }}</b><small>{{ i.path }}</small></span><span class="hide-sm muted-cell">{{ i.section }}</span>
+      <span class="ibar"><i style="width:{{ i.w }}%"></i><b>{{ i.views|intcomma }}</b></span><span class="hide-sm">{{ i.visitors|intcomma }}</span></div>
+    {% endfor %}
+  </section>
+  {% else %}<div class="card empty-card"><h2>No visits to show</h2><p>{% if clear %}Nothing matches these filters in this period.{% else %}Open the website in another tab, click around, then refresh this page.{% endif %}</p>{% if clear %}<a class="btn-quiet" href="?days={{ p.days }}">Clear filters</a>{% endif %}</div>{% endif %}
+
+{% elif view == "pieces" %}
+  {% if items %}
+  <section class="card flush etable itable" style="--cols: minmax(0,2fr) minmax(170px,1.3fr) 90px 90px">
+    <div class="erow ehead" aria-hidden="true"><span>Piece</span><span>Views</span><span class="hide-sm">Visitors</span><span class="hide-sm">Saved</span></div>
+    {% for i in items %}
+    <div class="erow{% if i.hidden %} is-off{% endif %}">
+      <a class="ename ething" href="{% url 'admin:product_edit' i.edit %}"><span class="ithumb">{% if i.image %}<img src="{{ i.image }}" alt="" loading="lazy">{% endif %}</span><span><b>{{ i.name }}</b><small>{{ i.category }}{% if i.hidden %} · Hidden{% endif %}</small></span></a>
+      <span class="ibar"><i style="width:{{ i.w }}%"></i><b>{{ i.views|intcomma }}</b></span><span class="hide-sm">{{ i.visitors|intcomma }}</span><span class="hide-sm">{{ i.saved|intcomma }}</span>
+    </div>
+    {% endfor %}
+  </section>
+  <p class="hint itable-note">Views count people opening a piece's page. Saved counts taps on the heart. Pieces nobody has opened yet are at the bottom.</p>
+  {% else %}<div class="card empty-card"><h2>No pieces found</h2><p>{% if q %}Nothing matches “{{ q }}”.{% else %}Add a piece and it appears here.{% endif %}</p></div>{% endif %}
+
+{% else %}
+  {% if page.object_list %}
+  <section class="card flush etable itable" style="--cols: 110px minmax(0,2fr) 110px minmax(0,1.2fr)">
+    <div class="erow ehead" aria-hidden="true"><span>When</span><span>Page</span><span class="hide-sm">Device</span><span class="hide-sm">Came from</span></div>
+    {% for r in page %}
+    <div class="erow"><span class="muted-cell" title="{{ r.created_at|date:'j M Y, H:i' }}">{{ r.when }}</span><span class="ename"><b>{{ r.name }}</b><small>{{ r.section }}</small></span>
+      <span class="hide-sm">{{ r.device_label }}<small class="sub">{{ r.browser }}</small></span><span class="hide-sm muted-cell">{{ r.from_ }}</span></div>
+    {% endfor %}
+  </section>
+  {% if page.paginator.num_pages > 1 %}
+  <nav class="pager" aria-label="Pages">
+    {% if page.has_previous %}<a class="btn-quiet" href="?{{ base_query }}&page={{ page.previous_page_number }}">Previous</a>{% else %}<span class="btn-quiet is-dim">Previous</span>{% endif %}
+    <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="btn-quiet" href="?{{ base_query }}&page={{ page.next_page_number }}">Next</a>{% else %}<span class="btn-quiet is-dim">Next</span>{% endif %}
+  </nav>{% endif %}
+  {% else %}<div class="card empty-card"><h2>No visits to show</h2><p>Nothing matches these filters in this period.</p><a class="btn-quiet" href="?days={{ p.days }}&view=recent">Clear filters</a></div>{% endif %}
+{% endif %}
+<script src="{% asset 'panel/insights.js' %}"></script>
+{% endblock %}
