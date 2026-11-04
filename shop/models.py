@@ -480,10 +480,6 @@ class HeroSlide(models.Model):
         IMAGE = "image", "Image"
         VIDEO = "video", "Video"
 
-    class Tone(models.TextChoices):
-        DARK = "dark", "Dark text (for light photos)"
-        LIGHT = "light", "Light text (for dark photos)"
-
     class Align(models.TextChoices):
         LEFT = "left", "Left"
         CENTER = "center", "Centre"
@@ -512,7 +508,9 @@ class HeroSlide(models.Model):
     link = models.CharField("Link", max_length=300, blank=True,
                             help_text="Where the button goes, for example /collections/ or https://... With no button and no text, the whole slide becomes the link.")
     open_in_new_tab = models.BooleanField(default=False)
-    text_tone = models.CharField("Text colour on desktop", max_length=10, choices=Tone.choices, default=Tone.DARK)
+    text_color = models.CharField("Text colour on a computer", max_length=7, default="#161513", validators=[HEX])
+    text_color_mobile = models.CharField("Text colour on a phone", max_length=7, blank=True, validators=[HEX],
+                                         help_text="Leave empty to use the computer colour.")
     text_align = models.CharField("Text position on desktop", max_length=10, choices=Align.choices, default=Align.LEFT)
     tint = models.CharField("Darken the picture", max_length=10, choices=Tint.choices, default=Tint.NONE)
 
@@ -551,6 +549,31 @@ class HeroSlide(models.Model):
     @property
     def has_text(self):
         return bool(self.heading or self.text or (self.button_label and self.link))
+
+    @staticmethod
+    def _is_light(color):
+        r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
+        return (0.299 * r + 0.587 * g + 0.114 * b) > 150
+
+    @property
+    def ink(self):
+        return StoreInfo._hex(self.text_color, "#161513")
+
+    @property
+    def ink_mobile(self):
+        return StoreInfo._hex(self.text_color_mobile, self.ink)
+
+    @property
+    def ink_style(self):
+        """The text colours as CSS variables for this slide, plus the colour that reads on top of each (used when a button fills on hover).
+        Both colours are checked against the hex pattern, so the result is safe to print inside style=""."""
+        on = lambda c: "#161513" if self._is_light(c) else "#FAF8F3"
+        return mark_safe(f"--ink:{self.ink};--on:{on(self.ink)};--ink-m:{self.ink_mobile};--on-m:{on(self.ink_mobile)}")
+
+    @property
+    def fade(self):
+        """On a phone the words sit on a fade. Dark words get a light fade, light words a dark one."""
+        return "light" if not self._is_light(self.ink_mobile) else "dark"
 
     @property
     def desktop_url(self):

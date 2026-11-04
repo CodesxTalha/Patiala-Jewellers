@@ -14,8 +14,8 @@
 <section class="hero hero-slider is-{{ store.hero_transition }}" aria-roledescription="carousel" aria-label="{{ store.name }}"
          data-hero-slider data-autoplay="{{ store.hero_autoplay|yesno:'1,0' }}" data-interval="{{ store.hero_interval }}">
   {% for sl in slides %}
-  <div class="hero-slide tone-{{ sl.text_tone }} align-{{ sl.text_align }} tint-{{ sl.tint }}{% if sl.show_text and sl.has_text %} has-text{% endif %}"
-       role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ slides|length }}"
+  <div class="hero-slide fade-{{ sl.fade }} align-{{ sl.text_align }} tint-{{ sl.tint }}{% if sl.show_text and sl.has_text %} has-text{% endif %}"
+       style="{{ sl.ink_style }}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ slides|length }}"
        {% if sl.seconds %}data-seconds="{{ sl.seconds }}"{% endif %}>
     {% if sl.kind == "video" %}
     <video class="hero-media" muted loop playsinline preload="{% if forloop.first %}auto{% else %}none{% endif %}" aria-hidden="true"

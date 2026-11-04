@@ -6,6 +6,7 @@
   const csrf = $("#csrf").value;
   let slides = JSON.parse(document.getElementById("hero-slides").textContent);
   let settings = JSON.parse(document.getElementById("hero-settings").textContent);
+  const BRAND = JSON.parse(document.getElementById("hero-brand").textContent);
   let current = slides.length ? slides[0].id : null;
   let device = "desktop";
   const pending = {};            // slide id -> { fields, files, clearPhone }
@@ -135,6 +136,23 @@
   /* ---------- the editor: preview on the left, settings on the right ---------- */
   const main = $("#ed-main");
   const seg = (key, options, value) => `<div class="sg" data-seg="${key}">${options.map(([v, l]) => `<button type="button" data-v="${v}" class="${value === v ? "is-on" : ""}">${l}</button>`).join("")}</div>`;
+  /* text colour: the brand's main colours as swatches, or any colour of your own; the phone can follow the computer */
+  const PRESETS = [["Dark", BRAND.dark], ["Light", BRAND.light], ["Gold", BRAND.gold]];
+  const lum = (hex) => { const n = parseInt(hex.slice(1), 16); return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255); };
+  const colorRow = (key, label, value, same) => {
+    const v = (value || "").toLowerCase(), preset = PRESETS.some(([, c]) => c.toLowerCase() === v);
+    return `<div class="clr" data-color="${key}"><span class="clr-l">${label}</span><div class="clr-opts">
+      ${same ? `<button type="button" class="clr-same${v ? "" : " is-on"}" data-c="">Same</button>` : ""}
+      ${PRESETS.map(([n, c]) => `<button type="button" class="clr-sw${v === c.toLowerCase() ? " is-on" : ""}" data-c="${c}" style="--c:${c}" title="${n}" aria-label="${n}"></button>`).join("")}
+      <label class="clr-custom${v && !preset ? " is-on" : ""}" title="Choose any colour"><input type="color" value="${v || BRAND.dark}" data-color-input><span>Custom</span></label>
+    </div><em class="err" data-err="${key}"></em></div>`;
+  };
+  const paintColor = (row, value) => {
+    const v = (value || "").toLowerCase(); let hit = false;
+    row.querySelectorAll("[data-c]").forEach((b) => { const on = b.dataset.c.toLowerCase() === v; hit ||= on; b.classList.toggle("is-on", on); });
+    row.querySelector(".clr-custom").classList.toggle("is-on", !!v && !hit);
+    if (v) row.querySelector("[data-color-input]").value = v;
+  };
   const field = (key, label, value, attrs = "") => `<label class="fld"><span>${label}</span><input type="text" data-f="${key}" value="${esc(value)}" ${attrs}><em class="err" data-err="${key}"></em></label>`;
 
   function drawEditor() {
@@ -172,7 +190,8 @@
         </section>
         <section class="sec"><h3>Look</h3>
           <div class="sw-row"><span>Text position</span>${seg("text_align", [["left", "Left"], ["center", "Centre"]], s.text_align)}</div>
-          <div class="sw-row"><span>Text colour</span>${seg("text_tone", [["dark", "Dark"], ["light", "Light"]], s.text_tone)}</div>
+          <div class="fld-colours"><p class="sub-label">Text colour <small>pick one for each, or choose your own</small></p>
+            ${colorRow("text_color", "Computer", s.text_color, false)}${colorRow("text_color_mobile", "Phone", s.text_color_mobile, true)}</div>
           <div class="sw-row"><span>Darken picture</span>${seg("tint", [["none", "No"], ["soft", "A bit"], ["medium", "More"]], s.tint)}</div>
         </section>
         <details class="sec more-sec"${s.seconds || s.show_from || s.show_until ? " open" : ""}>
@@ -203,7 +222,9 @@
         : m.image ? `<img class="pv-media" src="${esc(m.image)}" alt="">` : `<div class="pv-media pv-none">No picture yet</div>`) + `<div class="pv-text"></div>`;
     }
     const hasText = s.show_text && (s.heading || s.text || (s.button_label && s.link));
-    pv.className = `pv tint-${s.tint} tone-${s.text_tone} align-${phone ? "center" : s.text_align}${hasText && phone ? " has-fade" : ""}${s.show_text ? "" : " no-text"}`;
+    const ink = ((phone && s.text_color_mobile) || s.text_color || BRAND.dark).toLowerCase();
+    pv.style.color = ink;
+    pv.className = `pv tint-${s.tint} ${lum(ink) > 150 ? "fade-dark" : "fade-light"} align-${phone ? "center" : s.text_align}${hasText && phone ? " has-fade" : ""}${s.show_text ? "" : " no-text"}`;
     $(".pv-text", pv).innerHTML = `${s.heading ? `<h3>${esc(s.heading)}</h3>` : ""}${s.text ? `<p>${esc(s.text)}</p>` : ""}${s.button_label && s.link ? `<span class="pv-btn">${esc(s.button_label)}</span>` : ""}`;
     $(".pv-hint", pv)?.remove();
     if (!hasText && s.link) pv.insertAdjacentHTML("beforeend", `<span class="pv-hint">The whole slide opens ${esc(s.link)}</span>`);
@@ -266,12 +287,18 @@
     const t = e.target, k = t.dataset.f; if (!k) return;
     change(k, t.type === "checkbox" ? t.checked : k === "seconds" ? t.value.trim() : t.value);
   });
+  main.addEventListener("input", (e) => {
+    const t = e.target.closest("[data-color-input]"); if (!t) return;
+    const row = t.closest(".clr"); change(row.dataset.color, t.value); paintColor(row, t.value);
+  });
   main.addEventListener("change", (e) => {
     const t = e.target;
     if (t.dataset.up && t.files[0]) { chooseFile(t.dataset.up, t.files[0]); t.value = ""; }
   });
   main.addEventListener("click", (e) => {
-    const t = e.target, segBtn = t.closest(".sg button");
+    const t = e.target, swatch = t.closest(".clr [data-c]");
+    if (swatch) { const row = swatch.closest(".clr"); change(row.dataset.color, swatch.dataset.c); paintColor(row, swatch.dataset.c); return; }
+    const segBtn = t.closest(".sg button");
     if (segBtn) {
       const g = segBtn.parentNode;
       g.querySelectorAll("button").forEach((b) => b.classList.toggle("is-on", b === segBtn));

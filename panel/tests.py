@@ -79,6 +79,23 @@ class PanelTests(TestCase):
         self.assertEqual((slide.heading, slide.show_text, slide.text_align, slide.seconds), ("Eid is here", False, "center", 9))
         self.assertEqual(slide.name, "Eid Sale")                                     # fields not posted stay as they were
 
+        # text colours: one for computers, an optional one for phones
+        self.assertEqual(slide.ink, "#161513")
+        r = self.client.post(save, {"heading": "Eid is here", "show_text": "1", "text_color": "#FAF8F3", "text_color_mobile": "#B8975A"}).json()
+        self.assertTrue(r["ok"])
+        slide = HeroSlide.objects.get(pk=first["id"])
+        self.assertEqual((slide.text_color, slide.text_color_mobile, slide.fade), ("#FAF8F3", "#B8975A", "dark"))   # light-ish gold on a phone: dark fade
+        home = self.client.get("/").content.decode()
+        self.assertIn("--ink:#FAF8F3", home)
+        self.assertIn("--ink-m:#B8975A", home)
+        self.assertFalse(self.client.post(save, {"text_color": "red"}).json()["ok"])                               # only real colours
+        self.assertFalse(self.client.post(save, {"text_color_mobile": "#12"}).json()["ok"])
+        self.assertTrue(self.client.post(save, {"text_color_mobile": ""}).json()["ok"])                           # empty phone colour = same as computer
+        slide = HeroSlide.objects.get(pk=first["id"])
+        self.assertEqual((slide.ink_mobile, slide.fade), ("#FAF8F3", "dark"))
+        self.client.post(save, {"text_color": "#161513"})
+        self.assertEqual(HeroSlide.objects.get(pk=first["id"]).fade, "light")                                     # dark words get a light fade
+
         bad = self.client.post(save, {"button_label": "Shop"}).json()
         self.assertFalse(bad["ok"])
         self.assertIn("A button needs a link", bad["errors"]["link"])

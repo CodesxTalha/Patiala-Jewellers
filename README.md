@@ -16,7 +16,7 @@ Website for Patiala Jewelers (Gold & Diamonds, Islamabad), built with Django and
 
 ## Admin panel
 Open `/admin/` and sign in. Create your login first with `python manage.py createsuperuser`. The admin lives in its own app, `panel/` (layout, dashboard, all model admins, and the visitor and click tracking in `panel/tracking.py`); `shop/` holds only the public site. Visits from localhost are counted too, so you can test it.
-- **Hero**: a visual editor (add, drag to order, live computer and phone preview, one Save button)
+- **Hero**: a visual editor (add, drag to order, live computer and phone preview, one Save button). Each slide has its own text colour for computers and for phones: your Dark, Light and Gold, or any colour you choose, and the phone can simply follow the computer
 - **Home page**: the sections below the hero as one list. Drag to reorder, switch each on or off, and add as many as you like: products (from a Collections link or the featured pieces), categories, services, image and text (photo beside or behind the words), locations, contact. Cards per row (computer and phone) and light or dark are set per section
 - **Products**: a grid to browse, search and filter, quick show and feature switches, and a simple editor (details, price, main photo, more photos, live preview)
 - **Categories** and **Services**: lists you reorder by dragging, with show or hide switches and a small editor

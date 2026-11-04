@@ -880,20 +880,21 @@ body.modal-open { overflow: hidden; }
 @media (min-width: 900px) {
   .hero-arrow { display: grid; }
   .hero-slide.has-text::after { display: none; }
-  .hero-slide.tone-light .hero-text h1, .hero-slide.tone-light .hero-text h2, .hero-slide.tone-light .hero-text p { color: var(--cream); }
-  .hero-slide.tone-light .hero-btn { color: var(--cream); border-color: var(--cream); }
-  .hero-slide.tone-light .hero-btn:hover { background: var(--cream); color: var(--soft-black); }
+  .hero-slide .hero-text h1, .hero-slide .hero-text h2, .hero-slide .hero-text p { color: var(--ink); }
+  .hero-slide .hero-btn { color: var(--ink); border-color: var(--ink); }
+  .hero-slide .hero-btn:hover { background: var(--ink); color: var(--on); }
   .hero-slide.align-center .hero-text { width: auto; right: 0; left: 0; align-items: center; text-align: center; padding-left: var(--gutter); padding-right: var(--gutter); }
   .hero-slide.align-center .hero-text p { margin-left: auto; margin-right: auto; }
 }
 .hero-text h2 { font-size: clamp(1.75rem, 7.4vw, 2.2rem); line-height: 1.12; margin: 0 0 .8rem; color: var(--cream); text-wrap: balance; }
 @media (min-width: 900px) { .hero-text h2 { font-size: clamp(2.5rem, 4.6vw, 4.6rem); line-height: 1.04; margin: 0 0 1.6rem; color: var(--soft-black); } }
-/* Dark text colour chosen in the admin: the same on phones, with a light fade under the words instead of a dark one. */
+/* The text colours are chosen per slide in the admin, one for computers (above) and one for phones (here). On a phone the words sit on a
+   fade: dark words get a light fade, light words a dark one. */
 @media (max-width: 899px) {
-  .hero-slide.tone-dark .hero-text h1, .hero-slide.tone-dark .hero-text h2, .hero-slide.tone-dark .hero-text p { color: var(--soft-black); }
-  .hero-slide.tone-dark .hero-btn { color: var(--soft-black); border-color: var(--soft-black); }
-  .hero-slide.tone-dark .hero-btn:hover { background: var(--soft-black); color: var(--cream); }
-  .hero-slide.tone-dark.has-text::after { background: linear-gradient(to top, rgba(var(--paper-rgb), .88) 0%, rgba(var(--paper-rgb), .55) 45%, rgba(var(--paper-rgb), 0) 100%); }
+  .hero-slide .hero-text h1, .hero-slide .hero-text h2, .hero-slide .hero-text p { color: var(--ink-m); }
+  .hero-slide .hero-btn { color: var(--ink-m); border-color: var(--ink-m); }
+  .hero-slide .hero-btn:hover { background: var(--ink-m); color: var(--on-m); }
+  .hero-slide.fade-light.has-text::after { background: linear-gradient(to top, rgba(var(--paper-rgb), .88) 0%, rgba(var(--paper-rgb), .55) 45%, rgba(var(--paper-rgb), 0) 100%); }
 }
 
 /* ---------- Home sections: columns and colour chosen in the panel ---------- */

@@ -13,7 +13,7 @@ from shop.models import HeroSlide, StoreInfo
 
 MAX_VIDEO_MB = 40
 VIDEO_TYPES = ("video/mp4", "video/webm", "video/quicktime")
-TEXT = ("name", "heading", "text", "button_label", "link", "text_tone", "text_align", "tint")
+TEXT = ("name", "heading", "text", "button_label", "link", "text_color", "text_color_mobile", "text_align", "tint")
 FLAGS = ("show_text", "open_in_new_tab", "is_active")
 DATES = ("show_from", "show_until")
 SETTING_FLAGS = ("hero_autoplay", "hero_show_arrows", "hero_show_dots")
@@ -24,7 +24,7 @@ def slide_json(s):
     return {
         "id": s.pk, "name": s.name, "kind": s.kind, "is_active": s.is_active, "show_text": s.show_text,
         "heading": s.heading, "text": s.text, "button_label": s.button_label, "link": s.link,
-        "open_in_new_tab": s.open_in_new_tab, "text_tone": s.text_tone, "text_align": s.text_align, "tint": s.tint,
+        "open_in_new_tab": s.open_in_new_tab, "text_color": s.ink, "text_color_mobile": s.text_color_mobile, "text_align": s.text_align, "tint": s.tint,
         "seconds": s.seconds, "show_from": s.show_from.isoformat() if s.show_from else "",
         "show_until": s.show_until.isoformat() if s.show_until else "",
         "image": url(s.image), "image_mobile": url(s.image_mobile), "video": url(s.video),
@@ -45,6 +45,8 @@ def editor(request, site):
         site.each_context(request), title="Hero", subtitle="The big picture at the top of your home page.",
         slides=[slide_json(s) for s in HeroSlide.objects.all()],
         settings=settings_json(StoreInfo.load()),
+        brand={"dark": StoreInfo._hex(StoreInfo.load().color_dark, "#161513"), "light": StoreInfo._hex(StoreInfo.load().color_light, "#FAF8F3"),
+               "gold": StoreInfo._hex(StoreInfo.load().color_gold, "#B8975A")},
     )
     return render(request, "admin/hero.html", context)
 
