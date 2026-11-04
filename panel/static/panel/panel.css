@@ -319,7 +319,7 @@ html body.panel .date-hierarchy a:not(#_), html body.panel .paginator a.showall:
 .sw-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; padding: .35rem 0; border-top: 1px solid var(--line-2); } .sw-row > span { flex: 1; }
 .sec h3 + .sw-row, .card-head + .sw-row { border-top: 0; } .sw-row:first-of-type { border-top: 0; }
 .sw-row + .err { margin-top: 0; }
-.sg { display: inline-flex; padding: 3px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-s); }
+.sg { display: inline-flex; flex-wrap: wrap; max-width: 100%; padding: 3px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-s); }
 .sg button { border: 0; background: none; padding: .35rem .85rem; border-radius: 6px; font: 500 13px var(--font-family-primary); color: var(--muted); cursor: pointer; }
 .sg button.is-on { background: var(--ink); color: #fff; }
 .panel input.sw[type=checkbox] { appearance: none; -webkit-appearance: none; width: 38px; min-width: 38px; height: 22px; min-height: 22px; padding: 0; border: 0; flex: none; margin: 0; border-radius: 999px; background: #D4D4D8; position: relative; cursor: pointer; transition: background .2s; }

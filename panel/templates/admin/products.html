@@ -10,7 +10,7 @@
   <input type="hidden" id="csrf" value="{{ csrf_token }}">
   <header class="page-head">
     <div><h1 class="page-title">Products</h1><p class="page-sub">{{ total }} piece{{ total|pluralize }} in your catalogue.</p></div>
-    <div class="head-actions"><a class="btn-quiet" href="{% url 'admin:visitors' %}?view=pieces"><span>See which get looked at</span></a><a class="btn-primary" href="{% url 'admin:product_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add product</a></div>
+    <div class="head-actions"><a class="btn-quiet" href="{% url 'admin:visitors' %}?view=pieces"><svg class="ic"><use href="#i-eye"/></svg><span>See which get looked at</span></a><a class="btn-primary" href="{% url 'admin:product_new' %}"><svg class="ic"><use href="#i-plus"/></svg>Add product</a></div>
   </header>
 
   <form class="toolbar" method="get" role="search">

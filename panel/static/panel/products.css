@@ -27,7 +27,7 @@ html body.panel a.tb-clear:not(#_) { text-decoration: underline; }
 .pcard-body { display: flex; flex-direction: column; gap: .15rem; padding: .8rem .9rem .6rem; min-width: 0; }
 .pcard-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); } a.pcard-name:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pcard-body small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pcard-actions { display: flex; gap: .4rem; padding: 0 .9rem .9rem; margin-top: auto; }
+.pcard-actions { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 .9rem .9rem; margin-top: auto; }
 .chip { display: inline-flex; align-items: center; gap: .35rem; height: 30px; padding: 0 .65rem; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font: 500 12px var(--font-family-primary); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
 .chip .ic { width: 14px; height: 14px; } .chip:hover { border-color: #A1A1AA; color: var(--ink); }
 .chip.is-on { background: var(--ink); border-color: var(--ink); color: #fff; } .chip.is-error { border-color: var(--bad); color: var(--bad); }
@@ -67,7 +67,7 @@ html body.panel a.tb-clear:not(#_) { text-decoration: underline; }
 @media (max-width: 560px) { .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; } .two { grid-template-columns: 1fr; } .photo-main { flex-direction: column; align-items: flex-start; } .head-actions .btn-quiet span { display: none; } .tb-search { max-width: none; } }
 
 /* categories */
-.clist { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.clist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; }
 .crow { display: flex; align-items: center; gap: .9rem; padding: .6rem .9rem .6rem .5rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); transition: border-color .2s, box-shadow .2s; }
 .crow:hover { border-color: #C4C4CA; } .crow.is-dragging { opacity: .35; } .crow.is-off .cthumb img { opacity: .45; }
 .grip { color: var(--muted-2); cursor: grab; padding: 0 .35rem; letter-spacing: -2px; user-select: none; }
@@ -76,7 +76,8 @@ html body.panel a.tb-clear:not(#_) { text-decoration: underline; }
 .cname { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; } .cname b { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cname small { color: var(--muted); }
 html body.panel .crow a.cname:not(#_):hover b { text-decoration: underline; text-underline-offset: 3px; }
 #order-note { color: var(--muted); }
-@media (max-width: 560px) { .crow-edit { display: none; } .cthumb { width: 52px; height: 52px; } }
+@media (max-width: 560px) { .crow-edit { display: none; } .cthumb { width: 44px; height: 44px; } .crow { gap: .6rem; padding: .6rem .7rem .6rem .3rem; } .crow .chip, .crow .btn-quiet { flex: none; } .grip { padding: 0 .1rem; } .cname b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; } }
+@media (max-width: 400px) { .cthumb { display: none; } }
 
 /* service editor: simple lists */
 .rows { display: grid; gap: .5rem; margin-bottom: .75rem; } .rows:empty { display: none; }
@@ -190,3 +191,4 @@ html body.panel .erow a:not(#_), html body.panel .erow a:not(#_):hover { text-de
 .role span { display: flex; flex-direction: column; } .role b { font-size: 14px; font-weight: 600; } .role small { color: var(--muted); font-size: 12.5px; line-height: 1.4; margin-top: .1rem; }
 .panel .fld input[type=password] { width: 100%; height: 40px; padding: 0 .75rem; border: 1px solid var(--line); border-radius: var(--radius-s); font: inherit; background: #fff; }
 .ename b .you, .ename b small.you { display: inline-block; margin-left: .4rem; vertical-align: 1px; }
+@media (max-width: 560px) { .ename b { white-space: normal; overflow: visible; } }
