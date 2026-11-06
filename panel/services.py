@@ -15,7 +15,7 @@ from shop.models import Service
 class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
-        fields = ("name", "summary", "intro", "description", "includes", "process", "turnaround", "price_note", "is_active", "image")
+        fields = ("name", "summary", "intro", "description", "includes", "process", "turnaround", "price_note", "is_active", "image", "wide_image")
         error_messages = {
             "name": {"required": "Give the service a name.", "unique": "There is already a service with this name."},
             "summary": {"required": "Add one short line. It shows on the service cards."},
@@ -46,20 +46,24 @@ def editor(request, site, pk=None):
     if not request.user.has_perm("shop.change_service" if service else "shop.add_service"):
         return _no_permission()
     title = service.name if service else "New service"
-    old_image = service.image.name if service else ""
+    old_files = [f.name for f in (service.image, service.wide_image) if f] if service else []
     if request.method == "POST":
         form = ServiceForm(request.POST, request.FILES, instance=service)
         if form.is_valid():
             obj = form.save(commit=False)
             if request.POST.get("clear_image") and "image" not in request.FILES:
                 obj.image = ""
+            if request.POST.get("clear_wide_image") and "wide_image" not in request.FILES:
+                obj.wide_image = ""
             if not service:
                 last = Service.objects.order_by("-display_order").first()
                 obj.display_order = (last.display_order + 1) if last else 0
                 obj.slug = _unique_slug(obj.name)
             obj.save()
-            if old_image and obj.image.name != old_image:
-                default_storage.delete(old_image)
+            kept = {f.name for f in (obj.image, obj.wide_image) if f}
+            for name in old_files:
+                if name not in kept:
+                    default_storage.delete(name)
             messages.success(request, f"“{obj.name}” saved.")
             return redirect("admin:service_edit", obj.pk)
         source = {"include_list": [l.strip() for l in (form.data.get("includes") or "").splitlines() if l.strip()],
@@ -79,6 +83,7 @@ def delete(request, pk):
     service = get_object_or_404(Service, pk=pk)
     name = service.name
     service.image.delete(save=False)
+    service.wide_image.delete(save=False)
     service.delete()
     messages.success(request, f"“{name}” deleted.")
     return redirect("admin:services")

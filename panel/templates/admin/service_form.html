@@ -41,16 +41,26 @@
       </div></section>
 
       <section class="card flush"><div class="sec">
-        <h3>Photo</h3>
-        <div class="photo-main">
-          <div class="photo-frame" id="main-frame">{% if service and service.photo_url %}<img id="main-img" src="{{ service.photo_url }}" alt="">{% else %}<span class="noimg" id="main-empty">No photo yet</span>{% endif %}</div>
-          <div class="photo-side">
-            <b>Service photo</b><small>A wide photo works best. It is the big picture at the top of the service page.</small>
-            <div class="photo-btns">
-              <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span id="main-label">{% if service and service.photo_url %}Replace photo{% else %}Add photo{% endif %}</span><input type="file" name="image" accept="image/*" hidden id="main-input"></label>
-              {% if service and service.image %}<button type="button" class="btn-soft" id="main-clear">Remove</button><input type="hidden" name="clear_image" id="clear-flag" value="">{% endif %}
-            </div>
-            {% for e in form.image.errors %}<em class="err">{{ e }}</em>{% endfor %}
+        <h3>Photos</h3>
+        <p class="hint" style="margin:0 0 1rem">Two pictures of the same service. Use a tall one for the cards and a wide, closer one for the top of the service page.</p>
+        <div class="photo-pair">
+          <div class="photo-main" data-photo data-default="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+            <div class="photo-frame portrait"><img src="{% if service and service.photo_url %}{{ service.photo_url }}{% else %}data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=={% endif %}" alt=""></div>
+            <div class="photo-side"><b>Card photo</b><small>Tall (4:5). Shows on the Services list and the home page.</small>
+              <div class="photo-btns">
+                <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span data-label>{% if service and service.photo_url %}Replace photo{% else %}Add photo{% endif %}</span><input type="file" name="image" accept="image/*" hidden></label>
+                {% if service and service.image %}<button type="button" class="btn-soft" data-clear>Remove</button><input type="hidden" name="clear_image" value="">{% endif %}
+              </div>
+              {% for e in form.image.errors %}<em class="err">{{ e }}</em>{% endfor %}</div>
+          </div>
+          <div class="photo-main" data-photo data-default="{% if service and service.photo_url %}{{ service.photo_url }}{% else %}data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=={% endif %}">
+            <div class="photo-frame wide"><img src="{% if service and service.hero_url %}{{ service.hero_url }}{% else %}data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=={% endif %}" alt=""></div>
+            <div class="photo-side"><b>Page photo</b><small>{% if service and service.wide_image %}Your wide photo{% else %}Wide, zoomed in. Uses the card photo until you add one.{% endif %}</small>
+              <div class="photo-btns">
+                <label class="btn-soft"><svg class="ic"><use href="#i-upload"/></svg><span data-label>{% if service and service.wide_image %}Replace photo{% else %}Add a wide photo{% endif %}</span><input type="file" name="wide_image" accept="image/*" hidden></label>
+                {% if service and service.wide_image %}<button type="button" class="btn-soft" data-clear>Remove</button><input type="hidden" name="clear_wide_image" value="">{% endif %}
+              </div>
+              {% for e in form.wide_image.errors %}<em class="err">{{ e }}</em>{% endfor %}</div>
           </div>
         </div>
       </div></section>

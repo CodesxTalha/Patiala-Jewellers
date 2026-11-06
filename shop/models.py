@@ -348,8 +348,9 @@ class Service(models.Model):
     description = models.TextField(blank=True, help_text="A few sentences, shown on the service page.")
     includes = models.TextField(blank=True, help_text="What is included. One item per line.")
     process = models.TextField(blank=True, help_text='How it works. One step per line, written as "Title | a short sentence".')
-    image = models.ImageField(upload_to="services/", blank=True)
+    image = models.ImageField("Card photo", upload_to="services/", blank=True, help_text="Tall photo for the service cards.")
     image_url = models.URLField(max_length=500, blank=True, help_text="Optional: an image link, used when no file is uploaded.")
+    wide_image = models.ImageField("Page photo", upload_to="services/", blank=True, help_text="Wide photo for the top of the service page. The card photo is used when empty.")
     turnaround = models.CharField(max_length=60, blank=True, help_text='For example "Same day" or "3 to 5 days".')
     price_note = models.CharField(max_length=60, blank=True, help_text='For example "From Rs 1,500" or "Complimentary".')
     display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first.")
@@ -372,6 +373,11 @@ class Service(models.Model):
     @property
     def photo_url(self):
         return self.image.url if self.image else self.image_url
+
+    @property
+    def hero_url(self):
+        """The big picture on the service page: the wide photo, else the card photo."""
+        return self.wide_image.url if self.wide_image else self.photo_url
 
     @property
     def include_list(self):

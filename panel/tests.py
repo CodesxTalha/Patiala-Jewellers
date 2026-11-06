@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.storage import default_storage
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -294,6 +295,27 @@ class PanelTests(TestCase):
         self.assertEqual([x.name for x in Service.objects.all()], ["Ring resizing", "Repair", "Polishing"])
         self.assertRedirects(self.client.post(f"/admin/services/{b.pk}/delete/"), "/admin/services/")
         self.assertEqual(Service.objects.count(), 2)
+
+    def test_service_has_a_card_photo_and_a_wide_page_photo(self):
+        self._owner()
+        s = Service.objects.create(name="Polishing", summary="Shine again.")
+        edit = self.client.get(f"/admin/services/{s.pk}/")
+        self.assertContains(edit, "Card photo")
+        self.assertContains(edit, "Page photo")
+        self.client.post(f"/admin/services/{s.pk}/", {"name": "Polishing", "summary": "Shine again.", "is_active": "on", "image": self._gif("card.gif")})
+        s.refresh_from_db()
+        self.assertEqual(s.hero_url, s.image.url)                                      # no wide photo yet: the card photo is used
+        self.client.post(f"/admin/services/{s.pk}/", {"name": "Polishing", "summary": "Shine again.", "is_active": "on", "wide_image": self._gif("wide.gif")})
+        s.refresh_from_db()
+        self.assertTrue(s.image and s.wide_image)                                       # saving one does not remove the other
+        self.assertEqual(s.hero_url, s.wide_image.url)
+        self.assertContains(self.client.get(s.get_absolute_url()), s.wide_image.url)
+        self.assertContains(self.client.get(reverse("shop:services")), s.image.url)
+        wide = s.wide_image.name
+        self.client.post(f"/admin/services/{s.pk}/", {"name": "Polishing", "summary": "Shine again.", "is_active": "on", "clear_wide_image": "1"})
+        s.refresh_from_db()
+        self.assertEqual((bool(s.wide_image), s.hero_url == s.image.url), (False, True))
+        self.assertFalse(default_storage.exists(wide))
 
     def test_services_are_for_staff_only(self):
         s = Service.objects.create(name="Polishing", summary="Shine.")

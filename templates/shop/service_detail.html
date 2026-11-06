@@ -6,7 +6,7 @@
 {% block content %}
 {# 1. Hero: the photo, the title, one line and one button #}
 <section class="svc-hero" aria-label="{{ service.name }}">
-  {% if service.photo_url %}<img class="svc-hero-img" src="{{ service.photo_url }}" alt="">{% endif %}
+  {% if service.hero_url %}<img class="svc-hero-img" src="{{ service.hero_url }}" alt="">{% endif %}
   <div class="svc-hero-text">
     <span class="label">{{ txt.services_label }}</span>
     <h1>{{ service.name }}</h1>
